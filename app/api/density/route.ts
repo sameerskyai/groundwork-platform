@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { zipToLatLng, haversineDistanceMiles } from '@/lib/geo'
 
 const CONTRACTOR_THRESHOLD = 3   // min active contractors within radius to be "match-ready"
@@ -16,19 +16,20 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'ZIP not found' }, { status: 404 })
   }
 
-  const supabase = await createAdminClient()
+  const supabase = await createClient()
 
-  // Fetch all active contractors that have a location
+  // Location lives on contractor_profiles (public-read) — no admin client
+  // needed, and none of the previous null-location bug from joining to the
+  // RLS-locked profiles table.
   const { data: contractors } = await supabase
     .from('contractor_profiles')
-    .select('profiles(lat, lng)')
+    .select('lat, lng')
     .eq('subscription_active', true)
     .eq('active', true)
 
-  const nearby = (contractors ?? []).filter((c: any) => {
-    const p = c.profiles as any
-    if (!p?.lat || !p?.lng) return false
-    return haversineDistanceMiles(coords.lat, coords.lng, p.lat, p.lng) <= RADIUS_MILES
+  const nearby = (contractors ?? []).filter((c) => {
+    if (!c.lat || !c.lng) return false
+    return haversineDistanceMiles(coords.lat, coords.lng, c.lat, c.lng) <= RADIUS_MILES
   })
 
   // Also get city name from zippopotam for display

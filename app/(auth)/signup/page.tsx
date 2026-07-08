@@ -48,7 +48,12 @@ function SignupForm() {
     })
 
     if (role === 'contractor') {
-      await supabase.from('contractor_profiles').insert({ user_id: authData.user.id })
+      await supabase.from('contractor_profiles').insert({
+        user_id: authData.user.id,
+        zip_code: zip,
+        lat: coords?.lat ?? null,
+        lng: coords?.lng ?? null
+      })
     }
 
     router.push('/onboarding')

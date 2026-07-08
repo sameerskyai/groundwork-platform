@@ -17,16 +17,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Project flagged: ' + classification.flagReason }, { status: 400 })
     }
 
+    // Resolve trade slug -> trade_id once, reused for cost_data lookups,
+    // the project update, and the new cost_data row below. Matching on
+    // trade_id (not the AI-generated project_type text) is what makes
+    // seeded/accumulated cost data actually findable — the same project
+    // gets worded differently by the classifier run to run.
+    const tradeId = (await supabase.from('trades').select('id').eq('slug', classification.trade).single()).data?.id ?? null
+
     // Step 2: Find regional cost data (with fallback to nearest)
     const coords = await zipToLatLng(zipCode)
     let costData: any[] = []
 
-    if (coords) {
+    if (coords && tradeId) {
       // Try local data first
       const { data: localData } = await supabase
         .from('cost_data')
         .select('*')
-        .eq('project_type', classification.projectType)
+        .eq('trade_id', tradeId)
         .eq('zip_code', zipCode)
         .order('source_date', { ascending: false })
         .limit(10)
@@ -34,11 +41,11 @@ export async function POST(req: NextRequest) {
       if (localData?.length) {
         costData = localData
       } else {
-        // Fall back to all data for this project type — find nearest by lat/long
+        // Fall back to all data for this trade — find nearest by lat/long
         const { data: allData } = await supabase
           .from('cost_data')
           .select('*')
-          .eq('project_type', classification.projectType)
+          .eq('trade_id', tradeId)
           .not('lat', 'is', null)
           .order('source_date', { ascending: false })
           .limit(100)
@@ -69,14 +76,16 @@ export async function POST(req: NextRequest) {
         ai_labor_estimate: estimate.laborEstimate,
         ai_materials_estimate: estimate.materialsEstimate,
         ai_reasoning: estimate.reasoning,
-        trade_id: (await supabase.from('trades').select('id').eq('slug', estimate.trade).single()).data?.id
+        trade_id: tradeId
       }).eq('id', projectId).eq('user_id', user.id)
     }
 
-    // Step 5: Store contractor interview data back into cost_data (compounds the moat)
-    if (coords) {
+    // Step 5: Store this estimate back into cost_data (compounds the moat).
+    // Tagged with trade_id so it's actually findable by future lookups above.
+    if (coords && tradeId) {
       await supabase.from('cost_data').insert({
         project_type: estimate.projectType,
+        trade_id: tradeId,
         zip_code: zipCode,
         lat: coords.lat,
         lng: coords.lng,

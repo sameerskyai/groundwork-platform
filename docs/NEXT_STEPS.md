@@ -2,10 +2,10 @@
 
 ## Immediate (before showing investors/partners)
 
-1. **Add Anthropic API key**
-   - Get from console.anthropic.com
-   - Add to .env.local: `ANTHROPIC_API_KEY=sk-ant-...`
-   - This unlocks: estimates, AI matching, bio generation
+1. ~~**Add Anthropic API key**~~ ✅ Done (2026-07-08)
+   - Set in Vercel as a Sensitive env var, Production + Preview
+   - Not available in Development (Vercel blocks sensitive vars there) — for local dev, add the same key directly to local .env.local by hand
+   - Unlocks: estimates, AI matching, bio generation
 
 2. **Create test contractor accounts**
    - Sign up 2-3 contractor accounts at /signup
@@ -17,8 +17,9 @@
    - Can manually insert 20-30 sample rows in Supabase SQL editor
    - One per trade per ZIP code you want to demo in
 
-4. **Test the full homeowner flow end to end**
+4. **Test the full homeowner flow end to end (live deploy check)**
    - Sign up as homeowner → onboarding → post a project → get estimate → match → chat
+   - **Specifically verify the Anthropic key actually works in production**: hit the live estimate endpoint on the deployed site and confirm it returns a real Claude-generated estimate (not a fallback/error) — flagged 2026-07-08, still pending
 
 ---
 
