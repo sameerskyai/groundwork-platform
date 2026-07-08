@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Groundwork brand tokens */
+  --ink: #0A0908;
+  --ink-soft: #161513;
+  --ink-muted: #2A2825;
+  --copper: #BF7A3A;
+  --copper-light: #D4903F;
+  --copper-dim: #8C5A2A;
+  --cream: #EDE8DF;
+  --cream-dim: #C4BDB3;
+  --cream-bg: #F4F0E8;
+  --white: #FAFAF7;
+  --stone: #7A756E;
+  --stone-light: #A09990;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--white);
+  --color-foreground: var(--ink);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--white);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Dark surface utility */
+.bg-ink { background: var(--ink); }
+.bg-ink-soft { background: var(--ink-soft); }
+.text-cream { color: var(--cream); }
+.text-cream-dim { color: var(--cream-dim); }
+.text-copper { color: var(--copper); }
+.bg-copper { background: var(--copper); }
+.border-copper { border-color: var(--copper); }
+
+/* Gradient utilities */
+.gradient-copper {
+  background: linear-gradient(135deg, #BF7A3A 0%, #D4903F 100%);
+}
+.gradient-dark {
+  background: linear-gradient(180deg, #0A0908 0%, #1A1713 100%);
 }
