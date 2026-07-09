@@ -22,38 +22,39 @@ curl -s "https://dhmxxywdsdxzzcuezztv.supabase.co/rest/v1/contractor_profiles?se
   -H "apikey: <SUPABASE_SERVICE_ROLE_KEY>" -H "Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>"
 ```
 
-- If it returns data (even `[]`) with no error: the migration is applied, proceed with the rest of this doc.
-- If it returns `{"message":"column contractor_profiles.lat does not exist"}`: the migration `supabase/migrations/006_contractor_location.sql` has NOT been run yet. It must be pasted into the Supabase SQL Editor and run before issues #12 and #14 can be verified or closed. There is no way to run it via CLI without a Supabase personal access token or database password, neither of which is stored anywhere — ask Ryan to paste it in himself (takes 10 seconds), or ask him for one of those credentials to automate it going forward.
+- If it returns data (even `[]`) with no error: migration 006 is applied. Also confirm 007 (`contractor_waitlist` table) the same way: `...rest/v1/contractor_waitlist?select=id&limit=1`.
+- If it returns `{"message":"column contractor_profiles.lat does not exist"}`: **TWO pending migrations have not been run** — `supabase/migrations/006_contractor_location.sql` (blocks verifying #12/#14) and `supabase/migrations/007_contractor_waitlist.sql` (blocks closing #9). Both must be pasted into the Supabase SQL Editor. There is no way to run them via CLI without a Supabase personal access token or database password, neither of which is stored anywhere — ask Ryan to paste them himself (takes 10 seconds each), or ask him for one of those credentials to automate this going forward.
 
-## Current status (as of 2026-07-09)
+## Current status (as of 2026-07-09, evening)
 
 | # | Title | Status |
 |---|---|---|
 | 2 | Verify AI integration works live | **CLOSED** — verified with real Claude output on production |
 | 3 | Seed backend demo data | Data seeded (3 contractors, 27 cost_data rows), but full verification blocked on #14 |
-| 4 | Rework estimate flow into public lead magnet | Not started |
-| 5 | Stripe integration | Not started — assigned to Sameer |
+| 4 | Rework estimate flow into public lead magnet | Not started — highest-leverage remaining product change |
+| 5 | Stripe integration | Not started — Sameer's track; read `docs/prompts/issue-5-stripe-integration.md` first |
 | 6 | Pre-launch hardening | Not started, depends on #3/#4 |
 | 7 | Final QA + launch checklist | Not started, the launch gate |
 | 8 | Job completion + review flow (data moat) | Not started |
-| 9 | Contractor waitlist | Not started — zero dependencies, quick win |
-| 10 | Forgot-password flow | Not started — zero dependencies, quick win |
+| 9 | Contractor waitlist | **Built + deployed + UI verified live.** Blocked on migration 007 — inserts 500 until the table exists, then confirm one submission lands and close |
+| 10 | Forgot-password flow | **Built + deployed + UI verified live** (link, form, invalid-link state all confirmed on prod). Remaining: Ryan tests the real email loop with his own inbox, and confirms `https://renova-platform.vercel.app/reset-password` is in Supabase Auth → URL Configuration → Redirect URLs |
 | 11 | Homeowner preference profiling | Not started |
-| 12 | Fix createAdminClient() RLS bug | Code fixed + deployed, verification blocked on the migration above |
+| 12 | Fix createAdminClient() RLS bug | Code fixed + deployed, verification blocked on migration 006 |
 | 13 | Fix cost_data lookup (trade_id not text) | **CLOSED** — verified live, seeded data now correctly surfaces in estimates |
-| 14 | [CRITICAL] Candidate matching returns zero results | Code fixed + deployed, verification blocked on the migration above |
+| 14 | [CRITICAL] Candidate matching returns zero results | Code fixed + deployed, verification blocked on migration 006 |
 
 **Read the full text of every open issue before working on it** — each one has verified current-state notes, exact file references, and acceptance criteria. Don't re-derive context that's already written down.
 
 ## Immediate next steps, in order
 
-1. Confirm the migration ran (see above). If not, get it run.
+1. Get migrations 006 + 007 run (see above). This is the single blocker for three issues.
 2. Re-verify #14 live: sign up a fresh test homeowner + contractor pair via the actual `/signup` flow (not just SQL inserts), submit a real project, confirm the contractor actually appears as a swipeable candidate. See "How to verify anything" below.
 3. Re-verify #12 live: hit `/api/density?zip=<seeded ZIP>` both logged out and logged in as any user, confirm identical results.
-4. Close #3 once #14 is confirmed.
-5. Pick up #9 (waitlist) and #10 (forgot password) — zero dependencies, can be done any time, good quick wins.
-6. Sameer: #5 (Stripe) — see his task PDF, or just read issue #5 directly.
-7. After that: #4, #8, #11 in whatever order makes sense, then #6, then #7 (launch gate).
+4. Close #3 once #14 is confirmed. Close #9 once a waitlist submission lands in the table. Close #10 once Ryan completes a real email reset loop.
+5. Sameer: #5 (Stripe) — read `docs/prompts/issue-5-stripe-integration.md`, it has verified corrections including a real frontend gap (the homeowner unlock button isn't wired to Stripe at all).
+6. Then #4 (lead magnet — highest leverage), #8, #11, then #6, then #7 (launch gate).
+
+Also note: the Vercel CLI token on Ryan's machine expired (2026-07-09) — `vercel` CLI and direct API calls with the cached token return "Not authorized." Re-run `vercel login` when CLI access is next needed. Deploys are unaffected (they run via GitHub integration).
 
 ## Hard-won lessons from this session — don't repeat these mistakes
 
