@@ -80,7 +80,12 @@ Don't trust that a fix works because the diff looks right. For this project spec
 - Vercel project: `groundwork55/groundwork-platform` (renamed mid-session from `renova-platform` — the `.vercel.app` alias `renova-platform.vercel.app` still works).
 - Anthropic API key: set in Vercel Production + Preview only (Vercel blocks sensitive vars from Development). For local dev, add it to your own `.env.local` by hand.
 - Full plan + business model narrative: `docs/LAUNCH_PLAN.md`
+- **`docs/prompts/`** — per-issue execution briefs (step-by-step prompts written for an AI agent, e.g. Warp, to run a specific issue end to end, pre-checked against the real code). Check here before starting any issue — if a brief already exists for it, use that instead of re-deriving the plan from scratch.
 - Sameer's specific task brief: `Groundwork_Tasks_for_Sameer_2026-07-08.pdf` (was placed on Ryan's Desktop, not in the repo — ask Ryan for a copy if you need it, or just read issue #5 directly, it has the same content).
+
+## Convention: always commit agent-facing artifacts to the repo
+
+Any execution prompt, task brief, or step-by-step written for an AI agent to run gets saved to `docs/prompts/<issue-or-topic>.md` and committed — never left only in a chat transcript or a local file outside the repo. This is what makes it possible for Ryan, Sameer, and any future agent session to all work from the same source of truth instead of re-explaining context every time. If you write a brief like this, save it here before (or as part of) executing it.
 
 ## Keeping this file current
 
