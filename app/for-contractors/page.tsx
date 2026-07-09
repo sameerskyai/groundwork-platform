@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Wordmark } from '@/components/ui/logo'
 import { Footer } from '@/components/layout/Footer'
+import { WaitlistForm } from '@/components/waitlist/WaitlistForm'
 import { Check, ArrowRight, DollarSign, Clock, Star } from 'lucide-react'
 
 export const metadata = {
@@ -145,6 +146,24 @@ export default function ForContractorsPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Pre-launch waitlist */}
+      <section style={{ padding: '80px 24px', background: '#12181F' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+          <div style={{ color: '#E8722C', fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
+            Not in your area yet?
+          </div>
+          <h2 style={{ color: '#F7F5F1', fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 12 }}>
+            Claim your ZIP before your competitors do.
+          </h2>
+          <p style={{ color: '#6B8090', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>
+            Groundwork opens city by city. Join the waitlist and you&apos;ll be first in line
+            when homeowners in your area start posting projects — early members get
+            priority placement at launch.
+          </p>
+          <WaitlistForm />
         </div>
       </section>
 
