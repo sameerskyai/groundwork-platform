@@ -28,11 +28,13 @@ This is intentionally close to zero. The organic-only decision isn't just a mark
 
 **One real paid line item that isn't "marketing spend" in the ad-buy sense:** local press placement (county mail, a Washington Post/NYT slot) was discussed as a deliberate investment, not an ad. Budget for this separately if/when it happens — it's a founder call on timing, not automatic.
 
-## Phase 1 — First revenue (Northern Virginia, months 1–6)
+## Phase 1 — First revenue (national flagship-metro launch, months 1–6)
 
-Using the contractor targets already in `ROADMAP_0_TO_100M.md` (100–125 paying contractors by month 6, blended ARPU ~$100/mo across Standard/Growth):
+**Revised 2026-07-13**: strategy moved from a single-metro (Northern Virginia) launch to a national, all-50-states-simultaneously approach — see `ROADMAP_0_TO_100M.md` for the full reasoning. Financially, the Phase 1 target below is unchanged in the near term (contractor toeholds take time to convert to revenue regardless of how many metros are open at once), but the revenue *ceiling* this phase is building toward is now the national figure, not the East Coast one — see the corrected TAM section below.
 
-- **Target MRR by month 6: ~$10,000–12,500** (contractor subscriptions only)
+Using the contractor targets already in `ROADMAP_0_TO_100M.md` (blended ARPU ~$100/mo across Standard/Growth, contractor count now accumulating across many simultaneous flagship metros rather than one):
+
+- **Target MRR by month 6: ~$10,000–12,500** (contractor subscriptions only) — the dollar target doesn't change just because it's spread across more metros; density per metro still drives it
 - Homeowner Plus ($20/mo) revenue is additive but harder to forecast this early — it depends on Communities adoption, which has no historical conversion rate yet. Don't build the Phase 1 budget assuming it; treat it as upside.
 
 ### Revenue distribution waterfall (once MRR > $0)
@@ -44,16 +46,18 @@ In priority order, every dollar of revenue gets allocated:
 3. **Growth reinvestment, organic-only compliant** — this is spend that supports the organic loop without becoming paid acquisition: video/content production tools for Armin's channel, the SMS platform once #6 ships (base fee + usage, not yet priced), contractor verification tooling. Still zero paid ads/paid social by the standing decision
 4. **Founder distributions** — deferred until reserve target is consistently met and growth reinvestment needs are funded. Split TBD (see cap table note above) — do not distribute before 1–3 are funded
 
-### TAM sanity check (context for how big Phase 1+ could get, not a Phase 1 target)
+### TAM sanity check (context for how big this could get, not a Phase 1 target) — corrected to national scope, 2026-07-13
 
-- ~14–15M East Coast homeowners undertake a renovation project in a given year (estimated 2026-07-13, see prior conversation — back-of-envelope from Census owner-occupied housing counts × Houzz's ~52% annual renovation-participation rate, East Coast defined as ME→FL Atlantic states + DC)
-- 5% capture of that pool ≈ **700,000 homeowners**
-- At $20/mo Homeowner Plus, full capture of that 5% ≈ **~$14M/mo** in homeowner-side revenue alone, before any contractor-side revenue
-- This is a ceiling/sanity-check number, not a projection — it says the homeowner-subscription line, if Communities actually gets adopted at scale, is at least as large an opportunity as the contractor-subscription line modeled in `ROADMAP_0_TO_100M.md` ($8–12M ARR from contractors alone). Treat both as independent upside cases, not additive certainties, until Phase 1 gives real conversion data on Homeowner Plus specifically
+The original version of this section used an East Coast-only figure (~14–15M homeowners, ~$14M/mo ceiling). That undersold the strategy actually being pursued. Corrected to national:
 
-## Phase 2+ — Beyond first metro
+- **~43M** homeowners undertake a renovation project in a given year, nationally (82.9M owner-occupied housing units — Census ACS 2019-2023 — × Houzz's ~52% annual renovation-participation rate)
+- 5% capture of that pool ≈ **~2.16M homeowners**
+- At $20/mo Homeowner Plus, full capture of that 5% ≈ **~$43M/mo (~$517M ARR)** in homeowner-side revenue alone, before any contractor-side revenue
+- This is a ceiling/sanity-check number, not a projection — same caveats as before (assumes uniform homeownership rate and renovation propensity across all states, which isn't exactly true). It says the homeowner-subscription line, if Communities gets real adoption, is a materially larger opportunity than the contractor-subscription line modeled in `ROADMAP_0_TO_100M.md` ($8–12M ARR from contractors alone) — not just comparable to it, as the East Coast-scoped version implied. Treat both as independent upside cases, not additive certainties, until real Phase 1 conversion data exists on Homeowner Plus specifically
 
-No changes to the `ROADMAP_0_TO_100M.md` phase structure ($10K → $100K → $1M MRR, 3–5 metros → 15–20 metros). This financial plan's job stops at "how do we fund ourselves without outside capital through Phase 1" — Phase 2 economics (LTV/CAC > 3, churn < 5%) are the metrics that make a raise unnecessary but attractive on founders' terms, exactly as already documented there.
+## Phase 2+ — Beyond the initial flagship metros
+
+Phase structure revised in `ROADMAP_0_TO_100M.md` 2026-07-13 ($10K → $100K → $1M MRR, now deepening every flagship metro in parallel rather than adding 3–5 adjacent metros sequentially). This financial plan's job stops at "how do we fund ourselves without outside capital through Phase 1" — Phase 2 economics (LTV/CAC > 3, churn < 5%, now tracked per metro) are the metrics that make a raise unnecessary but attractive on founders' terms, exactly as already documented there.
 
 ## The fundraising trigger
 

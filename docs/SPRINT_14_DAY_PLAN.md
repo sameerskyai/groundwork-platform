@@ -215,7 +215,7 @@ Six 3-hour blocks per person per day: **6–9a · 9a–12p · 12–3p · 3–6p 
 
 ## Day 14 — 2026-07-26 — Retro + firm launch date
 
-All three, together: review real beta metrics via #20's dashboard (activation, matches made, contractor drop-off, any trust/safety flags), waitlist pace against the 5,000/60-day target in `GROWTH_OPERATOR_ROLE.md`, set a **firm public launch date and metro/ZIP scope**, and triage whatever from #20–#32 didn't get finished into the next sprint.
+All three, together: review real beta metrics via #20's dashboard (activation, matches made, contractor drop-off, any trust/safety flags), waitlist pace against the 5,000/60-day target in `GROWTH_OPERATOR_ROLE.md`, and set a **firm public launch date**. Scope is national from day one per the 2026-07-13 strategy revision in `ROADMAP_0_TO_100M.md` — the decision here isn't which single metro to pick, it's which flagship metros the #20 density dashboard shows are actually ready (real waitlist demand + initial contractor toeholds) versus which need more recruitment before opening. Triage whatever from #20–#32 didn't get finished into the next sprint.
 
 ## What's still not fully done by Day 14, regardless of hours worked
 

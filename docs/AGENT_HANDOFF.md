@@ -53,7 +53,7 @@ curl -s "https://dhmxxywdsdxzzcuezztv.supabase.co/rest/v1/contractor_profiles?se
 ## Open decisions from the 2026-07-13 session — none resolved yet, all need a founder answer
 
 1. **Sameer's Stripe (#5) start/finish date** — was on the agenda, not decided
-2. **Launch target date and definition** — "October" floated as a rough target, not firm. "Launch" also needs a concrete definition: which metro ZIPs, minimum contractor count recruited first
+2. **Launch target date** — "October" floated as a rough target, not firm. Scope is now **national from day one** (strategy revised 2026-07-13, see `docs/ROADMAP_0_TO_100M.md`) — not a single-metro decision anymore. What's still open: minimum per-metro contractor count before that metro's recruitment throttles up, per the #20 density dashboard
 3. **Custom domain**: buy now or defer to #6 — and the name itself, undecided
 4. **Armin's commitment to the founder content plan** — flagged as an alignment risk in the session (stubborn, pullable by social obligations); needs to be resolved before the 60-day build sprint the content plan depends on
 5. **Founder equity/compensation split** — not discussed in dollar/percentage terms at all; `docs/FINANCIAL_PLAN.md` treats founder distributions as a placeholder line item until this exists as a real agreement — don't infer a split from role descriptions
