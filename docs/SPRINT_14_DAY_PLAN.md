@@ -1,70 +1,62 @@
-# Groundwork — 14-Day Sprint Plan
+# Groundwork — 14-Day Sprint Plan (v2: Beta 1)
 
 **For:** Ryan + Sameer + Armin
 **Date:** 2026-07-13 → 2026-07-26
-**Companion docs:** `LAUNCH_PLAN.md` (the 11 tracks this plan schedules), `GROWTH_OPERATOR_ROLE.md` (Armin's full brief), `BUSINESS_MODEL.md`, `FINANCIAL_PLAN.md`
+**Supersedes:** the v1 schedule in this file's prior version (day-per-task pacing). Rebuilt around real Ryan/Sameer capacity — 18h/day, no noise, signal only.
+**Companion docs:** `LAUNCH_PLAN.md` (the 11 tracks), `GROWTH_OPERATOR_ROLE.md` (Armin's brief), `BUSINESS_MODEL.md`, `FINANCIAL_PLAN.md`
 
-## What this plan is
+## What changed from v1, and why
 
-Fourteen days, three people, every existing track from `LAUNCH_PLAN.md` assigned to a specific person on a specific day. This isn't a new plan — it's the existing 11 tracks and issues #2–#19, scheduled. The goal for day 14 isn't "launched" (the original estimate for the full launch gate was ~3 weeks even before the new features this session added) — it's **launch-gate code complete and QA'd, waitlist and content loop running at pace, ready to set a firm launch date**.
+v1 paced each issue at roughly a calendar day, matching normal part-time-adjacent estimates. At 18h/day focused work from both Ryan and Sameer, that's wrong by a wide margin — most of those "1-2 day" tasks are hours, not days, at this intensity.
 
-## Ground truth as of day 1 (checked live, 2026-07-13)
+**But the extra time isn't spent inventing more line items to fill a calendar.** It's spent on the thing that actually makes "Beta 1" mean something: real outside users in the product, with days of runway to fix what breaks under real usage before calling it done. Code passing your own QA is not the same claim as a stranger successfully getting matched with a contractor. This plan targets **Beta 1 live to a real cohort by Day 9**, then uses Days 10–14 as live iteration, not more internal building.
 
-**Migrations 006 and 007 are still not applied** — re-checked directly against Supabase's API this morning, same errors as four days ago. This is not a "someday" task. It is the first thing that happens on day 1, before anything else, because #3, #9, #12, and #14 are all sitting behind it.
+**One honest constraint that hours can't compress:** SMS integration (#6) involves carrier/compliance approval lag that doesn't move faster because you work more hours — it's external to your control. This plan starts it early and treats it as a background task that likely isn't finished by day 14 regardless. Flagging that now so it isn't a day-13 surprise.
 
-## The three lanes
+## The shape of it
 
-| | Owner | Primary focus this sprint |
-|---|---|---|
-| **Lane R** | Ryan | Product build: lead magnet, preferences, matching v2, review flow |
-| **Lane S** | Sameer | Payments + new monetization: Stripe, Homeowner Plus, referral logic |
-| **Lane A** | Armin | Growth: content, waitlist video, outreach, referral adoption — runs continuously, not sequentially |
+- **Days 1–6: Build.** Every remaining track from `LAUNCH_PLAN.md` (#3, #4, #5, #6 core, #8, #9, #10, #11, #12, #14, #15, #16, #17, #18) gets built. Migrations unblock everything on Day 1, hour 1.
+- **Days 7–8: Harden + QA.** Both of you, full focus, breaking your own product on purpose.
+- **Day 9: Beta 1 opens.** Real users — first cohort from the waitlist plus personal network — get real access.
+- **Days 10–13: Live iteration.** You're now fixing what real usage actually breaks, not hypothetical edge cases. This is higher-signal debugging than anything in days 1–8.
+- **Day 14: Retro + firm launch date.** By now you have real activation, match, and (if any land) job-completion data — enough to set a public launch date with actual evidence instead of a guess.
 
-Lane A doesn't block or get blocked by Lanes R/S. It runs all 14 days in parallel, per `GROWTH_OPERATOR_ROLE.md`.
+## Days 1–6: Build
 
-## Day 1 — unblock everything
-
-**All three, first thing:**
-- Ryan or Sameer pastes `supabase/migrations/006_contractor_location.sql` and `007_contractor_waitlist.sql` into the Supabase SQL Editor. ~2 minutes each. This has been the single blocker for four days — it ends today.
-- Once confirmed live: re-verify #14 (candidate matching) and #12 (RLS bug) with a real signup flow, not SQL inserts. Close both same day if they check out. Close #3 and #9 the same way once verified.
-- Decide the two outstanding fast decisions that don't need a build: **custom domain (buy now vs. defer)** and **does Homeowner Plus (#15) replace or supplement the $9.99 unlock** (Sameer needs this before touching Stripe's product catalog). Both take 10 minutes of conversation, not days — do them today so they don't block the rest of the sprint.
-- Armin: read `GROWTH_OPERATOR_ROLE.md` in full, start the content calendar and the real-estate-agency/PE-group outreach list.
-
-## Week 1 (Days 1–7)
-
-| Day | Lane R — Ryan | Lane S — Sameer | Lane A — Armin |
+| Day | Ryan | Sameer | Armin (parallel, unchanged pace logic from `GROWTH_OPERATOR_ROLE.md`, compressed timeline) |
 |---|---|---|---|
-| 1 | Migrations + re-verify #12/#14 live, close if clean | Migrations (with Ryan) + confirm #15's open question | Read role brief, start content calendar + outreach list build |
-| 2 | Close #3 (seed data) once #14 confirmed. Start #4 (lead magnet) | Start #5 Stripe — now 4 products: Standard $79, Growth $149, $9.99 unlock, **new** $20/mo Homeowner Plus | First content post live. Waitlist video: script + concept locked |
-| 3 | #4 continued | #5 continued — coupon/discount logic for the referral ladder (#16) needs this same billing work, do it together | Waitlist video: AI generation pass |
-| 4 | #4 finished — public estimate flow live with zero signup required | #5 finished and tested in Stripe test mode. Start #15 backend (Homeowner Plus gating + Communities schema/RLS) | Waitlist video: audio + edit. Outreach list: start sending |
-| 5 | #11 Homeowner preference profiling (2-3 quick onboarding questions) | #15 continued — Communities MVP: post + comment, homeowner-only visibility enforced | Content cadence continues. Coordinate with Ryan/Sameer on waitlist landing page dev handoff |
-| 6 | #8 Job completion + review flow — UI and the "24h after payment" trigger logic (trigger itself needs #5's payment-confirmed webhook, coordinate with Sameer) | #16 Referral program — discount ladder (5 refs → $5/mo, 10 refs → $10/mo), depends on #15 | Waitlist landing page goes live (video + signup form, #18) once dev-ready |
-| 7 | #8 finished, wired end to end | Buffer — bug fixes from #15/#16, help finish #8's payment trigger | **Week 1 checkpoint**: report waitlist count vs. pace |
+| **1** | Migrations (with Sameer) → re-verify #12 + #14 live, close both → close #3, close #9. Decide domain name (10 min, with Sameer). Start #4 lead magnet, aim to finish same day. | Migrations (with Ryan) → decide with Ryan whether Homeowner Plus (#15) replaces or supplements the $9.99 unlock (10 min, needed before Stripe catalog work) → build #5 Stripe base products (Standard $79, Growth $149, $9.99 unlock) → start Homeowner Plus product. | Read `GROWTH_OPERATOR_ROLE.md`, build the outreach list (real estate agencies + PE real estate groups), draft content calendar, first post drafted. |
+| **2** | Finish #4 if not done. #11 homeowner preferences (2-3 onboarding questions). Start #8 review flow UI. | Finish #5 Stripe incl. Homeowner Plus. Start #15 Communities backend — schema, RLS (homeowner-only visibility is the load-bearing rule here, see `BUSINESS_MODEL.md`'s anti-poaching section). | First content post live. Start outreach sends. Waitlist video: script + AI generation pass begins. |
+| **3** | Finish #8 incl. the "24h after payment confirmed" trigger — needs Sameer's Stripe webhook, coordinate directly rather than over docs. Start #17 matching v2 scoring engine (85%+ threshold, budget/ZIP/timeframe/personality factors). | #15 Communities MVP: post + comment, photo upload, homeowner-can-create / realtor-can-create. Payment-confirmed webhook for #8 (coordinate with Ryan). | Video generation continues. Content cadence holds. Outreach continues. |
+| **4** | Finish #17 (multi-portal weighting: homeowner/contractor/realtor share one engine, different weights). Start #18 landing page dev (form + video embed — video itself is Armin's). | Finish #15. Start #16 referral program — discount ladder (5 refs → $5/mo, 10 refs → $10/mo), depends on #15. | Video finalized, handed to Ryan for embed. Content + outreach continue. |
+| **5** | Finish #18, video live on the page. Start #6 hardening: contractor verification (manual review flag), email notifications. | Finish #16 incl. Stripe coupon wiring for the discount ladder. Start #16 anti-abuse pass (self-referral / fake-account check — flagged unscoped when #16 was filed, first real pass now). Help wire domain in Vercel. | **Waitlist landing page goes public.** Push content hard now that there's somewhere real to send traffic. Outreach continues. |
+| **6** | Finish #6 core (verification, notifications, domain). Full-day bug bash across everything built so far — #4, #8, #11, #15, #16, #17, #18. | Start #6 SMS: ToS/privacy policy language, consent checkbox on waitlist form, vendor selection — this is the part that *can* move now; full carrier-approved integration is the part that can't be rushed. Join the bug bash. | Content + outreach continue. First referral-loop messaging now that #16 is live. |
 
-**Week 1 exit criteria:** #3, #9, #10, #12, #14 all closed. #4, #5, #8, #11 done. #15, #16 built (may still have rough edges, that's fine — QA catches those in week 2). Waitlist live and collecting signups.
+**End of Day 6 checkpoint:** #3, #4, #5, #6 (core, minus SMS), #8, #9, #10, #11, #12, #14, #15, #16, #17, #18 all built. This is every track from `LAUNCH_PLAN.md` except SMS's external approval step and final QA.
 
-## Week 2 (Days 8–14)
+## Days 7–8: Harden + QA
 
-| Day | Lane R — Ryan | Lane S — Sameer | Lane A — Armin |
-|---|---|---|---|
-| 8 | #17 Matching v2 — percentage score + multi-portal weighting (depends on #11, done) | Polish #15 (photo upload on community posts) + #16 (anti-abuse pass — self-referral/fake-account check, flagged as unscoped in #16) | Content continues. Push referral-loop messaging now that #16 is live |
-| 9 | #17 continued | SMS integration (#6) kickoff — full integration is a 2-3 week task per the original estimate, this sprint gets it started (ToS/privacy policy language, consent checkbox on waitlist form), not finished | Outreach list: continue working it, track response rate |
-| 10 | #17 finished. Start #6 hardening: contractor verification (manual review flag) | #6 hardening: email notifications (new match / new message) | Content + outreach continue |
-| 11 | #6 continued: custom domain wired in Vercel (name decided day 1) | #6 continued, help with email notification testing | Content + outreach continue |
-| 12 | #7 Final QA — walk full homeowner journey end to end | #7 Final QA — walk full contractor journey end to end, together with Ryan | Content + outreach continue |
-| 13 | Fix bugs found in #7 QA | Fix bugs found in #7 QA | Content + outreach continue |
-| 14 | **Sprint close: launch-gate review** | **Sprint close: launch-gate review** | **Sprint close: waitlist number vs. 5,000/60-day pace, report and adjust channel if off-pace** |
+- **Day 7**: Ryan and Sameer independently walk the full homeowner journey and the full contractor journey end to end (#7's original acceptance criteria) — signup through match through (simulated) payment through review prompt. Log every rough edge, not just breaks. Fix anything critical same day.
+- **Day 8**: Regression pass on fixes from Day 7. Confirm Stripe test-mode transactions work for all four products including the referral discount. Confirm the Communities homeowner-only visibility rule actually holds (a contractor account should not be able to see or post in a community thread — verify this directly, don't assume the RLS policy is enough given the RLS-silently-nulls lesson already in `AGENT_HANDOFF.md`). Armin preps the first invite cohort and beta invite messaging.
 
-**Week 2 exit criteria:** #6 and #7 done or within a day of done. #17 done. SMS integration in progress, not necessarily finished (realistic — the original estimate for that alone is 2-3 weeks). Waitlist and content loop running at a known, measured pace.
+## Day 9: Beta 1 opens
 
-## What this sprint deliberately does not finish
+Invite the first real cohort — the earliest waitlist signups plus personal network, not a public announcement. Both of you in a war-room posture: watch Vercel function logs and Supabase directly, fix anything that breaks in real time rather than batching it. This is the actual test the last 8 days of internal QA can't replace.
 
-- **SMS integration (#6)** — starts day 9, won't fully complete in 14 days given its own 2-3 week estimate. That's fine; day 14 target is "started, ToS updated, consent flow live," not "done."
-- **Referral anti-abuse hardening (#16)** — flagged as unscoped when the issue was filed; gets a first pass in week 2, not a full security review.
-- Everything already excluded from `LAUNCH_PLAN.md`'s launch gate stays excluded here too: full admin dashboard, automated license/insurance verification, property-manager-specific UI beyond the matching engine's weight profile, dispute resolution workflow, 2FA.
-- **A firm launch date isn't set by this plan** — that's still an open founder decision (`AGENT_HANDOFF.md`). Day 14 is when there's enough real information (QA passed, waitlist pace known) to set one with confidence instead of guessing.
+## Days 10–13: Live iteration
 
-## Checkpoints, not just a day-14 review
+- Daily triage of real bugs and friction points from actual beta users — this list is higher-signal than anything generated internally, prioritize it above new feature work.
+- SMS integration continues in the background, at whatever pace the external approval process allows.
+- Watch whether `cost_data` actually starts accumulating from any completed jobs — the first real signal on whether the moat mechanism (#8) works outside a test account.
+- Armin: daily (not weekly, given the pace) check-ins with beta users, push referral-loop adoption with real people now that there's a real loop to push, keep content flowing — you can now post real "we're live" material instead of pre-launch teasers.
 
-Waitlist pace is the one number to watch **weekly, not just at the end** — the day-7 checkpoint above exists specifically so a slow start gets a channel change on day 8, not a surprise on day 14. Same logic as `GROWTH_OPERATOR_ROLE.md`: adjust early, don't wait for the deadline to find out something isn't working.
+## Day 14: Retro + firm launch date
+
+All three, together: review real beta numbers — signups activated, matches made, any contractor drop-off, any trust/safety flags, waitlist pace against the 5,000/60-day target in `GROWTH_OPERATOR_ROLE.md`. This is the point where a **firm public launch date and metro/ZIP scope** gets set from actual evidence — the open decision that's been sitting unresolved since the 2026-07-13 session (`AGENT_HANDOFF.md`) — instead of picking a date and hoping.
+
+## What's still deliberately not in scope for Day 14
+
+Unchanged from `LAUNCH_PLAN.md`'s original exclusions, plus one addition specific to this compressed plan:
+
+- Full admin dashboard, automated license/insurance verification API, property-manager-specific UI, dispute resolution workflow, 2FA — same as always, not launch-blocking
+- **SMS integration fully live** — the compliance/carrier lag genuinely doesn't compress with more hours; treat "started, ToS updated, in the approval pipeline" as the realistic Day 14 state, not "done"
