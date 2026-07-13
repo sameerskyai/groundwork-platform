@@ -91,6 +91,7 @@ Explicit decision this session, binding until the $1M pre-seed raise (see `FINAN
 - **No paid acquisition of any kind** — no paid social, no paid search, not yet
 - Channels in scope: founder-led organic content (Armin as primary face), direct outreach (scraping real estate agencies/PE real estate groups for the waitlist), local press as a deliberate paid-placement exception (county mail, WaPo/NYT slots — this is press placement, not performance ads, and is the one paid line item this constraint doesn't cover), referral loop above, and direct founder calls with early users
 - Investor trigger: **50,000 waitlist signups** — that's the number that converts this from "should we raise" to "raise on our terms," per the Searchable-style validate-before-scale logic already in `LAUNCH_PLAN.md`
+- Role ownership: Armin owns this end to end as Growth Operator — full role brief in `GROWTH_OPERATOR_ROLE.md`
 
 ## Open items this doc deliberately does not resolve
 

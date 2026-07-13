@@ -97,6 +97,7 @@ Don't trust that a fix works because the diff looks right. For this project spec
 - Full plan + build sequencing: `docs/LAUNCH_PLAN.md`
 - Business model (revenue streams, portals, referral loop): `docs/BUSINESS_MODEL.md`
 - Financial plan (revenue distribution, organic-only-until-pre-seed, fundraising trigger): `docs/FINANCIAL_PLAN.md`
+- Growth Operator role brief (Armin's responsibilities, waitlist pace metric): `docs/GROWTH_OPERATOR_ROLE.md`
 - **`docs/prompts/`** — per-issue execution briefs (step-by-step prompts written for an AI agent, e.g. Warp, to run a specific issue end to end, pre-checked against the real code). Check here before starting any issue — if a brief already exists for it, use that instead of re-deriving the plan from scratch.
 - Sameer's specific task brief: `Groundwork_Tasks_for_Sameer_2026-07-08.pdf` (was placed on Ryan's Desktop, not in the repo — ask Ryan for a copy if you need it, or just read issue #5 directly, it has the same content).
 
