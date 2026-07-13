@@ -1,0 +1,498 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Groundwork — Founder Deck</title>
+<style>
+  :root{
+    --paper:#F4F5F1;
+    --ink:#14202B;
+    --blueprint:#1E5FA8;
+    --blueprint-soft:#DCE6F2;
+    --tape:#D9631E;
+    --line:#CBD2CC;
+    --muted:#5C6670;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#3a3f42;}
+  body{font-family:"Avenir Next","Helvetica Neue",Arial,sans-serif;}
+  @page{ size: 13.333in 7.5in; margin:0; }
+
+  .slide{
+    width:13.333in; height:7.5in;
+    background:var(--paper);
+    color:var(--ink);
+    position:relative;
+    page-break-after:always;
+    overflow:hidden;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 0.375in 0.375in;
+    background-position: -1px -1px;
+  }
+  .slide:last-child{page-break-after:auto;}
+  .frame{
+    position:absolute; inset:0.28in;
+    border:1.5px solid var(--blueprint);
+    pointer-events:none;
+  }
+  .frame::before, .frame::after{
+    content:"+"; position:absolute; color:var(--blueprint); font-family:"SF Mono",monospace; font-size:11px;
+  }
+  .corner-tag{
+    position:absolute; right:0.28in; bottom:0.28in;
+    font-family:"SF Mono",monospace; font-size:9px; letter-spacing:0.06em;
+    color:var(--blueprint); background:var(--paper);
+    padding:3px 8px; border:1px solid var(--blueprint);
+    text-transform:uppercase;
+  }
+  .brand-tag{
+    position:absolute; left:0.28in; top:0.28in;
+    font-family:"SF Mono",monospace; font-size:9px; letter-spacing:0.08em;
+    color:var(--muted); background:var(--paper);
+    padding:3px 8px;
+    text-transform:uppercase;
+  }
+  .content{
+    position:relative; z-index:1;
+    height:100%; width:100%;
+    padding:1.05in 0.9in 0.85in 0.9in;
+    display:flex; flex-direction:column;
+    justify-content:center;
+  }
+  .eyebrow{
+    font-family:"SF Mono",monospace; font-size:12px; letter-spacing:0.14em;
+    color:var(--blueprint); text-transform:uppercase; margin-bottom:14px;
+  }
+  h1{
+    font-family:"Rockwell","Roboto Slab",Georgia,serif;
+    font-weight:700;
+    font-size:44px; line-height:1.08;
+    letter-spacing:-0.01em;
+    max-width:10.8in;
+    text-wrap:balance;
+  }
+  h2{
+    font-family:"Rockwell","Roboto Slab",Georgia,serif;
+    font-weight:700; font-size:22px; margin-bottom:10px; color:var(--ink);
+  }
+  .lede{
+    font-size:17px; color:var(--muted); max-width:8.6in; margin-top:14px; line-height:1.5;
+  }
+  .body-grid{ margin-top:auto; margin-bottom:auto; }
+  p, li{ font-size:15px; line-height:1.55; }
+  .tape{ color:var(--tape); }
+  .mono{ font-family:"SF Mono",monospace; font-variant-numeric:tabular-nums; }
+
+  /* Cover */
+  .cover .content{ justify-content:center; align-items:flex-start; padding-left:0.95in; }
+  .cover .wordmark{
+    font-family:"Rockwell","Roboto Slab",Georgia,serif; font-weight:700;
+    font-size:96px; letter-spacing:-0.01em; line-height:0.95;
+  }
+  .cover .tagline{
+    font-size:20px; color:var(--muted); margin-top:22px; max-width:7.5in; line-height:1.5;
+  }
+  .cover .rule{ width:2.2in; height:3px; background:var(--tape); margin:30px 0 26px 0; }
+  .cover .meta{ font-family:"SF Mono",monospace; font-size:12px; color:var(--muted); letter-spacing:0.04em; }
+
+  /* two-column */
+  .cols{ display:flex; gap:0.55in; margin-top:0.2in; }
+  .col{ flex:1; }
+  .col h3{ font-family:"Rockwell","Roboto Slab",Georgia,serif; font-size:16px; margin-bottom:10px; }
+  .col ul{ list-style:none; }
+  .col li{ position:relative; padding-left:20px; margin-bottom:10px; color:var(--ink); }
+  .col li::before{ content:"—"; position:absolute; left:0; color:var(--blueprint); }
+  .divider-v{ width:1px; background:var(--line); }
+
+  /* table */
+  table{ border-collapse:collapse; width:100%; margin-top:0.25in; }
+  th{ text-align:left; font-family:"SF Mono",monospace; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); border-bottom:1.5px solid var(--blueprint); padding:8px 14px 8px 0; }
+  td{ padding:13px 14px 13px 0; border-bottom:1px solid var(--line); font-size:15px; }
+  td.num{ font-family:"SF Mono",monospace; font-variant-numeric:tabular-nums; color:var(--ink); font-weight:600; }
+
+  .callout{
+    margin-top:0.45in;
+    border-left:3px solid var(--tape);
+    padding:14px 20px;
+    background:rgba(217,99,30,0.06);
+    font-size:16px;
+    max-width:9in;
+  }
+  .callout b{ color:var(--tape); }
+
+  .stat-row{ display:flex; gap:0.5in; margin-top:0.25in; }
+  .stat{ flex:1; border-top:2px solid var(--blueprint); padding-top:12px; }
+  .stat .num{ font-family:"Rockwell","Roboto Slab",Georgia,serif; font-size:38px; color:var(--blueprint); line-height:1; }
+  .stat .label{ font-size:13px; color:var(--muted); margin-top:8px; max-width:2.6in; }
+
+  /* flow diagram */
+  .flow{ display:flex; align-items:center; margin-top:0.35in; gap:0; }
+  .flow-step{ flex:1; }
+  .flow-box{ border:1.5px solid var(--blueprint); background:white; padding:20px 18px; min-height:1.5in; }
+  .flow-box .step-no{ font-family:"SF Mono",monospace; font-size:11px; color:var(--blueprint); }
+  .flow-box .step-title{ font-family:"Rockwell","Roboto Slab",Georgia,serif; font-size:17px; margin-top:8px; }
+  .flow-box .step-desc{ font-size:13px; color:var(--muted); margin-top:8px; line-height:1.45; }
+  .flow-arrow{ width:0.55in; display:flex; align-items:center; justify-content:center; }
+  .flow-arrow svg{ width:100%; }
+
+  /* roadmap timeline */
+  .timeline{ margin-top:0.4in; position:relative; }
+  .timeline-line{ position:absolute; left:0; right:0; top:22px; height:2px; background:var(--blueprint); }
+  .timeline-phases{ display:flex; }
+  .phase{ flex:1; position:relative; padding-right:0.3in; }
+  .phase .dot{ width:12px; height:12px; border-radius:50%; background:var(--paper); border:2.5px solid var(--blueprint); position:relative; z-index:2; margin-bottom:14px; }
+  .phase .ph-title{ font-family:"Rockwell","Roboto Slab",Georgia,serif; font-size:14px; }
+  .phase .ph-range{ font-family:"SF Mono",monospace; font-size:11px; color:var(--tape); margin-top:5px; }
+  .phase .ph-desc{ font-size:12px; color:var(--muted); margin-top:8px; line-height:1.4; }
+
+  /* funnel */
+  .funnel{ display:flex; align-items:flex-end; gap:0.5in; margin-top:0.35in; height:3.2in; }
+  .funnel-bar{ flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; }
+  .funnel-bar .bar{ width:100%; background:var(--blueprint-soft); border:1.5px solid var(--blueprint); }
+  .funnel-bar .bar-fig{ font-family:"Rockwell","Roboto Slab",Georgia,serif; font-size:24px; padding:14px 0 4px 0; color:var(--blueprint); text-align:center; }
+  .funnel-bar .bar-label{ padding-bottom:10px; text-align:center; font-size:11px; color:var(--ink); }
+  .funnel-bar .cap{ margin-top:12px; font-size:12px; color:var(--muted); text-align:center; max-width:2.4in; }
+
+  /* team */
+  .team-row{ display:flex; gap:0.5in; margin-top:0.3in; }
+  .person{ flex:1; border-top:2px solid var(--blueprint); padding-top:14px; }
+  .person .name{ font-family:"Rockwell","Roboto Slab",Georgia,serif; font-size:20px; }
+  .person .role{ font-family:"SF Mono",monospace; font-size:11px; color:var(--tape); letter-spacing:0.04em; margin-top:4px; text-transform:uppercase; }
+  .person .desc{ font-size:13px; color:var(--muted); margin-top:10px; line-height:1.5; }
+
+  .guard-list{ margin-top:0.3in; display:flex; flex-direction:column; gap:14px; }
+  .guard{ display:flex; gap:20px; align-items:baseline; }
+  .guard .gn{ font-family:"SF Mono",monospace; font-size:13px; color:var(--tape); width:0.4in; flex-shrink:0; }
+  .guard .gt{ font-size:15px; }
+  .guard .gt b{ font-family:"Rockwell","Roboto Slab",Georgia,serif; font-weight:700; font-size:15px; }
+
+  .closing .content{ justify-content:center; }
+  .closing .thesis{ font-family:"Rockwell","Roboto Slab",Georgia,serif; font-size:34px; line-height:1.25; max-width:10in; text-wrap:balance; }
+  .closing .contact{ margin-top:0.5in; font-family:"SF Mono",monospace; font-size:13px; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- 1 COVER -->
+<div class="slide cover">
+  <div class="frame"></div>
+  <div class="corner-tag">Sheet 01 / Cover</div>
+  <div class="content">
+    <div class="eyebrow">Confidential — Founder Deck</div>
+    <div class="wordmark">GROUNDWORK</div>
+    <div class="rule"></div>
+    <div class="tagline">The trusted price-truth layer for home improvement — a free AI cost estimate first, a vetted contractor match second, and a compounding dataset no competitor can copy.</div>
+    <div class="meta" style="margin-top:0.5in;">PREPARED BY RYAN BAZ &amp; SAMEER · JULY 2026</div>
+  </div>
+</div>
+
+<!-- 2 PROBLEM -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 02 / Problem</div>
+  <div class="content">
+    <div class="eyebrow">The Problem</div>
+    <h1>Homeowners negotiate blind. Contractors pay to lose.</h1>
+    <div class="cols">
+      <div class="col">
+        <h3>For the homeowner</h3>
+        <ul>
+          <li>No pricing reference point before a contractor walks in the door</li>
+          <li>Quotes for the same job vary wildly, with no way to tell fair from padded</li>
+          <li>Fear of being overcharged suppresses projects that would otherwise happen</li>
+        </ul>
+      </div>
+      <div class="divider-v"></div>
+      <div class="col">
+        <h3>For the contractor</h3>
+        <ul>
+          <li>Legacy lead platforms charge per lead, whether or not it closes</li>
+          <li>No cost signal means underbidding to win, then losing margin on the job</li>
+          <li>Every close creates the incentive to route the next job off-platform</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">Both sides are working from the same missing piece: <b>a real number, before the conversation starts.</b></div>
+  </div>
+</div>
+
+<!-- 3 SOLUTION -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 03 / Solution</div>
+  <div class="content">
+    <div class="eyebrow">The Solution</div>
+    <h1>Give homeowners the number first.</h1>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-box">
+          <div class="step-no">01</div>
+          <div class="step-title">Describe the project</div>
+          <div class="step-desc">A few plain-language questions, no account required.</div>
+        </div>
+      </div>
+      <div class="flow-arrow"><svg viewBox="0 0 60 20" preserveAspectRatio="none"><line x1="0" y1="10" x2="52" y2="10" stroke="#1E5FA8" stroke-width="2"/><polygon points="52,4 60,10 52,16" fill="#1E5FA8"/></svg></div>
+      <div class="flow-step">
+        <div class="flow-box">
+          <div class="step-no">02</div>
+          <div class="step-title">AI estimate, 30 seconds</div>
+          <div class="step-desc">Priced against real ZIP-level cost data, not a generic range.</div>
+        </div>
+      </div>
+      <div class="flow-arrow"><svg viewBox="0 0 60 20" preserveAspectRatio="none"><line x1="0" y1="10" x2="52" y2="10" stroke="#1E5FA8" stroke-width="2"/><polygon points="52,4 60,10 52,16" fill="#1E5FA8"/></svg></div>
+      <div class="flow-step">
+        <div class="flow-box">
+          <div class="step-no">03</div>
+          <div class="step-title">Swipe-match a contractor</div>
+          <div class="step-desc">Vetted, budget-fit candidates. Homeowner controls who sees the project.</div>
+        </div>
+      </div>
+    </div>
+    <div class="callout">Contractors pay a flat monthly subscription for leads. <b>Never a per-job cut. Never a lead fee.</b> No incentive to take the relationship off-platform.</div>
+  </div>
+</div>
+
+<!-- 4 PRODUCT -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 04 / Product</div>
+  <div class="content">
+    <div class="eyebrow">Product</div>
+    <h1>One backend. Three front doors.</h1>
+    <div class="lede">Homeowner, contractor, and realtor/property-manager portals share one matching engine — a percentage compatibility score, weighted differently per portal.</div>
+    <div class="stat-row" style="margin-top:0.35in;">
+      <div class="stat"><div class="num">85%+</div><div class="label">Minimum compatibility score to surface a match — budget, ZIP/distance, timeframe, personality</div></div>
+      <div class="stat"><div class="num">1</div><div class="label">Matching engine, three weight profiles — homeowner, contractor, realtor / property manager</div></div>
+      <div class="stat"><div class="num">0</div><div class="label">Phone numbers or addresses ever revealed between matched parties — in-app chat only, by design</div></div>
+    </div>
+    <div class="callout">Trust &amp; safety is load-bearing, not a footnote: message filtering, a human-review flagging queue, and no address sharing anywhere in the product.</div>
+  </div>
+</div>
+
+<!-- 5 MOAT -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 05 / The Moat</div>
+  <div class="content">
+    <div class="eyebrow">Defensibility</div>
+    <h1>The data compounds. The product doesn’t have to.</h1>
+    <div class="lede">Every completed job adds a real ZIP-level cost point — trade, price, days to complete. Estimates get sharper with every job, in a way no competitor can copy without years of the same history.</div>
+    <div style="margin-top:0.35in; display:flex; align-items:center; gap:0.5in;">
+      <svg width="440" height="200" viewBox="0 0 440 200">
+        <line x1="0" y1="180" x2="440" y2="180" stroke="#CBD2CC" stroke-width="1"/>
+        <line x1="0" y1="0" x2="0" y2="180" stroke="#CBD2CC" stroke-width="1"/>
+        <path d="M 10 165 Q 150 150 240 90 T 430 20" fill="none" stroke="#1E5FA8" stroke-width="3"/>
+        <circle cx="430" cy="20" r="5" fill="#D9631E"/>
+        <text x="16" y="196" font-family="SF Mono" font-size="10" fill="#5C6670">Jobs completed</text>
+        <text x="-172" y="14" font-family="SF Mono" font-size="10" fill="#5C6670" transform="rotate(-90)">Estimate accuracy</text>
+      </svg>
+      <div style="max-width:4in;">
+        <p style="font-size:16px; line-height:1.55;">This is the <b>Zestimate / Kelley Blue Book</b> of home improvement — the trusted price-truth layer for a category whose entire problem is price opacity.</p>
+        <p style="font-size:14px; color:var(--muted); margin-top:14px;">Whoever owns trusted price data owns the category. It can’t be copied — it has to be earned, one completed job at a time.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 BUSINESS MODEL -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 06 / Business Model</div>
+  <div class="content">
+    <div class="eyebrow">Business Model</div>
+    <h1>Four revenue lines. Zero lead fees.</h1>
+    <table>
+      <tr><th>Line</th><th>Who pays</th><th>Price</th><th>What it unlocks</th></tr>
+      <tr><td>Contractor Standard</td><td class="num">Contractor</td><td class="num">$79/mo</td><td>5 leads/day</td></tr>
+      <tr><td>Contractor Growth</td><td class="num">Contractor</td><td class="num">$149/mo</td><td>20 leads/day, priority placement</td></tr>
+      <tr><td>Estimate unlock</td><td class="num">Homeowner</td><td class="num">$9.99 one-time</td><td>Full itemized cost breakdown</td></tr>
+      <tr><td>Homeowner Plus</td><td class="num">Homeowner</td><td class="num">$20/mo</td><td>Communities — neighborhood groups, contractor bids</td></tr>
+    </table>
+    <div class="callout"><b>No per-job cut, ever.</b> The rule that structurally separates Groundwork from Angi and Thumbtack — they can’t drop lead fees without destroying their own revenue model. We never had that revenue model to protect.</div>
+  </div>
+</div>
+
+<!-- 7 MARKET -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 07 / Market Size</div>
+  <div class="content">
+    <div class="eyebrow">Market Size</div>
+    <h1>Sized three ways: the country, the contractors, the first metro.</h1>
+    <div class="funnel">
+      <div class="funnel-bar">
+        <div class="bar-fig">~14–15M</div>
+        <div class="bar" style="height:2.6in;"><div class="bar-label" style="padding-top:10px;">TAM</div></div>
+        <div class="cap">East Coast homeowners who undertake a renovation project in a given year</div>
+      </div>
+      <div class="funnel-bar">
+        <div class="bar-fig">7–10K</div>
+        <div class="bar" style="height:1.7in;"><div class="bar-label" style="padding-top:10px;">Contractor-side SAM</div></div>
+        <div class="cap">Paying contractors at blended ~$100/mo ARPU = $8–12M ARR, an 8–12x-multiple $100M valuation</div>
+      </div>
+      <div class="funnel-bar">
+        <div class="bar-fig">100–150</div>
+        <div class="bar" style="height:0.9in;"><div class="bar-label" style="padding-top:10px;">SOM — now</div></div>
+        <div class="cap">Contractors in Northern Virginia, the first metro, before expansion</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8 GTM -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 08 / Go-To-Market</div>
+  <div class="content">
+    <div class="eyebrow">Go-To-Market</div>
+    <h1>Organic until the number proves itself.</h1>
+    <div class="lede">No paid acquisition of any kind until 50,000 waitlist signups — the point where a raise happens on our terms, with proof, not a pitch of intentions.</div>
+    <div class="cols" style="margin-top:0.3in;">
+      <div class="col">
+        <h3>Channels</h3>
+        <ul>
+          <li>Founder-led content — real cost breakdowns, contractor red flags</li>
+          <li>Direct outreach to real estate agencies and PE real estate groups</li>
+          <li>Referral loop: 5 referrals → 75% off, 10 referrals → 50% off Homeowner Plus</li>
+          <li>Local press placement — the one deliberate paid line item</li>
+        </ul>
+      </div>
+      <div class="divider-v"></div>
+      <div class="col">
+        <h3>Pace</h3>
+        <ul>
+          <li>~5,000 waitlist signups targeted in the first 60 days</li>
+          <li>Tracked weekly — a slow start changes channel at day 20, not day 60</li>
+          <li>Referral economics are self-funding: 5–10 new $20/mo subscribers per discount earned</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9 TRACTION -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 09 / Where We Are</div>
+  <div class="content">
+    <div class="eyebrow">Status</div>
+    <h1>Built. Not yet launched.</h1>
+    <div class="lede">This isn’t a bet on an idea — the product exists, in production, today.</div>
+    <div class="stat-row" style="margin-top:0.4in;">
+      <div class="stat"><div class="num">34</div><div class="label">Pages shipped, live on Vercel with Supabase auth, database, and row-level security in production</div></div>
+      <div class="stat"><div class="num">8</div><div class="label">AI agents running on Claude — estimator, matcher, bio writer, classifier, and more — verified working live</div></div>
+      <div class="stat"><div class="num">14</div><div class="label">Days from this deck to Beta 1 opening for a real cohort of homeowners and contractors</div></div>
+    </div>
+    <div class="callout">Two founders, <b>18 hours a day</b>, no paid team, no outside capital — this is what got built before asking anyone for a dollar.</div>
+  </div>
+</div>
+
+<!-- 10 ROADMAP -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 10 / Roadmap</div>
+  <div class="content">
+    <div class="eyebrow">Roadmap</div>
+    <h1>The path to $100M, phase by phase.</h1>
+    <div class="timeline">
+      <div class="timeline-line"></div>
+      <div class="timeline-phases">
+        <div class="phase"><div class="dot"></div><div class="ph-title">Launch Gate</div><div class="ph-range">$0</div><div class="ph-desc">Beta 1, then public launch in one metro</div></div>
+        <div class="phase"><div class="dot"></div><div class="ph-title">Own Northern VA</div><div class="ph-range">$0 → $10K MRR</div><div class="ph-desc">100–125 contractors, density over spread</div></div>
+        <div class="phase"><div class="dot"></div><div class="ph-title">Prove the Playbook</div><div class="ph-range">$10K → $100K MRR</div><div class="ph-desc">3–5 adjacent metros, repeatable launch motion</div></div>
+        <div class="phase"><div class="dot"></div><div class="ph-title">Moat Compounds</div><div class="ph-range">$100K → $1M MRR</div><div class="ph-desc">15–20 metros, estimate accuracy becomes visible</div></div>
+        <div class="phase"><div class="dot"></div><div class="ph-title">The $100M Story</div><div class="ph-range">$1M → $8–12M ARR</div><div class="ph-desc">Top 50 metros, fintech attach on the estimate moment</div></div>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:0.5in;">The whole game in one line: <b>~150 paying contractors per metro, 50 metros, churn under 5%.</b></div>
+  </div>
+</div>
+
+<!-- 11 FINANCIAL DISCIPLINE -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 11 / Financial Plan</div>
+  <div class="content">
+    <div class="eyebrow">Financial Discipline</div>
+    <h1>We don’t need capital to survive. Only to accelerate.</h1>
+    <div class="lede">Pre-revenue burn is near zero — infrastructure only, no paid team, no paid acquisition.</div>
+    <div class="stat-row" style="margin-top:0.35in;">
+      <div class="stat"><div class="num">~$70–100</div><div class="label">Monthly fixed infrastructure cost pre-revenue — Supabase, Vercel, Anthropic API, domain</div></div>
+      <div class="stat"><div class="num">~$10–12.5K</div><div class="label">Target MRR by month 6 of Phase 1, contractor subscriptions alone</div></div>
+      <div class="stat"><div class="num">4</div><div class="label">Steps in the revenue waterfall — infra, reserve, organic-compliant growth, then founder distributions</div></div>
+    </div>
+    <div class="callout">Every dollar of revenue is allocated in that order, every month, before anything is optional.</div>
+  </div>
+</div>
+
+<!-- 12 RISKS -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 12 / Risk</div>
+  <div class="content">
+    <div class="eyebrow">What Kills This</div>
+    <h1>Five ways this fails, and the guardrail on each.</h1>
+    <div class="guard-list">
+      <div class="guard"><div class="gn">01</div><div class="gt"><b>Contractor churn</b> — leads that never become jobs. Guardrail: weekly lead-to-job tracking per contractor from day one.</div></div>
+      <div class="guard"><div class="gn">02</div><div class="gt"><b>Spreading thin</b> — 30% density in ten metros beats nothing. Guardrail: one metro to 100% density before the next.</div></div>
+      <div class="guard"><div class="gn">03</div><div class="gt"><b>Estimate accuracy before the flywheel spins</b> — one viral “we said $8K, it cost $30K” story. Guardrail: honest confidence labels until real data accumulates.</div></div>
+      <div class="guard"><div class="gn">04</div><div class="gt"><b>Trust incidents</b> — one bad contractor story poisons a small launch market. Guardrail: manual verification before automation.</div></div>
+      <div class="guard"><div class="gn">05</div><div class="gt"><b>Losing the no-lead-fee discipline</b> — a per-job cut would kill the entire differentiation. Guardrail: constitution-level rule, not a pricing knob.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 TEAM -->
+<div class="slide">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 13 / Team</div>
+  <div class="content">
+    <div class="eyebrow">Team</div>
+    <h1>Two founders building, one operator growing.</h1>
+    <div class="team-row">
+      <div class="person">
+        <div class="name">Ryan Baz</div>
+        <div class="role">Co-Founder — Product, AI, Growth</div>
+        <div class="desc">Owns the product build and the AI estimation/matching layer — lead magnet, matching engine, homeowner experience.</div>
+      </div>
+      <div class="person">
+        <div class="name">Sameer</div>
+        <div class="role">Co-Founder — Engineering, Payments</div>
+        <div class="desc">Owns billing and the monetization build — Stripe, subscription logic, Communities backend, referral engine.</div>
+      </div>
+      <div class="person">
+        <div class="name">Armin</div>
+        <div class="role">Growth Operator</div>
+        <div class="desc">Owns the organic loop end to end — content, direct outreach, waitlist growth, referral adoption.</div>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:0.6in;">18-hour days, no outside capital, full focus — the product in this deck is what that produced.</div>
+  </div>
+</div>
+
+<!-- 14 CLOSING / ASK -->
+<div class="slide closing">
+  <div class="frame"></div>
+  <div class="brand-tag">Groundwork</div>
+  <div class="corner-tag">Sheet 14 / The Ask</div>
+  <div class="content">
+    <div class="eyebrow">What Comes Next</div>
+    <h2 style="font-size:26px; margin-bottom:20px;">We’re not raising today.</h2>
+    <p style="font-size:16px; max-width:8.5in; line-height:1.6;">At <b class="tape">50,000 waitlist signups</b>, that changes — a $1M pre-seed, pitched with a full working back end, admin portal, and proven ZIP-code + personality matching, not a deck of intentions. That capital hires UI, backend engineering, and a growth operator, and moves the team to SF.</p>
+    <div class="thesis" style="margin-top:0.55in;">"Whoever owns trusted price data owns the category. We intend to own it before anyone realizes it's up for grabs."</div>
+    <div class="contact">GROUNDWORK &middot; RENOVA-PLATFORM.VERCEL.APP &middot; RYAN BAZ &amp; SAMEER</div>
+  </div>
+</div>
+
+</body></html>
