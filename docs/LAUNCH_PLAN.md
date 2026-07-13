@@ -58,7 +58,9 @@ Groundwork is a **two-sided marketplace**: homeowners get a free AI cost estimat
 
 None of this is a sign anything is broken — it's just never been turned on for real, and a few growth-critical and UX-critical pieces were never built in the first place. This plan turns everything on and fills the gaps, in the order that avoids wasting time debugging the wrong layer.
 
-## The ten steps, in order
+## The eleven tracks, in order
+
+Ten of these are build steps toward the launch gate. The eleventh (Armin's) is a parallel operating track, not a closeable build task — it runs the whole time the other ten are happening, not after them.
 
 ### 1. Verify AI integration works live — [#2](https://github.com/Rycrypn/Groundwork-platform/issues/2)
 **Owner: Ryan · ~30 min**
@@ -110,6 +112,19 @@ Lightweight contractor verification (manual review), email notifications, and a 
 
 The launch gate. Both of us independently walk the full homeowner and contractor journeys, test failure modes, and only launch once we both agree it's ready.
 
+### 11. Growth Operator track (organic content, outreach, waitlist growth) — [#19](https://github.com/Rycrypn/Groundwork-platform/issues/19)
+**Owner: Armin · ongoing, full-time · no dependencies, start immediately, runs the entire length of the sprint**
+
+Full role brief: `docs/GROWTH_OPERATOR_ROLE.md`. Doesn't gate on or block any of the other ten steps — it's the reason there's an audience and a waitlist by the time #7 (launch gate) closes, instead of starting from zero. Covers:
+
+- Founder-led organic content, channel owned end to end by Armin
+- Waitlist landing video (#18)
+- Direct outreach to real estate agencies and PE real estate groups
+- Driving adoption of the referral loop (#16), not just its existence
+- Weekly founder feedback calls with early users
+
+**Success metric**: ~5,000 waitlist signups within the first 60 days — a pace check toward the 50,000-signup fundraising trigger in `docs/FINANCIAL_PLAN.md`.
+
 ## How the dependencies fit together
 
 ```
@@ -120,6 +135,7 @@ The launch gate. Both of us independently walk the full homeowner and contractor
 #9 (waitlist, parallel — start immediately)
 #10 (password reset, parallel — start immediately)
 #11 (preferences, parallel — best after #8, can start earlier)
+#19 (Armin's growth track, parallel — start immediately, runs the whole sprint, doesn't feed into #7)
 ```
 
 ## What's deliberately NOT in this plan
@@ -145,6 +161,7 @@ These came out of the 2026-07-13 founder session and extend the model rather tha
 - [#16](https://github.com/Rycrypn/Groundwork-platform/issues/16) Referral program (discount ladder)
 - [#17](https://github.com/Rycrypn/Groundwork-platform/issues/17) Matching v2 (percentage score + multi-portal weighting)
 - [#18](https://github.com/Rycrypn/Groundwork-platform/issues/18) Waitlist landing page (cinematic video + signup form)
+- [#19](https://github.com/Rycrypn/Groundwork-platform/issues/19) Growth Operator track (Armin) — now folded into the eleven tracks above as track 11, not just a standalone add-on
 - SMS integration and the custom domain decision were added to the existing scope of [#6](https://github.com/Rycrypn/Groundwork-platform/issues/6) rather than filed separately
 
 Full model behind these: `BUSINESS_MODEL.md`. Revenue allocation and the organic-only-until-investor constraint: `FINANCIAL_PLAN.md`.

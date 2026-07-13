@@ -46,6 +46,7 @@ curl -s "https://dhmxxywdsdxzzcuezztv.supabase.co/rest/v1/contractor_profiles?se
 | 16 | Referral program / discount ladder (**new**) | Not started, depends on #15 |
 | 17 | Matching v2: score + multi-portal (**new**) | Not started, depends on #11 |
 | 18 | Waitlist landing page + video (**new**) | Not started, depends on launch-date decision below |
+| 19 | Growth Operator track — Armin (**new**) | Ongoing, no dependencies — start immediately. Track 11 in `docs/LAUNCH_PLAN.md`, full brief `docs/GROWTH_OPERATOR_ROLE.md` |
 
 **Read the full text of every open issue before working on it** — each one has verified current-state notes, exact file references, and acceptance criteria. Don't re-derive context that's already written down.
 
