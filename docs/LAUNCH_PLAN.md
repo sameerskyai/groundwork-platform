@@ -1,8 +1,8 @@
 # Groundwork — Path to Launch
 
 **For:** Ryan + Sameer
-**Date:** 2026-07-08
-**Tracking:** GitHub Epic [#1](https://github.com/Rycrypn/Groundwork-platform/issues/1) + child issues [#2](https://github.com/Rycrypn/Groundwork-platform/issues/2)–[#11](https://github.com/Rycrypn/Groundwork-platform/issues/11)
+**Date:** 2026-07-08 (pricing/model section superseded 2026-07-13 — see below)
+**Tracking:** GitHub Epic [#1](https://github.com/Rycrypn/Groundwork-platform/issues/1) + child issues [#2](https://github.com/Rycrypn/Groundwork-platform/issues/2)–[#14](https://github.com/Rycrypn/Groundwork-platform/issues/14)
 
 ## Why this doc exists
 
@@ -16,7 +16,9 @@ Every feature in this plan should minimize what a user has to think about or typ
 
 Groundwork is a **two-sided marketplace**: homeowners get a free AI cost estimate before they ever talk to a contractor, then swipe-match (Tinder-style) with contractors who fit their project and budget. Contractors never cold-call or spam — homeowners stay in control of who sees their project.
 
-**Revenue**: homeowners get the estimate and matching for free, and pay only a small one-time fee to unlock the full itemized breakdown. Contractors pay a flat monthly subscription — Standard $79/mo (5 leads/day) or Growth $149/mo (20 leads/day, priority placement) — with **no per-job cut and no lead fees**. That removes any incentive for a contractor to close the deal and then route around the platform next time.
+**Revenue**: homeowners get the estimate and matching for free, and pay only a small one-time fee ($9.99) to unlock the full itemized breakdown. Contractors pay a flat monthly subscription — Standard $79/mo (5 leads/day) or Growth $149/mo (20 leads/day, priority placement) — with **no per-job cut and no lead fees**. That removes any incentive for a contractor to close the deal and then route around the platform next time.
+
+**Updated 2026-07-13**: a third revenue line and a referral growth loop were added this session — a $20/mo Homeowner Plus subscription gating a new Communities feature, with a referral discount ladder (5 referrals → $5/mo, 10 referrals → $10/mo) designed to substitute for paid acquisition. The full model, including the multi-portal (homeowner/contractor/realtor) segmentation and the matching-score algorithm, now lives in **`BUSINESS_MODEL.md`** — read that alongside this doc, it supersedes this section's pricing summary. Revenue allocation and the organic-only-until-$1M-pre-seed fundraising plan live in **`FINANCIAL_PLAN.md`**.
 
 **The actual moat is data, not features.** Every completed job adds a real ZIP-level cost data point — trade, price, days to complete. The more jobs completed, the more accurate estimates get, compounding over time in a way no competitor can copy without years of the same job history. This is why issue [#8](https://github.com/Rycrypn/Groundwork-platform/issues/8) (job completion + review flow) matters as much as any core feature.
 
@@ -134,6 +136,18 @@ These are real, but they don't block launch — they're tracked as follow-ups, n
 - Phone/email reveal between matched parties — deliberately decided against, in-app chat only, by design
 - Two-factor authentication — not needed for launch
 - A full personality/style questionnaire for homeowners — 2-3 quick questions is the scope of #11, not an extensive quiz
+
+## New issues opened 2026-07-13 (not in the original ten-step sequence above)
+
+These came out of the 2026-07-13 founder session and extend the model rather than the launch-gate sequence — none of them block #7 (launch gate):
+
+- [#15](https://github.com/Rycrypn/Groundwork-platform/issues/15) Homeowner Plus subscription ($20/mo) + Communities feature
+- [#16](https://github.com/Rycrypn/Groundwork-platform/issues/16) Referral program (discount ladder)
+- [#17](https://github.com/Rycrypn/Groundwork-platform/issues/17) Matching v2 (percentage score + multi-portal weighting)
+- [#18](https://github.com/Rycrypn/Groundwork-platform/issues/18) Waitlist landing page (cinematic video + signup form)
+- SMS integration and the custom domain decision were added to the existing scope of [#6](https://github.com/Rycrypn/Groundwork-platform/issues/6) rather than filed separately
+
+Full model behind these: `BUSINESS_MODEL.md`. Revenue allocation and the organic-only-until-investor constraint: `FINANCIAL_PLAN.md`.
 
 ## Where to track progress
 

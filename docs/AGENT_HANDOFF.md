@@ -2,11 +2,11 @@
 
 **If you are an AI agent (Claude in Claude Code, Claude/another model in Warp, or anything else) picking up work on this repo, read this entire file before touching code.** It's written to be re-read cold every session — don't assume you remember anything from a prior conversation.
 
-Last updated: 2026-07-09, by Claude (Claude Code) working with Ryan.
+Last updated: 2026-07-13, by Claude (Claude Code) working with Ryan, after the 2026-07-13 founder working session (Ryan + Sameer in person, Granola transcript pasted in). **The migration blocker below is unchanged and still open 4+ days — was on the meeting's action list to run live, re-checked after and it still isn't done.**
 
 ## What this project is
 
-Groundwork: a two-sided marketplace. Homeowners get a free AI cost estimate, then swipe-match with contractors who fit their budget. Contractors pay a flat monthly subscription for leads — no per-job cut. Full business model and growth strategy: `docs/LAUNCH_PLAN.md`. Read that after this file.
+Groundwork: a two-sided marketplace. Homeowners get a free AI cost estimate, then swipe-match with contractors who fit their budget. Contractors pay a flat monthly subscription for leads — no per-job cut, plus a new $20/mo Homeowner Plus tier (Communities feature) added 2026-07-13. Full business model and growth strategy: `docs/LAUNCH_PLAN.md` (build sequencing), `docs/BUSINESS_MODEL.md` (revenue streams, portals, referral loop — new 2026-07-13), `docs/FINANCIAL_PLAN.md` (revenue distribution, organic-only-until-$1M-pre-seed plan — new 2026-07-13). Read all three after this file.
 
 - Live site: https://renova-platform.vercel.app (auto-deploys from GitHub `main`)
 - Repo: github.com/Rycrypn/Groundwork-platform (private)
@@ -25,34 +25,48 @@ curl -s "https://dhmxxywdsdxzzcuezztv.supabase.co/rest/v1/contractor_profiles?se
 - If it returns data (even `[]`) with no error: migration 006 is applied. Also confirm 007 (`contractor_waitlist` table) the same way: `...rest/v1/contractor_waitlist?select=id&limit=1`.
 - If it returns `{"message":"column contractor_profiles.lat does not exist"}`: **TWO pending migrations have not been run** — `supabase/migrations/006_contractor_location.sql` (blocks verifying #12/#14) and `supabase/migrations/007_contractor_waitlist.sql` (blocks closing #9). Both must be pasted into the Supabase SQL Editor. There is no way to run them via CLI without a Supabase personal access token or database password, neither of which is stored anywhere — ask Ryan to paste them himself (takes 10 seconds each), or ask him for one of those credentials to automate this going forward.
 
-## Current status (as of 2026-07-09, evening)
+## Current status (as of 2026-07-13, post-meeting)
 
 | # | Title | Status |
 |---|---|---|
 | 2 | Verify AI integration works live | **CLOSED** — verified with real Claude output on production |
-| 3 | Seed backend demo data | Data seeded (3 contractors, 27 cost_data rows), but full verification blocked on #14 |
-| 4 | Rework estimate flow into public lead magnet | Not started — highest-leverage remaining product change |
-| 5 | Stripe integration | Not started — Sameer's track; read `docs/prompts/issue-5-stripe-integration.md` first |
-| 6 | Pre-launch hardening | Not started, depends on #3/#4 |
+| 3 | Seed backend demo data | Data seeded (3 contractors, 27 cost_data rows), but full verification blocked on #14 — still blocked, migrations not run |
+| 4 | Rework estimate flow into public lead magnet | **Confirmed Ryan's active priority, starting now** (2026-07-13 session) |
+| 5 | Stripe integration | Not started — Sameer's track; timeline still **unconfirmed** (was a meeting agenda item, not resolved); scope grew by one product (Homeowner Plus, #15) — read `docs/prompts/issue-5-stripe-integration.md` and the 2026-07-13 comment on #5 |
+| 6 | Pre-launch hardening | Not started, depends on #3/#4; scope grew to include SMS integration (2026-07-13) |
 | 7 | Final QA + launch checklist | Not started, the launch gate |
-| 8 | Job completion + review flow (data moat) | Not started |
-| 9 | Contractor waitlist | **Built + deployed + UI verified live.** Blocked on migration 007 — inserts 500 until the table exists, then confirm one submission lands and close |
-| 10 | Forgot-password flow | **Built + deployed + UI verified live** (link, form, invalid-link state all confirmed on prod). Remaining: Ryan tests the real email loop with his own inbox, and confirms `https://renova-platform.vercel.app/reset-password` is in Supabase Auth → URL Configuration → Redirect URLs |
+| 8 | Job completion + review flow (data moat) | Not started; review trigger now specified — 24h after payment confirmed, "do you recommend" framing (2026-07-13) |
+| 9 | Contractor waitlist | **Built + deployed + UI verified live.** Still blocked on migration 007 — re-checked 2026-07-13, still not applied |
+| 10 | Forgot-password flow | **Built + deployed + UI verified live.** Remaining: Ryan tests the real email loop with his own inbox, confirms redirect URL in Supabase Auth config |
 | 11 | Homeowner preference profiling | Not started |
-| 12 | Fix createAdminClient() RLS bug | Code fixed + deployed, verification blocked on migration 006 |
-| 13 | Fix cost_data lookup (trade_id not text) | **CLOSED** — verified live, seeded data now correctly surfaces in estimates |
-| 14 | [CRITICAL] Candidate matching returns zero results | Code fixed + deployed, verification blocked on migration 006 |
+| 12 | Fix createAdminClient() RLS bug | Code fixed + deployed, still blocked on migration 006 — re-checked 2026-07-13, still not applied |
+| 13 | Fix cost_data lookup (trade_id not text) | **CLOSED** — verified live |
+| 14 | [CRITICAL] Candidate matching returns zero results | Code fixed + deployed, still blocked on migration 006 — re-checked 2026-07-13, still not applied |
+| 15 | Homeowner Plus subscription + Communities (**new**) | Not started — model in `docs/BUSINESS_MODEL.md`, open question on unlock-fee interaction needs Sameer's confirmation |
+| 16 | Referral program / discount ladder (**new**) | Not started, depends on #15 |
+| 17 | Matching v2: score + multi-portal (**new**) | Not started, depends on #11 |
+| 18 | Waitlist landing page + video (**new**) | Not started, depends on launch-date decision below |
 
 **Read the full text of every open issue before working on it** — each one has verified current-state notes, exact file references, and acceptance criteria. Don't re-derive context that's already written down.
 
+## Open decisions from the 2026-07-13 session — none resolved yet, all need a founder answer
+
+1. **Sameer's Stripe (#5) start/finish date** — was on the agenda, not decided
+2. **Launch target date and definition** — "October" floated as a rough target, not firm. "Launch" also needs a concrete definition: which metro ZIPs, minimum contractor count recruited first
+3. **Custom domain**: buy now or defer to #6 — and the name itself, undecided
+4. **Armin's commitment to the founder content plan** — flagged as an alignment risk in the session (stubborn, pullable by social obligations); needs to be resolved before the 60-day build sprint the content plan depends on
+5. **Founder equity/compensation split** — not discussed in dollar/percentage terms at all; `docs/FINANCIAL_PLAN.md` treats founder distributions as a placeholder line item until this exists as a real agreement — don't infer a split from role descriptions
+
 ## Immediate next steps, in order
 
-1. Get migrations 006 + 007 run (see above). This is the single blocker for three issues.
-2. Re-verify #14 live: sign up a fresh test homeowner + contractor pair via the actual `/signup` flow (not just SQL inserts), submit a real project, confirm the contractor actually appears as a swipeable candidate. See "How to verify anything" below.
-3. Re-verify #12 live: hit `/api/density?zip=<seeded ZIP>` both logged out and logged in as any user, confirm identical results.
+1. **Get migrations 006 + 007 run.** This has now been the single blocker for four issues (#3, #9, #12, #14) for 4+ days, was flagged as a meeting action item, and is still not done as of the last check this session. Nothing here changes until this happens — stop re-deriving this, just get it run.
+2. Re-verify #14 live: sign up a fresh test homeowner + contractor pair via the actual `/signup` flow, submit a real project, confirm the contractor appears as a swipeable candidate.
+3. Re-verify #12 live: hit `/api/density?zip=<seeded ZIP>` both logged out and logged in, confirm identical results.
 4. Close #3 once #14 is confirmed. Close #9 once a waitlist submission lands in the table. Close #10 once Ryan completes a real email reset loop.
-5. Sameer: #5 (Stripe) — read `docs/prompts/issue-5-stripe-integration.md`, it has verified corrections including a real frontend gap (the homeowner unlock button isn't wired to Stripe at all).
-6. Then #4 (lead magnet — highest leverage), #8, #11, then #6, then #7 (launch gate).
+5. Ryan: #4 (lead magnet) — confirmed active priority.
+6. Sameer: #5 (Stripe) — needs a start date decision first (see open decisions above), then read `docs/prompts/issue-5-stripe-integration.md` plus the 2026-07-13 comment on #5 about the new fourth product.
+7. Resolve the five open decisions above — these are blocking real planning (launch date, domain, Stripe timeline) more than any code issue right now.
+8. Then #8, #11, #15, #16, #17, #18, then #6, then #7 (launch gate).
 
 Also note: the Vercel CLI token on Ryan's machine expired (2026-07-09) — `vercel` CLI and direct API calls with the cached token return "Not authorized." Re-run `vercel login` when CLI access is next needed. Deploys are unaffected (they run via GitHub integration).
 
@@ -80,7 +94,9 @@ Don't trust that a fix works because the diff looks right. For this project spec
 - Supabase project: `dhmxxywdsdxzzcuezztv` (us-west-2). Credentials in `.env.local` (gitignored) and Vercel env vars.
 - Vercel project: `groundwork55/groundwork-platform` (renamed mid-session from `renova-platform` — the `.vercel.app` alias `renova-platform.vercel.app` still works).
 - Anthropic API key: set in Vercel Production + Preview only (Vercel blocks sensitive vars from Development). For local dev, add it to your own `.env.local` by hand.
-- Full plan + business model narrative: `docs/LAUNCH_PLAN.md`
+- Full plan + build sequencing: `docs/LAUNCH_PLAN.md`
+- Business model (revenue streams, portals, referral loop): `docs/BUSINESS_MODEL.md`
+- Financial plan (revenue distribution, organic-only-until-pre-seed, fundraising trigger): `docs/FINANCIAL_PLAN.md`
 - **`docs/prompts/`** — per-issue execution briefs (step-by-step prompts written for an AI agent, e.g. Warp, to run a specific issue end to end, pre-checked against the real code). Check here before starting any issue — if a brief already exists for it, use that instead of re-deriving the plan from scratch.
 - Sameer's specific task brief: `Groundwork_Tasks_for_Sameer_2026-07-08.pdf` (was placed on Ryan's Desktop, not in the repo — ask Ryan for a copy if you need it, or just read issue #5 directly, it has the same content).
 
