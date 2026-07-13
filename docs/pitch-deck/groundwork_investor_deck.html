@@ -1,5 +1,5 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>Groundwork — Founder Deck</title>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Groundwork — Founder Deck</title>
 <style>
   :root{
     --paper:#F4F5F1;
@@ -11,24 +11,57 @@
     --muted:#5C6670;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{background:#3a3f42;}
+  html,body{background:#2c3033;}
   body{font-family:"Avenir Next","Helvetica Neue",Arial,sans-serif;}
   @page{ size: 13.333in 7.5in; margin:0; }
 
+  /* Screen viewing: each slide sits in a scaled, letterboxed viewport so the deck
+     never overflows horizontally, regardless of screen width. Print media (PDF
+     export) resets all of this back to physical page dimensions below. */
+  .deck{ padding:28px 0; display:flex; flex-direction:column; align-items:center; gap:20px; }
+  .slide-viewport{
+    width:100%; max-width:1280px;
+    aspect-ratio:1280/720;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 12px 34px rgba(0,0,0,0.35);
+  }
+  .slide-num{
+    color:#9aa3ab; font-family:"SF Mono",monospace; font-size:11px; letter-spacing:0.08em;
+  }
+
   .slide{
-    width:13.333in; height:7.5in;
+    width:1280px; height:720px;
+    position:absolute; top:0; left:0;
+    transform-origin:top left;
     background:var(--paper);
     color:var(--ink);
-    position:relative;
-    page-break-after:always;
     overflow:hidden;
     background-image:
       linear-gradient(var(--line) 1px, transparent 1px),
       linear-gradient(90deg, var(--line) 1px, transparent 1px);
-    background-size: 0.375in 0.375in;
+    background-size: 36px 36px;
     background-position: -1px -1px;
   }
-  .slide:last-child{page-break-after:auto;}
+
+  /* Print / PDF export: undo all screen-scaling, back to physical page flow */
+  @media print{
+    html,body{background:none;}
+    .deck{ padding:0; display:block; gap:0; }
+    .slide-viewport{
+      width:auto; max-width:none; aspect-ratio:auto;
+      overflow:visible; box-shadow:none;
+      page-break-after:always;
+    }
+    .slide-viewport:last-child{ page-break-after:auto; }
+    .slide-num{ display:none; }
+    .slide{
+      position:static;
+      width:13.333in; height:7.5in;
+      transform:none !important;
+      background-size:0.375in 0.375in;
+    }
+  }
   .frame{
     position:absolute; inset:0.28in;
     border:1.5px solid var(--blueprint);
@@ -171,9 +204,13 @@
 </style>
 </head>
 <body>
+<div class="deck">
+
 
 <!-- 1 COVER -->
-<div class="slide cover">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 01 / 14</div>
+  <div class="slide cover">
   <div class="frame"></div>
   <div class="corner-tag">Sheet 01 / Cover</div>
   <div class="content">
@@ -184,9 +221,12 @@
     <div class="meta" style="margin-top:0.5in;">PREPARED BY RYAN BAZ &amp; SAMEER · JULY 2026</div>
   </div>
 </div>
+</div>
 
 <!-- 2 PROBLEM -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 02 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 02 / Problem</div>
@@ -215,9 +255,12 @@
     <div class="callout">Both sides are working from the same missing piece: <b>a real number, before the conversation starts.</b></div>
   </div>
 </div>
+</div>
 
 <!-- 3 SOLUTION -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 03 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 03 / Solution</div>
@@ -252,9 +295,12 @@
     <div class="callout">Contractors pay a flat monthly subscription for leads. <b>Never a per-job cut. Never a lead fee.</b> No incentive to take the relationship off-platform.</div>
   </div>
 </div>
+</div>
 
 <!-- 4 PRODUCT -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 04 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 04 / Product</div>
@@ -270,9 +316,12 @@
     <div class="callout">Trust &amp; safety is load-bearing, not a footnote: message filtering, a human-review flagging queue, and no address sharing anywhere in the product.</div>
   </div>
 </div>
+</div>
 
 <!-- 5 MOAT -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 05 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 05 / The Moat</div>
@@ -296,9 +345,12 @@
     </div>
   </div>
 </div>
+</div>
 
 <!-- 6 BUSINESS MODEL -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 06 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 06 / Business Model</div>
@@ -315,9 +367,12 @@
     <div class="callout"><b>No per-job cut, ever.</b> The rule that structurally separates Groundwork from Angi and Thumbtack — they can’t drop lead fees without destroying their own revenue model. We never had that revenue model to protect.</div>
   </div>
 </div>
+</div>
 
 <!-- 7 MARKET -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 07 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 07 / Market Size</div>
@@ -344,9 +399,12 @@
     <div class="callout">5% capture of the national TAM ≈ 2.16M homeowners — <b>~$43M/mo</b> in homeowner-side revenue alone, before any contractor-side revenue.</div>
   </div>
 </div>
+</div>
 
 <!-- 8 GTM -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 08 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 08 / Go-To-Market</div>
@@ -376,9 +434,12 @@
     </div>
   </div>
 </div>
+</div>
 
 <!-- 9 TRACTION -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 09 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 09 / Where We Are</div>
@@ -394,9 +455,12 @@
     <div class="callout">Two founders, <b>18 hours a day</b>, no paid team, no outside capital — this is what got built before asking anyone for a dollar.</div>
   </div>
 </div>
+</div>
 
 <!-- 10 ROADMAP -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 10 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 10 / Roadmap</div>
@@ -416,9 +480,12 @@
     <div class="callout" style="margin-top:0.5in;">The whole game in one line: <b>~150 paying contractors per metro, 50 metros, churn under 5% — built in parallel, not one at a time.</b></div>
   </div>
 </div>
+</div>
 
 <!-- 11 FINANCIAL DISCIPLINE -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 11 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 11 / Financial Plan</div>
@@ -434,9 +501,12 @@
     <div class="callout">Every dollar of revenue is allocated in that order, every month, before anything is optional.</div>
   </div>
 </div>
+</div>
 
 <!-- 12 RISKS -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 12 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 12 / Risk</div>
@@ -452,9 +522,12 @@
     </div>
   </div>
 </div>
+</div>
 
 <!-- 13 TEAM -->
-<div class="slide">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 13 / 14</div>
+  <div class="slide">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 13 / Team</div>
@@ -481,9 +554,12 @@
     <div class="callout" style="margin-top:0.6in;">18-hour days, no outside capital, full focus — the product in this deck is what that produced.</div>
   </div>
 </div>
+</div>
 
 <!-- 14 CLOSING / ASK -->
-<div class="slide closing">
+<div class="slide-viewport">
+  <div class="slide-num">Sheet 14 / 14</div>
+  <div class="slide closing">
   <div class="frame"></div>
   <div class="brand-tag">Groundwork</div>
   <div class="corner-tag">Sheet 14 / The Ask</div>
@@ -491,9 +567,24 @@
     <div class="eyebrow">What Comes Next</div>
     <h2 style="font-size:26px; margin-bottom:20px;">We’re not raising today.</h2>
     <p style="font-size:16px; max-width:8.5in; line-height:1.6;">At <b class="tape">50,000 waitlist signups</b>, that changes — a $1M pre-seed, pitched with a full working back end, admin portal, and proven ZIP-code + personality matching, not a deck of intentions. That capital hires UI, backend engineering, and a growth operator, and moves the team to SF.</p>
-    <div class="thesis" style="margin-top:0.55in;">"Whoever owns trusted price data owns the category. We intend to own it before anyone realizes it's up for grabs."</div>
+    <div class="thesis" style="margin-top:0.55in;">“Whoever owns trusted price data owns the category. We intend to own it before anyone realizes it’s up for grabs.”</div>
     <div class="contact">GROUNDWORK &middot; RENOVA-PLATFORM.VERCEL.APP &middot; RYAN BAZ &amp; SAMEER</div>
   </div>
 </div>
+</div>
 
+
+</div>
+<script>
+  function scaleSlides(){
+    document.querySelectorAll('.slide-viewport').forEach(function(vp){
+      var slide = vp.querySelector('.slide');
+      var s = vp.clientWidth / 1280;
+      slide.style.transform = 'scale(' + s + ')';
+    });
+  }
+  window.addEventListener('resize', scaleSlides);
+  window.addEventListener('load', scaleSlides);
+  scaleSlides();
+</script>
 </body></html>
