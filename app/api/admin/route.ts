@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { runAdminAgent } from '@/lib/agents'
+import { requireAdmin } from '@/lib/auth/admin-check'
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = await createAdminClient()
+    // Enforce admin role
+    await requireAdmin()
+
+    const supabase = createAdminClient()
 
     // Aggregate real-time stats for admin dashboard
     const [
@@ -43,32 +46,9 @@ export async function GET(req: NextRequest) {
       recentProjects
     })
   } catch (err) {
+    const status = (err as any).status === 403 ? 403 : 500
+    const message = (err as any).status === 403 ? 'Forbidden' : 'Stats failed'
     console.error('Admin stats error:', err)
-    return NextResponse.json({ error: 'Stats failed' }, { status: 500 })
-  }
-}
-
-// Natural language admin query
-export async function POST(req: NextRequest) {
-  try {
-    const { question } = await req.json()
-    const supabase = await createAdminClient()
-
-    const { count: totalUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true })
-    const { count: activeContractors } = await supabase.from('contractor_profiles').select('*', { count: 'exact', head: true }).eq('subscription_active', true)
-    const { count: totalProjects } = await supabase.from('projects').select('*', { count: 'exact', head: true })
-    const { count: totalMatches } = await supabase.from('matches').select('*', { count: 'exact', head: true }).eq('status', 'matched')
-
-    const answer = await runAdminAgent(question, {
-      totalUsers,
-      activeContractors,
-      totalProjects,
-      totalMatches
-    })
-
-    return NextResponse.json({ answer })
-  } catch (err) {
-    console.error('Admin agent error:', err)
-    return NextResponse.json({ error: 'Query failed' }, { status: 500 })
+    return NextResponse.json({ error: message }, { status })
   }
 }

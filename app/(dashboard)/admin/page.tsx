@@ -10,16 +10,16 @@ export default async function AdminPage() {
     redirect('/login')
   }
 
-  // TODO: Verify admin role in users table
-  // const { data: profile } = await supabase
-  //   .from('profiles')
-  //   .select('role')
-  //   .eq('id', user.id)
-  //   .single()
-  //
-  // if (profile?.role !== 'admin') {
-  //   redirect('/')
-  // }
+  // Verify admin role
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'admin') {
+    redirect('/')
+  }
 
   return <AdminDashboard />
 }
