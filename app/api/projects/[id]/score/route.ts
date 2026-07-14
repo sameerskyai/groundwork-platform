@@ -5,6 +5,7 @@ import { scoreProjectContractorMatch } from '@/lib/agents/match-scorer'
 // POST /api/projects/[id]/score
 // Score a project against contractors in the matching pool
 // Returns matches that score 85%+
+import { MATCH_LIMITS, shouldApplyLimits } from '@/lib/config/match-limits'
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -97,13 +98,38 @@ export async function POST(
 
     const subThresholdCount = scores.length - strongMatches.length
 
+    // Load user profile to get subscription tier
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('subscription_tier')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    const userTier = profile?.subscription_tier || 'free'
+    let matchesToReturn = strongMatches
+    let lockedCount = 0
+    let limitReached = false
+
+    // Apply match limits for free tier users
+    if (shouldApplyLimits(userTier)) {
+      const limit = MATCH_LIMITS.MAX_ACTIVE_MATCHES
+      if (strongMatches.length > limit) {
+        matchesToReturn = strongMatches.slice(0, limit)
+        lockedCount = strongMatches.length - limit
+        limitReached = true
+      }
+    }
+
     return NextResponse.json({
       project_id: projectId,
       total_candidates: candidates.length,
-      matches_found: strongMatches.length,
+      matches_found: matchesToReturn.length,
       matches_sub_threshold: subThresholdCount,
+      matches_locked_count: lockedCount,
+      limit_reached: limitReached,
+      user_tier: userTier,
       threshold: COMPATIBILITY_THRESHOLD,
-      matches: strongMatches
+      matches: matchesToReturn
     })
   } catch (err) {
     console.error('Scoring error:', err)
