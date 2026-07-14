@@ -15,72 +15,77 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-// Seed specifications
-const HOMEOWNER_SPECS = [
-  {
-    email: 'sarah.demo@example.com',
-    name: 'Sarah Chen',
-    zip_code: '22201',
-    lat: 38.8816,
-    lng: -77.1043,
-    subscription_tier: '$20' as const,
-    verified_referral_count: 2
-  },
-  {
-    email: 'james.demo@example.com',
-    name: 'James Wilson',
-    zip_code: '22202',
-    lat: 38.8950,
-    lng: -77.0800,
-    subscription_tier: '$20' as const,
-    verified_referral_count: 7
-  },
-  {
-    email: 'emma.demo@example.com',
-    name: 'Emma Rodriguez',
-    zip_code: '22203',
-    lat: 38.8700,
-    lng: -77.0950,
-    subscription_tier: '$10_referral' as const,
-    verified_referral_count: 10
-  }
-]
+// Seed specifications: generate 40 homeowners + 25 contractors programmatically
+const generateHomeownerSpecs = () => {
+  const zips = ['22201', '22202', '22203', '22204', '22205', '22206', '22207', '22209', '22210', '22211'];
+  const coords: Record<string, [number, number]> = {
+    '22201': [38.8816, -77.1043],
+    '22202': [38.8950, -77.0800],
+    '22203': [38.8700, -77.0950],
+    '22204': [38.8550, -77.1100],
+    '22205': [38.8900, -77.0950],
+    '22206': [38.8750, -77.0850],
+    '22207': [38.8600, -77.1000],
+    '22209': [38.8850, -77.0750],
+    '22210': [38.8700, -77.1150],
+    '22211': [38.8950, -77.1050],
+  };
+  const firstNames = ['Sarah', 'James', 'Emma', 'Michael', 'Jessica', 'David', 'Lisa', 'Robert', 'Jennifer', 'William', 'Patricia', 'Charles', 'Barbara', 'Joseph', 'Mary', 'Thomas', 'Linda', 'Christopher', 'Sandra', 'Daniel', 'Ashley', 'Matthew', 'Dorothy', 'Anthony', 'Nancy', 'Mark', 'Karen', 'Donald', 'Carol', 'Steven', 'Diane', 'Paul', 'Julie', 'Andrew', 'Joyce', 'Joshua', 'Evelyn', 'Kenneth', 'Lauren', 'Steven'];
+  const lastNames = ['Chen', 'Wilson', 'Rodriguez', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+  const tiers = ['free', '$20', '$10_referral'] as const;
 
-const CONTRACTOR_SPECS = [
-  {
-    email: 'alex.demo@example.com',
-    business_name: "Alex's Home Repair",
-    zip_code: '22201',
-    lat: 38.8816,
-    lng: -77.1043,
-    service_radius_miles: 15,
-    subscription_tier: 'paid_unlimited' as const,
-    rating: 4.3,
-    verified_job_count: 12
-  },
-  {
-    email: 'mike.demo@example.com',
-    business_name: 'Premium Kitchen & Bath',
-    zip_code: '22202',
-    lat: 38.8950,
-    lng: -77.0800,
-    service_radius_miles: 20,
-    subscription_tier: 'paid_unlimited' as const,
-    rating: 4.7,
-    verified_job_count: 28
-  },
-  {
-    email: 'carlos.demo@example.com',
-    business_name: 'Budget Repairs Inc',
-    zip_code: '22203',
-    lat: 38.8700,
-    lng: -77.0950,
-    service_radius_miles: 10,
-    subscription_tier: 'free' as const,
-    rating: 3.8,
-    verified_job_count: 5
-  }
-]
+  return Array.from({ length: 40 }, (_, i) => {
+    const zip = zips[i % zips.length];
+    const [baseLat, baseLng] = coords[zip];
+    return {
+      email: `homeowner${i+1}.demo@example.com`,
+      name: `${firstNames[i % firstNames.length]} ${lastNames[i % lastNames.length]}`,
+      zip_code: zip,
+      lat: baseLat + (Math.random() * 0.01 - 0.005),
+      lng: baseLng + (Math.random() * 0.01 - 0.005),
+      subscription_tier: tiers[i % 3],
+      verified_referral_count: Math.floor(Math.random() * 15)
+    };
+  });
+};
+
+const generateContractorSpecs = () => {
+  const zips = ['22201', '22202', '22203', '22204', '22205', '22206', '22207', '22209', '22210', '22211'];
+  const coords: Record<string, [number, number]> = {
+    '22201': [38.8816, -77.1043],
+    '22202': [38.8950, -77.0800],
+    '22203': [38.8700, -77.0950],
+    '22204': [38.8550, -77.1100],
+    '22205': [38.8900, -77.0950],
+    '22206': [38.8750, -77.0850],
+    '22207': [38.8600, -77.1000],
+    '22209': [38.8850, -77.0750],
+    '22210': [38.8700, -77.1150],
+    '22211': [38.8950, -77.1050],
+  };
+  const trades = ['General Contractor', 'HVAC Specialist', 'Plumber', 'Electrician', 'Roofer', 'Carpenter', 'Mason', 'Painter', 'Locksmith', 'Handyman'];
+  const tiers = ['free', 'paid_unlimited'] as const;
+
+  return Array.from({ length: 25 }, (_, i) => {
+    const zip = zips[i % zips.length];
+    const [baseLat, baseLng] = coords[zip];
+    const rating = 3.5 + Math.random() * 1.5;
+    return {
+      email: `contractor${i+1}.demo@example.com`,
+      business_name: `${trades[i % trades.length]} - Demo ${i+1}`,
+      zip_code: zip,
+      lat: baseLat + (Math.random() * 0.01 - 0.005),
+      lng: baseLng + (Math.random() * 0.01 - 0.005),
+      service_radius_miles: Math.floor(10 + Math.random() * 20),
+      subscription_tier: tiers[i % 2],
+      rating: Math.round(rating * 10) / 10,
+      verified_job_count: Math.floor(Math.random() * 50)
+    };
+  });
+};
+
+const HOMEOWNER_SPECS = generateHomeownerSpecs();
+const CONTRACTOR_SPECS = generateContractorSpecs();
 
 export async function seedMarketplace() {
   console.log('🌱 Seeding marketplace (idempotent)...\n')

@@ -46,6 +46,18 @@ describe('Demo Isolation Security (Live DB Tests)', () => {
     serviceRoleClient = createClient(supabaseUrl, supabaseServiceKey)
     anonClient = createClient(supabaseUrl, supabaseAnonKey)
 
+    // Get general-contractor trade UUID (required for project creation)
+    const { data: trades, error: tradeError } = await serviceRoleClient
+      .from('trades')
+      .select('id')
+      .eq('slug', 'general-contractor')
+      .limit(1)
+
+    if (tradeError || !trades?.length) {
+      throw new Error(`Failed to find 'general-contractor' trade: ${tradeError?.message}`)
+    }
+    const generalContractorTradeId = trades[0].id
+
     // Create test users A & B with test_fixture metadata
     const timestamp = Date.now()
     testUserA_Email = `test-user-a-${timestamp}@test.example.com`
@@ -152,7 +164,7 @@ describe('Demo Isolation Security (Live DB Tests)', () => {
 
     console.log(`    ✓ Contractors A, B, C created`)
 
-    // Create test project
+    // Create test project (using real trade_id UUID)
     const { data: project } = await serviceRoleClient
       .from('projects')
       .insert({
@@ -163,12 +175,16 @@ describe('Demo Isolation Security (Live DB Tests)', () => {
         zip_code: '22201',
         lat: 38.8816,
         lng: -77.1043,
-        trade_id: 'general-contractor',
+        trade_id: generalContractorTradeId,
         status: 'active',
         is_demo: false
       })
       .select()
       .single()
+
+    if (!project) {
+      throw new Error('Failed to create test project')
+    }
     testProjectId = project.id
 
     console.log(`    ✓ Project created\n`)
@@ -248,11 +264,11 @@ describe('Demo Isolation Security (Live DB Tests)', () => {
         serviceRoleClient.from('contractor_profiles').select('id', { count: 'exact' }).eq('is_demo', true)
       ])
 
-      console.log(`    • Homeowners: ${homeowners.count} (expected: 3+)`)
-      console.log(`    • Contractors: ${contractors.count} (expected: 3+)`)
+      console.log(`    • Homeowners: ${homeowners.count} (expected: 40+)`)
+      console.log(`    • Contractors: ${contractors.count} (expected: 25+)`)
       console.log('\n    ✅ All cleanup and re-seed successful. DB ready for design phase.\n')
     }
-  })
+  }, 120000) // 2 minute timeout for creating 40+25 users
 
   // TEST 1: Ownership Privacy
   it('should enforce ownership: user A cannot read user B profile', async () => {
