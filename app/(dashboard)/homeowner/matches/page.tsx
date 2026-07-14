@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/Card'
+import { LockedMatchesCTA } from '@/components/ui/LockedMatchesCTA'
 import { Badge } from '@/components/ui/Badge'
 import { ArrowLeft, Star, MapPin, MessageCircle, Loader2 } from 'lucide-react'
 
@@ -26,11 +27,27 @@ interface Match {
     profiles: { zip_code: string }
   }
 }
+interface MatchScore {
+  match_percentage: number
+  should_surface: boolean
+  factors: any
+  reasoning: string
+}
+
+interface ScoreResponse {
+  matches: any[]
+  matches_locked_count?: number
+  limit_reached?: boolean
+  user_tier?: string
+}
 
 function MatchesContent() {
   const searchParams = useSearchParams()
   const projectId = searchParams.get('project')
   const [matches, setMatches] = useState<Match[]>([])
+  const [matchesLocked, setMatchesLocked] = useState(0)
+  const [limitReached, setLimitReached] = useState(false)
+  const [userTier, setUserTier] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [running, setRunning] = useState(false)
   const router = useRouter()
@@ -53,11 +70,15 @@ function MatchesContent() {
 
   async function runMatching() {
     setRunning(true)
-    await fetch('/api/match', {
+    const res = await fetch('/api/match', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ projectId })
     })
+    const data = await res.json()
+    setMatchesLocked(data.matches_locked_count || 0)
+    setLimitReached(data.limit_reached || false)
+    setUserTier(data.user_tier || 'free')
     await loadMatches()
     setRunning(false)
   }
