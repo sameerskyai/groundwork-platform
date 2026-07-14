@@ -1,0 +1,175 @@
+/**
+ * ReNova Design System — Modern Premium Edition
+ * Intentional, opinionated, specific to product
+ * No generic defaults; every choice has reasoning
+ */
+
+:root {
+  /* ============================================================
+     COLOR PALETTE — Disciplined, semantic, not decorative
+     ============================================================ */
+
+  /* Surfaces & Backgrounds */
+  --color-surface-primary: oklch(98% 0 0); /* Off-white, warm */
+  --color-surface-secondary: oklch(94% 0.005 250); /* Subtle blue tint */
+  --color-surface-tertiary: oklch(88% 0 0); /* Mid gray, accents */
+
+  /* Text — high contrast mandatory */
+  --color-text-primary: oklch(18% 0 0); /* Near-black */
+  --color-text-secondary: oklch(45% 0 0); /* Mid gray */
+  --color-text-tertiary: oklch(60% 0 0); /* Light gray, hints */
+  --color-text-inverse: oklch(97% 0 0); /* For dark backgrounds */
+
+  /* Semantic Colors */
+  --color-success: oklch(66% 0.19 130); /* Vibrant green */
+  --color-warning: oklch(74% 0.20 70); /* Warm amber */
+  --color-error: oklch(60% 0.25 30); /* True red */
+  --color-info: oklch(68% 0.21 250); /* Cobalt blue */
+
+  /* Brand Primary — Modern Premium accent */
+  --color-brand: oklch(58% 0.25 265); /* Deep purple-blue */
+  --color-brand-light: oklch(72% 0.18 265); /* Lighter purple */
+  --color-brand-lighter: oklch(82% 0.12 265); /* Very light purple */
+
+  /* Interactive States */
+  --color-interactive-hover: oklch(78% 0.15 265); /* Lighter on hover */
+  --color-interactive-active: oklch(48% 0.28 265); /* Darker when active */
+  --color-interactive-disabled: oklch(75% 0 0); /* Gray disabled */
+
+  /* ============================================================
+     TYPOGRAPHY — Character & intention
+     ============================================================ */
+
+  /* Font Family: Two faces, deliberate pairing */
+  --font-serif: 'Crimson Text', 'Georgia', serif;
+  --font-sans: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+
+  /* Font Sizes — Fluid scaling with intent */
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); /* Small labels */
+  --text-sm: clamp(0.875rem, 0.8rem + 0.3vw, 1rem); /* Body small */
+  --text-base: clamp(1rem, 0.92rem + 0.4vw, 1.125rem); /* Body */
+  --text-lg: clamp(1.125rem, 1.02rem + 0.5vw, 1.3rem); /* Subheading */
+  --text-xl: clamp(1.25rem, 1.1rem + 0.7vw, 1.5rem); /* Heading */
+  --text-2xl: clamp(1.5rem, 1.3rem + 1vw, 2rem); /* Section heading */
+  --text-3xl: clamp(1.875rem, 1.6rem + 1.3vw, 2.5rem); /* Hero heading */
+  --text-4xl: clamp(2.25rem, 1.9rem + 1.7vw, 3rem); /* Page heading */
+
+  /* Font Weights — Semantic, not decorative */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Line Heights — Readability first */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* Letter Spacing — Breathing room */
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+
+  /* ============================================================
+     SPACING — Rhythmic, intentional intervals
+     ============================================================ */
+
+  --space-xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.375rem);
+  --space-sm: clamp(0.5rem, 0.45rem + 0.25vw, 0.75rem);
+  --space-md: clamp(0.75rem, 0.65rem + 0.3vw, 1rem);
+  --space-lg: clamp(1rem, 0.9rem + 0.4vw, 1.5rem);
+  --space-xl: clamp(1.5rem, 1.3rem + 0.5vw, 2rem);
+  --space-2xl: clamp(2rem, 1.75rem + 0.6vw, 2.5rem);
+  --space-3xl: clamp(2.5rem, 2.2rem + 0.8vw, 3.5rem);
+  --space-4xl: clamp(3.5rem, 3rem + 1vw, 4.5rem);
+
+  /* Section padding — Rhythm at scale */
+  --space-section-y: clamp(3rem, 2.5rem + 2vw, 5rem);
+  --space-section-x: clamp(1rem, 0.5rem + 2vw, 2rem);
+
+  /* ============================================================
+     BORDERS & RADIUS — Subtle, intentional
+     ============================================================ */
+
+  --radius-sm: 0.375rem; /* Buttons, inputs */
+  --radius-md: 0.5rem; /* Cards, moderate curves */
+  --radius-lg: 0.75rem; /* Larger components */
+  --radius-xl: 1rem; /* Prominent surfaces */
+  --radius-full: 9999px; /* Rounded ends (pills) */
+
+  /* Border weights — Thin default, thicker for emphasis */
+  --border-thin: 1px;
+  --border-normal: 2px;
+  --border-thick: 3px;
+
+  /* Border color — Subtle but present */
+  --color-border: oklch(90% 0 0); /* Light gray */
+  --color-border-strong: oklch(75% 0 0); /* Medium gray */
+
+  /* ============================================================
+     SHADOWS — Depth without heaviness
+     ============================================================ */
+
+  --shadow-none: none;
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+  /* ============================================================
+     MOTION — Intentional, purposeful
+     ============================================================ */
+
+  /* Durations — Micro to macro */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+
+  /* Easing functions — Personality */
+  --ease-in-out-quad: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-back: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+
+  /* ============================================================
+     GRID & LAYOUT — Aligned to design intent
+     ============================================================ */
+
+  /* Breakpoints — Content-driven */
+  --breakpoint-sm: 640px; /* Small devices */
+  --breakpoint-md: 768px; /* Tablets */
+  --breakpoint-lg: 1024px; /* Laptop */
+  --breakpoint-xl: 1280px; /* Desktop */
+
+  /* Max widths — Optimal reading + breathing room */
+  --max-width-prose: 65ch;
+  --max-width-content: 90rem;
+  --max-width-section: 75rem;
+
+  /* ============================================================
+     FOCUS & ACCESSIBILITY — Mandatory, visible
+     ============================================================ */
+
+  --outline-color: var(--color-brand);
+  --outline-width: 2px;
+  --outline-offset: 2px;
+}
+
+/* ============================================================
+   DARK MODE — Intentional inversion, not auto-applied
+   ============================================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface-primary: oklch(15% 0 0);
+    --color-surface-secondary: oklch(20% 0.008 265);
+    --color-surface-tertiary: oklch(28% 0 0);
+
+    --color-text-primary: oklch(97% 0 0);
+    --color-text-secondary: oklch(72% 0 0);
+    --color-text-tertiary: oklch(55% 0 0);
+
+    --color-border: oklch(25% 0 0);
+    --color-border-strong: oklch(40% 0 0);
+  }
+}

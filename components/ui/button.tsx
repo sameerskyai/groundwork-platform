@@ -3,22 +3,19 @@ import { cn } from '@/lib/utils'
 import { forwardRef } from 'react'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-40 tracking-tight',
+  'inline-flex items-center justify-center font-semibold transition-colors duration-[var(--duration-normal)] focus-visible:outline-none focus-visible:ring-[var(--outline-width)] focus-visible:ring-[var(--outline-color)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        primary: 'bg-[#BF7A3A] text-[#F4F0E8] hover:bg-[#D4903F] focus-visible:ring-[#BF7A3A] rounded-xl shadow-sm',
-        dark: 'bg-[#0A0908] text-[#EDE8DF] hover:bg-[#161513] rounded-xl',
-        secondary: 'bg-[#F4F0E8] text-[#0A0908] hover:bg-[#EDE8DF] rounded-xl border border-[#DDD8CE]',
-        ghost: 'text-[#7A756E] hover:text-[#0A0908] hover:bg-[#F4F0E8] rounded-xl',
-        outline: 'border-2 border-[#BF7A3A] text-[#BF7A3A] hover:bg-[#BF7A3A] hover:text-[#F4F0E8] rounded-xl',
-        'outline-cream': 'border border-[#EDE8DF]/30 text-[#EDE8DF] hover:bg-[#EDE8DF]/10 rounded-xl',
+        primary: 'bg-[var(--color-brand)] text-[var(--color-text-inverse)] hover:bg-[var(--color-interactive-active)]',
+        secondary: 'bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] border border-[var(--color-border)] hover:bg-[var(--color-surface-tertiary)]',
+        tertiary: 'bg-[var(--color-surface-tertiary)] text-[var(--color-text-primary)] hover:bg-[var(--color-border-strong)]',
+        ghost: 'text-[var(--color-brand)] hover:bg-[var(--color-brand-lighter)]',
       },
       size: {
-        sm: 'h-8 px-3.5 text-sm',
-        md: 'h-10 px-4 text-sm',
-        lg: 'h-11 px-5 text-[15px]',
-        xl: 'h-13 px-7 text-base',
+        sm: 'h-8 px-3.5 text-sm rounded-md',
+        md: 'h-10 px-4 text-base rounded-md',
+        lg: 'h-12 px-6 text-base rounded-lg',
       }
     },
     defaultVariants: { variant: 'primary', size: 'md' }
@@ -26,11 +23,19 @@ const buttonVariants = cva(
 )
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-  VariantProps<typeof buttonVariants> {}
+  VariantProps<typeof buttonVariants> {
+  isLoading?: boolean
+}
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => (
-    <button ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />
+  ({ className, variant, size, isLoading, disabled, ...props }, ref) => (
+    <button
+      ref={ref}
+      className={cn(buttonVariants({ variant, size }), className)}
+      disabled={disabled || isLoading}
+      aria-busy={isLoading}
+      {...props}
+    />
   )
 )
 Button.displayName = 'Button'
