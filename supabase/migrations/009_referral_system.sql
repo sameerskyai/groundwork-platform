@@ -1,10 +1,8 @@
 -- ============================================================
--- 009 — Referral System
--- Referral counter, verification logic, and $10/mo price switch
+-- 009 — Referral Activation Logic
+-- Functions and triggers for automatic price switching at 10 verified referrals
+-- Tables created in migration 008; RLS policies in 008 and 011
 -- ============================================================
-
--- Referral tables already created in migration 008
--- This migration adds logic and triggers for automatic price switching
 
 -- Function: increment referral count and check for $10/mo switch
 CREATE OR REPLACE FUNCTION activate_referral(referral_id UUID)
@@ -62,15 +60,4 @@ AFTER UPDATE ON referrals
 FOR EACH ROW
 EXECUTE FUNCTION check_referral_switch();
 
--- RLS: enable on referrals and referral_abuse_checks
-ALTER TABLE referrals ENABLE ROW LEVEL SECURITY;
-ALTER TABLE referral_abuse_checks ENABLE ROW LEVEL SECURITY;
-
--- Allow users to view their referrals
-DROP POLICY IF EXISTS "referrals_user_view" ON referrals;
-CREATE POLICY "referrals_user_view" ON referrals
-  FOR SELECT USING (auth.uid() = referrer_id OR auth.uid() = referred_id);
-
-DROP POLICY IF EXISTS "abuse_checks_user_view" ON referral_abuse_checks;
-CREATE POLICY "abuse_checks_user_view" ON referral_abuse_checks
-  FOR SELECT USING (auth.uid() = referred_id);
+-- Note: RLS policies created in migration 008
