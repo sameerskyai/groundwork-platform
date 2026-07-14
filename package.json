@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest"
+    "test": "vitest --exclude '__tests__/demo-isolation.test.ts'",
+    "test:live-db": "vitest run __tests__/demo-isolation.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",
