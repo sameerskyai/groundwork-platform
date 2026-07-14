@@ -1,10 +1,13 @@
 'use client'
 
+import '@/app/styles/design-tokens.css'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/Card'
+import { Input } from '@/components/ui/Input'
 import { formatRange } from '@/lib/utils'
 import { ArrowLeft, Upload, Zap, ChevronRight } from 'lucide-react'
 
@@ -96,32 +99,56 @@ export default function EstimatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      <header className="bg-white border-b border-gray-100 px-6 py-4">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
+      <header style={{
+        backgroundColor: 'var(--color-surface-secondary)',
+        borderBottom: '1px solid var(--color-border)',
+        padding: '1rem 1.5rem'
+      }}>
         <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <Link href="/homeowner" className="text-gray-400 hover:text-gray-700 transition-colors">
+          <Link href="/homeowner" style={{ color: 'var(--color-text-secondary)' }} className="hover:opacity-80 transition-opacity">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="font-bold text-gray-900">Get an estimate</h1>
+          <h1 style={{ fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)' }}>
+            Get an estimate
+          </h1>
         </div>
       </header>
 
       <div className="max-w-2xl mx-auto px-6 py-8">
         {!estimate ? (
-          <form onSubmit={handleEstimate} className="bg-white rounded-2xl border border-gray-100 p-6">
+          <Card variant="default" className="p-6">
             <div className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
-                <Zap className="w-4 h-4 text-[#FF6B35]" />
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: 'var(--color-brand-lighter)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Zap className="w-4 h-4" style={{ color: 'var(--color-brand)' }} />
               </div>
               <div>
-                <h2 className="font-bold text-gray-900">Describe your project</h2>
-                <p className="text-xs text-gray-500">AI estimate in under 30 seconds</p>
+                <h2 style={{ fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)' }}>
+                  Describe your project
+                </h2>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>
+                  AI estimate in under 30 seconds
+                </p>
               </div>
             </div>
 
-            <div className="flex flex-col gap-4">
+            <form onSubmit={handleEstimate} className="flex flex-col gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label style={{
+                  display: 'block',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 'var(--weight-medium)',
+                  color: 'var(--color-text-primary)',
+                  marginBottom: 'var(--space-sm)'
+                }}>
                   What do you need done?
                 </label>
                 <textarea
@@ -129,78 +156,139 @@ export default function EstimatePage() {
                   onChange={e => setDescription(e.target.value)}
                   required
                   rows={5}
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35] resize-none"
-                  placeholder="e.g. I need my 200 sqft kitchen completely remodeled — new cabinets, countertops, tile backsplash, and new flooring. Gutting everything down to the studs."
+                  style={{
+                    width: '100%',
+                    padding: '0.625rem 0.75rem',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--color-border)',
+                    fontSize: 'var(--text-sm)',
+                    color: 'var(--color-text-primary)',
+                    backgroundColor: 'var(--color-surface-primary)',
+                    fontFamily: 'var(--font-sans)',
+                    resize: 'none'
+                  }}
+                  className="focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
+                  placeholder="e.g. I need my 200 sqft kitchen completely remodeled — new cabinets, countertops, tile backsplash, and new flooring."
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">ZIP code</label>
-                <input
-                  type="text"
-                  value={zip}
-                  onChange={e => setZip(e.target.value)}
-                  required
-                  pattern="[0-9]{5}"
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"
-                  placeholder="10001"
-                />
-              </div>
+              <Input
+                label="ZIP code"
+                type="text"
+                value={zip}
+                onChange={e => setZip(e.target.value)}
+                required
+                pattern="[0-9]{5}"
+                placeholder="10001"
+              />
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Photos <span className="text-gray-400 font-normal">(optional — improves accuracy)</span>
+                <label style={{
+                  display: 'block',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 'var(--weight-medium)',
+                  color: 'var(--color-text-primary)',
+                  marginBottom: 'var(--space-md)'
+                }}>
+                  Photos <span style={{ color: 'var(--color-text-tertiary)', fontWeight: 'var(--weight-regular)' }}>(optional)</span>
                 </label>
-                <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl p-6 cursor-pointer hover:border-[#FF6B35] transition-colors">
-                  <Upload className="w-6 h-6 text-gray-400" />
-                  <span className="text-sm text-gray-500">
+                <label style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 'var(--space-md)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: 'var(--space-xl)',
+                  cursor: 'pointer',
+                  backgroundColor: 'var(--color-surface-secondary)',
+                  border: `2px dashed var(--color-border)`,
+                  transition: `border-color var(--duration-normal), background-color var(--duration-normal)`
+                }} className="hover:border-[var(--color-brand)] hover:bg-[var(--color-brand-lighter)]">
+                  <Upload className="w-6 h-6" style={{ color: 'var(--color-text-tertiary)' }} />
+                  <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
                     {uploading ? 'Uploading...' : photos.length ? `${photos.length} photo(s) selected` : 'Upload up to 3 photos'}
                   </span>
                   <input type="file" accept="image/*" multiple className="sr-only" onChange={handlePhotoChange} />
                 </label>
               </div>
 
-              {error && <p className="text-red-500 text-sm">{error}</p>}
+              {error && <p style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)' }}>{error}</p>}
 
               <Button type="submit" size="lg" disabled={loading || uploading} className="w-full">
-                {loading ? 'Analyzing your project...' : 'Get my estimate'}
+                {loading ? 'Analyzing...' : 'Get my estimate'}
                 <Zap className="w-4 h-4 ml-2" />
               </Button>
-            </div>
-          </form>
+            </form>
+          </Card>
         ) : (
           <div className="flex flex-col gap-4">
             {/* Estimate card */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <div className="text-xs font-medium text-[#FF6B35] mb-1">{estimate.projectType}</div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+            <Card variant="default">
+              <div style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--weight-medium)', color: 'var(--color-info)', marginBottom: 'var(--space-sm)' }}>
+                {estimate.projectType}
+              </div>
+              <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
                 {formatRange(estimate.estimateLow, estimate.estimateHigh)}
               </h2>
-              <p className="text-sm text-gray-500 mb-4">{estimate.scope} scope · {estimate.confidence} confidence</p>
-              <p className="text-sm text-gray-700 leading-relaxed mb-5">{estimate.reasoning}</p>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>
+                {estimate.scope} scope · {estimate.confidence} confidence
+              </p>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)', lineHeight: 'var(--leading-relaxed)', marginBottom: 'var(--space-xl)' }}>
+                {estimate.reasoning}
+              </p>
 
               {/* Locked line items CTA */}
-              <div className="bg-gray-50 rounded-xl p-4 relative overflow-hidden">
-                <div className="absolute inset-0 backdrop-blur-[2px] bg-white/60 flex flex-col items-center justify-center z-10 rounded-xl">
-                  <p className="font-bold text-gray-900 mb-1">Full itemized breakdown</p>
-                  <p className="text-sm text-gray-500 mb-3">Labor vs. materials + {estimate.lineItems.length} line items</p>
+              <div style={{
+                backgroundColor: 'var(--color-surface-tertiary)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-lg)',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backdropFilter: 'blur(2px)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                  borderRadius: 'var(--radius-lg)'
+                }}>
+                  <p style={{ fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+                    Full itemized breakdown
+                  </p>
+                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>
+                    Labor vs. materials + {estimate.lineItems.length} line items
+                  </p>
                   <Button size="sm">Unlock for $9.99</Button>
                 </div>
-                <div className="opacity-20">
+                <div style={{ opacity: 0.15 }}>
                   {estimate.lineItems.map(li => (
-                    <div key={li.item} className="flex justify-between text-sm py-1.5 border-b border-gray-100 last:border-0">
+                    <div key={li.item} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: 'var(--text-sm)',
+                      padding: 'var(--space-md) 0',
+                      borderBottom: '1px solid var(--color-border)'
+                    }} className="last:border-0">
                       <span>{li.item}</span>
-                      <span className="font-medium">{formatRange(li.low, li.high)}</span>
+                      <span style={{ fontWeight: 'var(--weight-medium)' }}>{formatRange(li.low, li.high)}</span>
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
+            </Card>
 
             {/* Find contractors CTA */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-1">Find contractors for this project</h3>
-              <p className="text-sm text-gray-500 mb-4">
+            <Card variant="accent">
+              <h3 style={{ fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+                Find contractors for this project
+              </h3>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>
                 Send your project to vetted pros in your area. They review it — you pick who to talk to.
               </p>
               <Link href={`/homeowner/matches?project=${projectId}`}>
@@ -209,11 +297,20 @@ export default function EstimatePage() {
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </Link>
-            </div>
+            </Card>
 
             <button
               onClick={() => setEstimate(null)}
-              className="text-sm text-gray-400 hover:text-gray-600 transition-colors text-center"
+              style={{
+                fontSize: 'var(--text-sm)',
+                color: 'var(--color-text-secondary)',
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: `color var(--duration-normal)`
+              }}
+              className="hover:text-[var(--color-text-primary)]"
             >
               Start over
             </button>
