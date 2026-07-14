@@ -98,14 +98,14 @@ export default function EstimatePage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
+    <div className="min-h-screen [background-color:var(--color-surface-primary)]">
       <header style={{
         backgroundColor: 'var(--color-surface-secondary)',
         borderBottom: '1px solid var(--color-border)',
         padding: '1rem 1.5rem'
       }}>
         <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <Link href="/homeowner" style={{ color: 'var(--color-text-secondary)' }} className="hover:opacity-80 transition-opacity">
+          <Link href="/homeowner" className="[color:var(--color-text-secondary)] hover:opacity-80 transition-opacity">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 style={{ fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)' }}>
@@ -118,16 +118,8 @@ export default function EstimatePage() {
         {!estimate ? (
           <Card variant="default" className="p-6">
             <div className="flex items-center gap-2 mb-6">
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: 'var(--color-brand-lighter)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <Zap className="w-4 h-4" style={{ color: 'var(--color-brand)' }} />
+              <div className="w-8 h-8 rounded-[var(--radius-md)] [background-color:var(--color-brand-lighter)] flex items-center justify-center">
+                <Zap className="w-4 h-4 [color:var(--color-brand)]" />
               </div>
               <div>
                 <h2 style={{ fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)' }}>
@@ -141,13 +133,7 @@ export default function EstimatePage() {
 
             <form onSubmit={handleEstimate} className="flex flex-col gap-4">
               <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 'var(--weight-medium)',
-                  color: 'var(--color-text-primary)',
-                  marginBottom: 'var(--space-sm)'
-                }}>
+                <label className="block [font-size:var(--text-sm)] font-medium [color:var(--color-text-primary)] mb-[var(--space-sm)]">
                   What do you need done?
                 </label>
                 <textarea
@@ -155,18 +141,7 @@ export default function EstimatePage() {
                   onChange={e => setDescription(e.target.value)}
                   required
                   rows={5}
-                  style={{
-                    width: '100%',
-                    padding: '0.625rem 0.75rem',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--color-border)',
-                    fontSize: 'var(--text-sm)',
-                    color: 'var(--color-text-primary)',
-                    backgroundColor: 'var(--color-surface-primary)',
-                    fontFamily: 'var(--font-sans)',
-                    resize: 'none'
-                  }}
-                  className="focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
+                  className="w-full px-3 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] [font-size:var(--text-sm)] [color:var(--color-text-primary)] [background-color:var(--color-surface-primary)] [font-family:var(--font-sans)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
                   placeholder="e.g. I need my 200 sqft kitchen completely remodeled — new cabinets, countertops, tile backsplash, and new flooring."
                 />
               </div>
@@ -191,20 +166,8 @@ export default function EstimatePage() {
                 }}>
                   Photos <span style={{ color: 'var(--color-text-tertiary)', fontWeight: 'var(--weight-regular)' }}>(optional)</span>
                 </label>
-                <label style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 'var(--space-md)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: 'var(--space-xl)',
-                  cursor: 'pointer',
-                  backgroundColor: 'var(--color-surface-secondary)',
-                  border: `2px dashed var(--color-border)`,
-                  transition: `border-color var(--duration-normal), background-color var(--duration-normal)`
-                }} className="hover:border-[var(--color-brand)] hover:bg-[var(--color-brand-lighter)]">
-                  <Upload className="w-6 h-6" style={{ color: 'var(--color-text-tertiary)' }} />
+                <label className="flex flex-col items-center justify-center gap-[var(--space-md)] rounded-[var(--radius-md)] p-[var(--space-xl)] cursor-pointer [background-color:var(--color-surface-secondary)] border-2 border-dashed border-[var(--color-border)] transition-[border-color,background-color] duration-[var(--duration-normal)] hover:border-[var(--color-brand)] hover:bg-[var(--color-brand-lighter)]">
+                  <Upload className="w-6 h-6 [color:var(--color-text-tertiary)]" />
                   <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
                     {uploading ? 'Uploading...' : photos.length ? `${photos.length} photo(s) selected` : 'Upload up to 3 photos'}
                   </span>
@@ -212,7 +175,7 @@ export default function EstimatePage() {
                 </label>
               </div>
 
-              {error && <p style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)' }}>{error}</p>}
+              {error && <p className="[color:var(--color-error)] [font-size:var(--text-sm)]">{error}</p>}
 
               <Button type="submit" size="lg" disabled={loading || uploading} className="w-full">
                 {loading ? 'Analyzing...' : 'Get my estimate'}
@@ -238,23 +201,12 @@ export default function EstimatePage() {
               </p>
 
               {/* Full itemized breakdown */}
-              <div style={{
-                backgroundColor: 'var(--color-surface-secondary)',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-lg)'
-              }}>
+              <div className="[background-color:var(--color-surface-secondary)] rounded-[var(--radius-lg)] p-[var(--space-lg)]">
                 <h3 style={{ fontWeight: 'var(--weight-semibold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-lg)' }}>
                   Itemized breakdown
                 </h3>
                 {estimate.lineItems.map(li => (
-                  <div key={li.item} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    fontSize: 'var(--text-sm)',
-                    padding: 'var(--space-md) 0',
-                    borderBottom: '1px solid var(--color-border)',
-                    color: 'var(--color-text-primary)'
-                  }} className="last:border-0">
+                  <div key={li.item} className="flex justify-between [font-size:var(--text-sm)] py-[var(--space-md)] border-b border-[var(--color-border)] [color:var(--color-text-primary)] last:border-0">
                     <span>{li.item}</span>
                     <span style={{ fontWeight: 'var(--weight-medium)' }}>{formatRange(li.low, li.high)}</span>
                   </div>
@@ -280,16 +232,7 @@ export default function EstimatePage() {
 
             <button
               onClick={() => setEstimate(null)}
-              style={{
-                fontSize: 'var(--text-sm)',
-                color: 'var(--color-text-secondary)',
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                textAlign: 'center',
-                transition: `color var(--duration-normal)`
-              }}
-              className="hover:text-[var(--color-text-primary)]"
+              className="[font-size:var(--text-sm)] [color:var(--color-text-secondary)] bg-transparent border-none cursor-pointer text-center transition-colors duration-[var(--duration-normal)] hover:text-[var(--color-text-primary)]"
             >
               Start over
             </button>
