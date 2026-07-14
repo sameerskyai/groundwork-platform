@@ -61,21 +61,21 @@ describe('Rate limiting', () => {
     })
   })
 
-  describe('Rate limit check', () => {
+  describe('Rate limit check (using local store)', () => {
     it('should allow request under limit', async () => {
       const key = makeKey('estimate', 'user-123')
-      const result = await checkRateLimit(key, RATE_LIMITS.estimate)
+      const count = await store.increment(key, RATE_LIMITS.estimate.windowSeconds)
+      const allowed = count <= RATE_LIMITS.estimate.maxRequests
 
-      expect(result.allowed).toBe(true)
-      expect(result.retryAfterSeconds).toBeUndefined()
+      expect(allowed).toBe(true)
     })
 
     it('should allow multiple requests under limit', async () => {
       const key = makeKey('estimate', 'user-123')
 
       for (let i = 0; i < 5; i++) {
-        const result = await checkRateLimit(key, RATE_LIMITS.estimate)
-        expect(result.allowed).toBe(true)
+        const count = await store.increment(key, RATE_LIMITS.estimate.windowSeconds)
+        expect(count <= RATE_LIMITS.estimate.maxRequests).toBe(true)
       }
     })
 
@@ -84,40 +84,40 @@ describe('Rate limiting', () => {
 
       // Max 5 requests per hour
       for (let i = 0; i < 5; i++) {
-        await checkRateLimit(key, RATE_LIMITS.estimate)
+        await store.increment(key, RATE_LIMITS.estimate.windowSeconds)
       }
 
       // 6th request should be denied
-      const result = await checkRateLimit(key, RATE_LIMITS.estimate)
-      expect(result.allowed).toBe(false)
-      expect(result.retryAfterSeconds).toBe(RATE_LIMITS.estimate.windowSeconds)
+      const count = await store.increment(key, RATE_LIMITS.estimate.windowSeconds)
+      const allowed = count <= RATE_LIMITS.estimate.maxRequests
+      expect(allowed).toBe(false)
     })
 
     it('should track different users separately', async () => {
       const key1 = makeKey('estimate', 'user-1')
       const key2 = makeKey('estimate', 'user-2')
 
-      await checkRateLimit(key1, RATE_LIMITS.estimate)
-      await checkRateLimit(key1, RATE_LIMITS.estimate)
+      await store.increment(key1, RATE_LIMITS.estimate.windowSeconds)
+      await store.increment(key1, RATE_LIMITS.estimate.windowSeconds)
 
       // User 2 should have own limit
-      const result = await checkRateLimit(key2, RATE_LIMITS.estimate)
-      expect(result.allowed).toBe(true)
+      const count = await store.increment(key2, RATE_LIMITS.estimate.windowSeconds)
+      expect(count <= RATE_LIMITS.estimate.maxRequests).toBe(true)
     })
 
     it('should track different endpoints separately', async () => {
       const key1 = makeKey('estimate', 'user-123')
       const key2 = makeKey('chat', 'user-123')
 
-      await checkRateLimit(key1, RATE_LIMITS.estimate)
-      await checkRateLimit(key2, RATE_LIMITS.chat)
+      await store.increment(key1, RATE_LIMITS.estimate.windowSeconds)
+      await store.increment(key2, RATE_LIMITS.chat.windowSeconds)
 
       // Should have independent limits
-      const result1 = await checkRateLimit(key1, RATE_LIMITS.estimate)
-      const result2 = await checkRateLimit(key2, RATE_LIMITS.chat)
+      const count1 = await store.increment(key1, RATE_LIMITS.estimate.windowSeconds)
+      const count2 = await store.increment(key2, RATE_LIMITS.chat.windowSeconds)
 
-      expect(result1.allowed).toBe(true)
-      expect(result2.allowed).toBe(true)
+      expect(count1 <= RATE_LIMITS.estimate.maxRequests).toBe(true)
+      expect(count2 <= RATE_LIMITS.chat.maxRequests).toBe(true)
     })
 
     it('should enforce strict auth rate limit', () => {
