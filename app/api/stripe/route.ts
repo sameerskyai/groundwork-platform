@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { stripe, createOrGetStripeCustomer, createContractorSubscription, createEstimatePaymentIntent } from '@/lib/stripe'
+import { createOrGetStripeCustomer, createContractorSubscription } from '@/lib/stripe'
 
-// Create payment intent for estimate unlock
+// Contractor subscription setup (estimates are free — no payment for them)
 export async function POST(req: NextRequest) {
   try {
-    const { type, projectId, tier } = await req.json()
+    const { type, tier } = await req.json()
     const supabase = await createClient()
 
     const { data: { user } } = await supabase.auth.getUser()
@@ -16,11 +16,6 @@ export async function POST(req: NextRequest) {
       .select('*')
       .eq('id', user.id)
       .single()
-
-    if (type === 'estimate_unlock') {
-      const pi = await createEstimatePaymentIntent(projectId)
-      return NextResponse.json({ clientSecret: pi.client_secret })
-    }
 
     if (type === 'contractor_subscription') {
       const customer = await createOrGetStripeCustomer(
@@ -34,6 +29,11 @@ export async function POST(req: NextRequest) {
         .eq('user_id', user.id)
 
       const subscription = await createContractorSubscription(customer.id, tier)
+      // Free tier returns null, paid_unlimited returns Stripe subscription
+      if (!subscription) {
+        return NextResponse.json({ subscriptionId: null, clientSecret: null })
+      }
+
       const invoice = subscription.latest_invoice as any
       const pi = invoice?.payment_intent
 
