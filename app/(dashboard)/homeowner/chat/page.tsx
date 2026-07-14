@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Send, ArrowLeft, CheckCircle, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { CompletionOptIn } from '@/components/feed/CompletionOptIn'
+import { ReviewForm } from '@/components/feed/ReviewForm'
 
 interface Message {
   id: string
@@ -28,6 +29,7 @@ function ChatContent() {
   const [matchZip, setMatchZip] = useState<string>('')
   const [showComplete, setShowComplete] = useState(false)
   const [completing, setCompleting] = useState(false)
+  const [showReview, setShowReview] = useState(false)
   const [showOptIn, setShowOptIn] = useState(false)
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const [isHomeowner, setIsHomeowner] = useState(false)
@@ -127,7 +129,21 @@ function ChatContent() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Opt-in prompt — shown once after job completion */}
+      {/* Review form — shown after receipt upload, before opt-in prompt */}
+      {showReview && matchId && matchProjectId && (
+        <div className="max-w-2xl mx-auto w-full px-6 pb-3">
+          <ReviewForm
+            matchId={matchId}
+            projectId={matchProjectId}
+            onSubmitted={() => {
+              setShowReview(false)
+              setShowOptIn(true)
+            }}
+          />
+        </div>
+      )}
+
+      {/* Opt-in prompt — shown once after job completion and review */}
       {showOptIn && matchProjectId && (
         <div className="max-w-2xl mx-auto w-full px-6 pb-3">
           <CompletionOptIn
@@ -139,7 +155,7 @@ function ChatContent() {
       )}
 
       {/* Mark job complete — only shown to homeowner, one-time */}
-      {isHomeowner && !showOptIn && matchProjectId && (
+      {isHomeowner && !showOptIn && !showReview && matchProjectId && (
         <div className="max-w-2xl mx-auto w-full px-6 pb-3">
           {showComplete ? (
             <div className="bg-white border border-gray-100 rounded-2xl p-4">
@@ -172,14 +188,17 @@ function ChatContent() {
                       ? sb.storage.from('project-photos').getPublicUrl(uploadData.path).data.publicUrl
                       : ''
                     // Mark complete via API
-                    await fetch('/api/feed', {
+                    const response = await fetch('/api/feed', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ projectId: matchProjectId, receiptUrl })
                     })
+                    const result = await response.json()
                     setCompleting(false)
                     setShowComplete(false)
-                    setShowOptIn(true)
+                    if (result.success) {
+                      setShowReview(true)
+                    }
                   }}
                 >
                   {completing ? 'Submitting...' : 'Mark complete'}
