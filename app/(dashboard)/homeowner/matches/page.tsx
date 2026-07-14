@@ -1,10 +1,13 @@
 'use client'
 
+import '@/app/styles/design-tokens.css'
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
 import { ArrowLeft, Star, MapPin, MessageCircle, Loader2 } from 'lucide-react'
 
 interface Match {
@@ -69,28 +72,42 @@ function MatchesContent() {
     await loadMatches()
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading...</div>
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ color: 'var(--color-text-secondary)' }}>
+      Loading your matches...
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      <header className="bg-white border-b border-gray-100 px-6 py-4">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
+      <header style={{
+        backgroundColor: 'var(--color-surface-secondary)',
+        borderBottom: '1px solid var(--color-border)',
+        padding: '1rem 1.5rem'
+      }}>
         <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <Link href="/homeowner" className="text-gray-400 hover:text-gray-700">
+          <Link href="/homeowner" style={{ color: 'var(--color-text-secondary)' }} className="hover:opacity-80 transition-opacity">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="font-bold text-gray-900">Your matches</h1>
+          <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)' }}>
+            Your matches
+          </h1>
         </div>
       </header>
 
       <div className="max-w-2xl mx-auto px-6 py-8">
         {!matches.length ? (
-          <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Find contractors for your project</h2>
-            <p className="text-gray-500 mb-6">Our AI will match you with the best pros in your area.</p>
+          <Card variant="accent" className="p-12 text-center">
+            <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-bold)', marginBottom: 'var(--space-sm)', color: 'var(--color-text-primary)' }}>
+              Find contractors for your project
+            </h2>
+            <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>
+              Our AI will match you with the best pros in your area.
+            </p>
             <Button size="lg" onClick={runMatching} disabled={running}>
               {running ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Finding matches...</> : 'Find my matches'}
             </Button>
-          </div>
+          </Card>
         ) : (
           <div className="flex flex-col gap-4">
             {matches.map(m => {
@@ -100,19 +117,21 @@ function MatchesContent() {
               const isNew = m.status === 'pending'
 
               return (
-                <div key={m.id} className="bg-white rounded-2xl border border-gray-100 p-5">
+                <Card key={m.id} variant="interactive">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-bold text-gray-900">{c.business_name}</span>
+                        <span style={{ fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)' }}>
+                          {c.business_name}
+                        </span>
                         {c.subscription_tier === 'growth' && (
-                          <span className="text-xs bg-[#FF6B35] text-white px-2 py-0.5 rounded-full font-medium">Featured</span>
+                          <Badge variant="info">Featured</Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-gray-500 mb-2">
+                      <div className="flex items-center gap-3 text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>
                         {c.rating > 0 && (
                           <span className="flex items-center gap-1">
-                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                            <Star className="w-3.5 h-3.5" style={{ fill: 'var(--color-warning)' }} />
                             {c.rating.toFixed(1)} ({c.review_count})
                           </span>
                         )}
@@ -122,17 +141,23 @@ function MatchesContent() {
                         </span>
                         <span>{c.years_in_business}yrs exp</span>
                       </div>
-                      {c.bio && <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{c.bio}</p>}
+                      {c.bio && (
+                        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', lineHeight: 'var(--leading-relaxed)' }} className="line-clamp-2">
+                          {c.bio}
+                        </p>
+                      )}
                       {m.match_reasoning && (
-                        <p className="text-xs text-[#FF6B35] mt-2">AI: {m.match_reasoning}</p>
+                        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-info)', marginTop: 'var(--space-md)' }}>
+                          AI: {m.match_reasoning}
+                        </p>
                       )}
                     </div>
-                    <div className="text-right text-xs text-gray-400">
+                    <div style={{ textAlign: 'right', fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)' }}>
                       {Math.round(m.match_score * 100)}% match
                     </div>
                   </div>
 
-                  <div className="mt-4 flex items-center gap-3">
+                  <div style={{ marginTop: 'var(--space-lg)', display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
                     {isMatched && (
                       <Link href={`/homeowner/chat?match=${m.id}`} className="flex-1">
                         <Button size="sm" className="w-full">
@@ -142,18 +167,20 @@ function MatchesContent() {
                       </Link>
                     )}
                     {isPending && (
-                      <span className="text-sm text-amber-600 font-medium">Waiting for contractor...</span>
+                      <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--color-warning)' }}>
+                        Waiting for contractor...
+                      </span>
                     )}
                     {isNew && (
-                      <Button size="sm" variant="outline" onClick={() => requestContractor(m.id)}>
+                      <Button size="sm" variant="secondary" onClick={() => requestContractor(m.id)}>
                         Request this contractor
                       </Button>
                     )}
-                    <Link href={`/contractors/${c.id}`} className="text-sm text-gray-500 hover:text-[#FF6B35]">
+                    <Link href={`/contractors/${c.id}`} style={{ fontSize: 'var(--text-sm)', color: 'var(--color-brand)' }} className="hover:opacity-80 transition-opacity">
                       View profile
                     </Link>
                   </div>
-                </div>
+                </Card>
               )
             })}
           </div>
@@ -165,7 +192,11 @@ function MatchesContent() {
 
 export default function MatchesPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-400">Loading...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ color: 'var(--color-text-secondary)' }}>
+        Loading your matches...
+      </div>
+    }>
       <MatchesContent />
     </Suspense>
   )
