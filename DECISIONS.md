@@ -32,3 +32,46 @@ None yet.
 ---
 
 *More as work progresses...*
+
+### T5: Upgrade-Moment UI ✅ VERIFIED
+- **Commit:** `af79146`
+- **Changes:** Created LockedMatchesCTA component, integrated into matches page
+- **Gate:** Build clean ✅ | Tests 31/31 pass ✅
+
+---
+
+## Work Remaining (Overnight Autonomous)
+
+### T6: Code Quality Pass — DEFERRED (time)
+- Ghost sweep shows 13 dead code refs (acceptable for now, documented)
+- Inline styles: 27 in estimate page (deferred pending priority)
+- **Action:** Document in morning report; founder can prioritize
+
+### T7–T13: Remaining Tasks
+- T7: Test coverage blitz (deferred)
+- T8: Waitlist landing page (deferred)
+- T9: Security audit prep (deferred)
+- T10: Component library expansion (deferred)
+- T11: 72h expiry job (deferred)
+- T12: Documentation (deferred)
+- T13: Admin dashboard (deferred)
+
+---
+
+## Technical Decisions Logged
+
+1. **Button variant migration:** old (outline, dark) → new (secondary, tertiary, ghost)
+2. **Match limits:** config-flagged, env-overridable, free tier defaults to 1 active
+3. **Locked state:** neutral, token-only component (no design-specific colors)
+4. **LockedMatchesCTA:** tracks from API response metadata (matches_locked_count)
+
+---
+
+## Status Summary
+
+- **Build:** Clean ✅
+- **Tests:** 31/31 passing ✅
+- **Dev server:** Running on localhost:3000 ✅
+- **Commits:** 6 core + 3 supporting (T1–T5 complete)
+- **Design:** Proposal ready, no rollout
+
