@@ -368,7 +368,7 @@ export default function HomeownerDashboard() {
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                       <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.amber }}>
-                        {current.subscription_tier === 'growth' ? 'Featured' : 'Verified pro'}
+                        {current.subscription_tier === 'paid_unlimited' ? 'Featured' : 'Verified pro'}
                       </span>
                       {current.trust_score != null && (
                         <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: C.green, fontWeight: 700 }}>

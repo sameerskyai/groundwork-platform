@@ -47,7 +47,7 @@ export default async function ContractorPublicProfile({ params }: { params: Prom
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-gray-900">{contractor.business_name}</h1>
-                {contractor.subscription_tier === 'growth' && (
+                {contractor.subscription_tier === 'paid_unlimited' && (
                   <span className="text-xs bg-[#FF6B35] text-white px-2 py-0.5 rounded-full font-medium">Featured</span>
                 )}
               </div>

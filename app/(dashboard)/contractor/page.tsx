@@ -235,7 +235,7 @@ export default function ContractorDashboard() {
                 </h1>
                 <p style={{ color: C.textDim, fontSize: 14 }}>Swipe through projects that match your trades and service area.</p>
               </div>
-              {profile?.subscription_tier === 'growth' && (
+              {profile?.subscription_tier === 'paid_unlimited' && (
                 <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 100, background: C.amber, color: '#fff' }}>Growth</span>
               )}
             </div>

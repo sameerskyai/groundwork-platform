@@ -64,7 +64,7 @@ export default function ContractorProfilePage() {
     setTimeout(() => setSaved(false), 2000)
   }
 
-  async function subscribe(tier: 'standard' | 'growth') {
+  async function subscribe(tier: 'free' | 'paid_unlimited') {
     setSubscribing(true)
     const res = await fetch('/api/stripe', {
       method: 'POST',
@@ -129,73 +129,17 @@ export default function ContractorProfilePage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: 'Years in business', field: 'years_in_business' as const, type: 'number' },
-                { label: 'Service radius (mi)', field: 'service_radius_miles' as const, type: 'number' }
-              ].map(f => (
-                <div key={f.field}>
-                  <label className="block text-sm font-medium mb-1.5" style={{ color: '#7A756E' }}>{f.label}</label>
-                  <input type={f.type} disabled={!editing}
-                    value={profile[f.field] ?? ''}
-                    onChange={e => setProfile({ ...profile, [f.field]: parseInt(e.target.value) })}
-                    className={inputClass} style={inputStyle(editing)} />
-                </div>
-              ))}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: '#7A756E' }}>License number</label>
-              <input type="text" disabled={!editing} placeholder="Optional"
-                value={profile.license_number ?? ''}
-                onChange={e => setProfile({ ...profile, license_number: e.target.value })}
-                className={inputClass} style={inputStyle(editing)} />
-            </div>
-            <div className="flex gap-6">
-              {(['insured', 'bonded'] as const).map(field => (
-                <label key={field} className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" disabled={!editing}
-                    checked={profile[field] ?? false}
-                    onChange={e => setProfile({ ...profile, [field]: e.target.checked })}
-                    className="w-4 h-4" style={{ accentColor: '#BF7A3A' }} />
-                  <span className="text-sm font-medium capitalize" style={{ color: '#2A2825' }}>{field}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* AI bio */}
-        {profile.bio && (
-          <div className="rounded-2xl p-6" style={{ background: '#FAFAF7', border: '1px solid #DDD8CE' }}>
-            <h2 className="font-bold mb-3" style={{ color: '#0A0908' }}>Your AI-generated bio</h2>
-            <p className="text-sm leading-relaxed" style={{ color: '#2A2825' }}>{profile.bio}</p>
-            <p className="text-xs mt-3" style={{ color: '#A09990' }}>Generated from your pricing interview. Update your rates to refresh it.</p>
-          </div>
-        )}
-
-        {/* Subscription */}
-        <div id="subscription" className="rounded-2xl p-6" style={{ background: '#FAFAF7', border: '1px solid #DDD8CE' }}>
-          <h2 className="font-bold mb-4" style={{ color: '#0A0908' }}>Subscription</h2>
-
-          {profile.subscription_active ? (
-            <div className="flex items-center gap-2" style={{ color: '#BF7A3A' }}>
-              <Check className="w-5 h-5" />
-              <span className="font-semibold capitalize">{profile.subscription_tier} plan active</span>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <p className="text-sm" style={{ color: '#7A756E' }}>Choose a plan to start receiving job requests.</p>
-              <div className="grid grid-cols-2 gap-4">
-                {[
                   {
-                    tier: 'standard' as const,
-                    price: '$79',
-                    cap: '5 requests/day',
-                    features: ['Public profile', 'AI-written bio', 'Basic analytics'],
+                    tier: 'free' as const,
+                    price: 'Free',
+                    cap: '1 lead/week (~5/month)',
+                    features: ['Public profile', 'Basic dashboard', 'View inquiries'],
                     dark: false
                   },
                   {
-                    tier: 'growth' as const,
-                    price: '$149',
-                    cap: '20 requests/day',
+                    tier: 'paid_unlimited' as const,
+                    price: '$49/mo',
+                    cap: 'Unlimited leads',
                     features: ['Priority placement', 'Featured badge', 'Advanced analytics'],
                     dark: true
                   }

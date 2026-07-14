@@ -18,10 +18,13 @@ export async function createEstimatePaymentIntent(projectId: string) {
   })
 }
 
-export async function createContractorSubscription(customerId: string, tier: 'standard' | 'growth') {
-  const priceId = tier === 'growth'
-    ? process.env.STRIPE_GROWTH_PRICE_ID!
-    : process.env.STRIPE_STANDARD_PRICE_ID!
+export async function createContractorSubscription(customerId: string, tier: 'free' | 'paid_unlimited') {
+  // Free tier doesn't require a subscription — skip Stripe entirely
+  if (tier === 'free') {
+    return null
+  }
+
+  const priceId = process.env.STRIPE_PAID_PRICE_ID!
 
   return stripe.subscriptions.create({
     customer: customerId,
