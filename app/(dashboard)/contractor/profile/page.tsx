@@ -157,7 +157,7 @@ export default function ContractorProfilePage() {
                         <Check className="w-3.5 h-3.5" style={{ color: '#BF7A3A' }} /> {f}
                       </div>
                     ))}
-                    <Button variant={t.dark ? 'primary' : 'dark'} size="sm" className="w-full mt-4"
+                    <Button variant={t.dark ? 'primary' : 'secondary'} size="sm" className="w-full mt-4"
                       onClick={() => subscribe(t.tier)} disabled={subscribing}>
                       {subscribing ? 'Processing...' : `Choose ${t.tier}`}
                     </Button>
