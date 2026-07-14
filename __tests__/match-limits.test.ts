@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 // Configuration (will be loaded from env in actual implementation)
 interface MatchLimitConfig {

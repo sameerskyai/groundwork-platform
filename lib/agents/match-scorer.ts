@@ -54,9 +54,7 @@ export async function scoreProjectContractorMatch(
   project: ProjectData,
   contractor: ContractorData
 ): Promise<MatchScore> {
-  const budgetMid = project.budget_min && project.budget_max
-    ? (project.budget_min + project.budget_max) / 2
-    : null
+  // Budget mid calculated implicitly in AI prompt
 
   const distance = calculateDistance(
     project.lat,
