@@ -13,16 +13,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's primary ZIP code from their first project
-    const { data: firstProject } = await supabase
-      .from('projects')
-      .select('zip_code')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: true })
-      .limit(1)
-      .maybeSingle()
-
-    const communities = await getUserCommunities(user.id, firstProject?.zip_code)
+    const communities = await getUserCommunities(user.id)
 
     return NextResponse.json({ communities })
   } catch (err) {

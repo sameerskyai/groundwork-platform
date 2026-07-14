@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { zipToLatLng } from '@/lib/geo'
-import { autoEnrollInNearbyCommunities } from '@/lib/communities'
+import {
+  getUserNeighborhood,
+  autoEnrollInPrimaryNeighborhood,
+  discoverNearbyZipCommunities
+} from '@/lib/communities'
 
 // POST /api/projects — create a new homeowner project
-// Body: { description, zipCode, trade_slug?, budget_low?, budget_high?, photo_urls? }
+// Body: { description, zipCode, trade_slug?, budget_low?, budget_high?, photo_urls?, clientLat?, clientLng? }
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { description, zipCode, trade_slug, budget_low, budget_high, photo_urls } = body
+    const { description, zipCode, trade_slug, budget_low, budget_high, photo_urls, clientLat, clientLng } = body
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -54,11 +58,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to create project' }, { status: 500 })
     }
 
-    // Auto-enroll homeowner in nearby communities (25-mile radius)
+    // Auto-enroll homeowner in their primary neighborhood community
     // This happens in the background; don't block the response if it fails
-    autoEnrollInNearbyCommunities(user.id, String(zipCode)).catch(err => {
-      console.error('Failed to auto-enroll in communities:', err)
-    })
+    ;(async () => {
+      try {
+        // Get user's neighborhood from location services + IP
+        const neighborhoodData = await getUserNeighborhood(req, clientLat, clientLng)
+
+        if (neighborhoodData) {
+          // Enroll in primary neighborhood
+          await autoEnrollInPrimaryNeighborhood(user.id, neighborhoodData.neighborhood, neighborhoodData.zip_code)
+
+          // Also discover nearby ZIP-level communities
+          await discoverNearbyZipCommunities(user.id, neighborhoodData.zip_code, 25)
+        } else {
+          console.warn('Could not determine user neighborhood; skipping community enrollment')
+        }
+      } catch (err) {
+        console.error('Failed to enroll in communities:', err)
+      }
+    })()
 
     return NextResponse.json({ project }, { status: 201 })
   } catch (err) {
