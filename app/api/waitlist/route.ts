@@ -1,46 +1,69 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 
-// POST /api/waitlist — contractor pre-launch waitlist signup
-// Body: { businessName, trade, zipCode, email, phone? }
-// Duplicate emails update the existing row rather than erroring,
-// so re-submitting is always safe for the prospect.
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const { businessName, trade, zipCode, email, phone } = await req.json()
+    const { email, name } = await request.json()
 
-    if (!businessName?.trim() || !trade?.trim()) {
-      return NextResponse.json({ error: 'Business name and trade are required' }, { status: 400 })
-    }
-    if (!zipCode || !/^\d{5}$/.test(String(zipCode))) {
-      return NextResponse.json({ error: 'A valid 5-digit ZIP code is required' }, { status: 400 })
-    }
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) {
-      return NextResponse.json({ error: 'A valid email is required' }, { status: 400 })
-    }
-
-    const supabase = createAdminClient()
-    const { error } = await supabase
-      .from('contractor_waitlist')
-      .upsert(
-        {
-          business_name: String(businessName).trim(),
-          trade: String(trade).trim(),
-          zip_code: String(zipCode),
-          email: String(email).trim().toLowerCase(),
-          phone: phone ? String(phone).trim() : null
-        },
-        { onConflict: 'email' }
+    // Validation
+    if (!email || !name) {
+      return Response.json(
+        { error: 'Email and name are required' },
+        { status: 400 }
       )
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return Response.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      )
+    }
+
+    const supabase = await createClient()
+
+    // Check if already on waitlist
+    const { data: existing } = await supabase
+      .from('waitlist')
+      .select('id')
+      .eq('email', email.toLowerCase())
+      .single()
+
+    if (existing) {
+      return Response.json(
+        { error: 'Email already on waitlist', referralLink: `/waitlist?ref=${existing.id}` },
+        { status: 409 }
+      )
+    }
+
+    // Add to waitlist
+    const { data, error } = await supabase
+      .from('waitlist')
+      .insert({
+        email: email.toLowerCase(),
+        name: name.trim(),
+        joined_at: new Date().toISOString()
+      })
+      .select('id')
+      .single()
 
     if (error) {
       console.error('Waitlist insert error:', error)
-      return NextResponse.json({ error: 'Could not join the waitlist right now — try again shortly' }, { status: 500 })
+      return Response.json(
+        { error: 'Failed to join waitlist' },
+        { status: 500 }
+      )
     }
 
-    return NextResponse.json({ joined: true }, { status: 201 })
+    return Response.json({
+      success: true,
+      userId: data.id,
+      referralLink: `/waitlist?ref=${data.id}`
+    })
   } catch (err) {
-    console.error('Waitlist POST error:', err)
-    return NextResponse.json({ error: 'Could not join the waitlist right now — try again shortly' }, { status: 500 })
+    console.error('Waitlist endpoint error:', err)
+    return Response.json(
+      { error: 'An error occurred' },
+      { status: 500 }
+    )
   }
 }
