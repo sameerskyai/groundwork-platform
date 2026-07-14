@@ -60,8 +60,14 @@ export default function WaitlistPage() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
-      {/* Hero Section with Video */}
-      <div className="flex-1 flex items-center justify-center relative overflow-hidden">
+      {/* Hero Section with Video (graceful fallback if no video) */}
+      <div
+        className="flex-1 flex items-center justify-center relative overflow-hidden"
+        style={{
+          backgroundImage: 'linear-gradient(135deg, rgba(58, 52, 140, 0.1) 0%, rgba(115, 75, 200, 0.15) 100%)',
+          backgroundColor: 'var(--color-surface-secondary)'
+        }}
+      >
         <video
           autoPlay
           muted
@@ -71,6 +77,10 @@ export default function WaitlistPage() {
           style={{
             backgroundColor: 'var(--color-surface-secondary)',
             opacity: 0.3
+          }}
+          onError={() => {
+            // Video failed to load (file missing) — gradient fallback already applied
+            console.warn('Video failed to load: /videos/groundwork-intro.mp4')
           }}
         >
           <source src="/videos/groundwork-intro.mp4" type="video/mp4" />
