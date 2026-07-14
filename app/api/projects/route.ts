@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { zipToLatLng } from '@/lib/geo'
+import { autoEnrollInNearbyCommunities } from '@/lib/communities'
 
 // POST /api/projects — create a new homeowner project
 // Body: { description, zipCode, trade_slug?, budget_low?, budget_high?, photo_urls? }
@@ -52,6 +53,12 @@ export async function POST(req: NextRequest) {
       console.error('Project create error:', error)
       return NextResponse.json({ error: 'Failed to create project' }, { status: 500 })
     }
+
+    // Auto-enroll homeowner in nearby communities (25-mile radius)
+    // This happens in the background; don't block the response if it fails
+    autoEnrollInNearbyCommunities(user.id, String(zipCode)).catch(err => {
+      console.error('Failed to auto-enroll in communities:', err)
+    })
 
     return NextResponse.json({ project }, { status: 201 })
   } catch (err) {
