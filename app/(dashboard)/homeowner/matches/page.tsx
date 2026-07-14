@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/Card'
-
+import { LockedMatchesCTA } from '@/components/ui/LockedMatchesCTA'
 import { Badge } from '@/components/ui/Badge'
 import { ArrowLeft, Star, MapPin, MessageCircle, Loader2 } from 'lucide-react'
 
@@ -40,11 +40,8 @@ function MatchesContent() {
   const searchParams = useSearchParams()
   const projectId = searchParams.get('project')
   const [matches, setMatches] = useState<Match[]>([])
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [matchesLocked, setMatchesLocked] = useState(0)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [limitReached, setLimitReached] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [userTier, setUserTier] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [running, setRunning] = useState(false)
@@ -201,6 +198,15 @@ function MatchesContent() {
                 </Card>
               )
             })}
+            {matchesLocked > 0 && (
+              <LockedMatchesCTA
+                lockedCount={matchesLocked}
+                onUpgradeClick={() => {
+                  // Navigate to upgrade flow (TODO: implement payment)
+                  console.log('Upgrade clicked', { userTier, limitReached })
+                }}
+              />
+            )}
           </div>
         )}
       </div>
