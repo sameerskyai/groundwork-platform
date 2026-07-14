@@ -150,7 +150,7 @@ export default async function PublicFeedPage({ params }: Props) {
               <Button>Get my free estimate</Button>
             </Link>
             <Link href="/signup?role=contractor">
-              <Button variant="outline">Join as a contractor</Button>
+              <Button variant="secondary">Join as a contractor</Button>
             </Link>
           </div>
         </div>
