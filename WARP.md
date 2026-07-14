@@ -116,6 +116,52 @@ These rules are non-negotiable and apply to all work on this codebase.
 
 ---
 
+## MIGRATION STANDING RULES
+
+### 14. Demo Isolation Coverage (Migration 012 Pattern)
+
+**Context:** Migration 012 (`demo_isolation_secured.sql`) added `is_demo` isolation to existing tables but was written against a spec that included 8 non-existent tables (conversations, invoices, payouts, notifications, personality_responses, compatibility_scores, etc.). These tables were removed from the migration before application.
+
+**Rule:** **ANY future migration that creates a new table MUST include:**
+
+1. **is_demo Column:** `is_demo BOOLEAN NOT NULL DEFAULT false`
+2. **RESTRICTIVE RLS Policy:**
+   ```sql
+   ALTER TABLE new_table ENABLE ROW LEVEL SECURITY;
+   CREATE POLICY "demo_isolation_new_table" ON new_table
+     AS RESTRICTIVE
+     FOR SELECT
+     USING (is_demo = false);
+   ```
+3. **Purge Function Coverage:** Add DELETE statement to `purge_demo_data()` function with:
+   - `DELETE FROM new_table WHERE is_demo = true;`
+   - `GET DIAGNOSTICS var_count = ROW_COUNT;`
+   - Entry in return JSONB object
+   - Inclusion in `total_purged` calculation
+
+**Why:** Without this coverage, future tables will not be isolated from demo data and purge failures will leave orphaned records.
+
+**Tables Affected (Candidates for Future Creation):**
+- conversations (currently removed from 012, needs: is_demo column + RESTRICTIVE policy + purge coverage)
+- invoices (currently removed from 012, needs: is_demo column + RESTRICTIVE policy + purge coverage)
+- payouts (currently removed from 012, needs: is_demo column + RESTRICTIVE policy + purge coverage)
+- notifications (currently removed from 012, needs: is_demo column + RESTRICTIVE policy + purge coverage)
+- personality_responses (currently removed from 012, needs: is_demo column + RESTRICTIVE policy + purge coverage)
+- compatibility_scores (currently removed from 012, needs: is_demo column + RESTRICTIVE policy + purge coverage)
+
+**Verification:** Before applying a new table creation migration, grep the migration file for the table name in the `purge_demo_data()` function. If not found and the table is new, the migration is incomplete.
+
+### 15. Role Constraint Maintenance
+
+**Current Status:** Migration 017 removed 'property_manager' role (deprecated from product roadmap).
+
+**Valid Roles:** `'homeowner'`, `'contractor'`, `'user'`, `'admin'`  
+**Deprecated:** `'property_manager'`, `'standard'` (subscription), `'growth'` (subscription)
+
+Never re-introduce deprecated roles without explicit product decision and a new migration.
+
+---
+
 ## GIT WORKFLOW
 
 ### 14. Commit Message Format

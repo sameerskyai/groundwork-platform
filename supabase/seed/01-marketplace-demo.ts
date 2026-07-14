@@ -182,20 +182,31 @@ export async function seedMarketplace() {
     if (homeownerError) throw homeownerError
     console.log(`    ✓ ${homeownerProfiles.length} homeowner profiles inserted`)
 
-    console.log('  [Step 3b] Inserting contractor profiles...')
-    const contractorProfiles = CONTRACTOR_SPECS.map(spec => ({
+    console.log('  [Step 3b] Inserting contractor profiles (main table)...')
+    const contractorMainProfiles = CONTRACTOR_SPECS.map(spec => ({
       id: contractorMap.get(spec.email),
-      user_id: contractorMap.get(spec.email),
+      full_name: spec.business_name,
       email: spec.email,
-      business_name: spec.business_name,
       zip_code: spec.zip_code,
       lat: spec.lat,
       lng: spec.lng,
+      is_demo: true,
+      role: 'contractor' as const
+    }))
+
+    const { error: contractorMainError } = await supabase.from('profiles').insert(contractorMainProfiles)
+    if (contractorMainError) throw contractorMainError
+    console.log(`    ✓ ${contractorMainProfiles.length} contractor profiles inserted into main table`)
+
+    console.log('  [Step 3c] Inserting contractor profiles (specialist table)...')
+    const contractorProfiles = CONTRACTOR_SPECS.map(spec => ({
+      id: crypto.randomUUID(),
+      user_id: contractorMap.get(spec.email),
+      business_name: spec.business_name,
       service_radius_miles: spec.service_radius_miles,
       subscription_tier: spec.subscription_tier,
       subscription_active: true,
       rating: spec.rating,
-      verified_job_count: spec.verified_job_count,
       is_demo: true
     }))
 

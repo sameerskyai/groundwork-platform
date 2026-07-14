@@ -199,7 +199,7 @@ BEGIN
     FROM (
       SELECT id FROM projects WHERE user_id NOT IN (SELECT id FROM profiles)
       UNION ALL
-      SELECT id FROM matches WHERE homeowner_id NOT IN (SELECT id FROM profiles)
+      SELECT id FROM matches WHERE project_id NOT IN (SELECT id FROM projects)
         OR contractor_id NOT IN (SELECT id FROM contractor_profiles)
     ) orphans;
 
