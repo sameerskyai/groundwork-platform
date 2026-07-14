@@ -1,7 +1,7 @@
 -- ============================================================
--- 009 — Referral Activation Logic
+-- 010 — Referral Activation Logic
 -- Functions and triggers for automatic price switching at 10 verified referrals
--- Tables created in migration 008; RLS policies in 008 and 011
+-- Tables created in migration 009; RLS policies in 009 and 012
 -- ============================================================
 
 -- Function: increment referral count and check for $10/mo switch
@@ -60,4 +60,4 @@ AFTER UPDATE ON referrals
 FOR EACH ROW
 EXECUTE FUNCTION check_referral_switch();
 
--- Note: RLS policies created in migration 008
+-- Note: RLS policies created in migration 009

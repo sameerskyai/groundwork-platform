@@ -1,5 +1,5 @@
 -- ============================================================
--- 011 — Demo Isolation Layer (RESTRICTIVE RLS)
+-- 012 — Demo Isolation Layer (RESTRICTIVE RLS)
 -- Adds is_demo flag to isolate demo data from real users
 -- CRITICAL: RLS policies use RESTRICTIVE mode (not permissive)
 -- Service-role bypasses RLS entirely
@@ -27,25 +27,7 @@ ALTER TABLE community_posts
 ALTER TABLE referrals
   ADD COLUMN IF NOT EXISTS is_demo BOOLEAN NOT NULL DEFAULT false;
 
-ALTER TABLE conversations
-  ADD COLUMN IF NOT EXISTS is_demo BOOLEAN NOT NULL DEFAULT false;
-
 ALTER TABLE messages
-  ADD COLUMN IF NOT EXISTS is_demo BOOLEAN NOT NULL DEFAULT false;
-
-ALTER TABLE personality_responses
-  ADD COLUMN IF NOT EXISTS is_demo BOOLEAN NOT NULL DEFAULT false;
-
-ALTER TABLE compatibility_scores
-  ADD COLUMN IF NOT EXISTS is_demo BOOLEAN NOT NULL DEFAULT false;
-
-ALTER TABLE invoices
-  ADD COLUMN IF NOT EXISTS is_demo BOOLEAN NOT NULL DEFAULT false;
-
-ALTER TABLE payouts
-  ADD COLUMN IF NOT EXISTS is_demo BOOLEAN NOT NULL DEFAULT false;
-
-ALTER TABLE notifications
   ADD COLUMN IF NOT EXISTS is_demo BOOLEAN NOT NULL DEFAULT false;
 
 ALTER TABLE referral_abuse_checks
@@ -58,9 +40,7 @@ CREATE INDEX IF NOT EXISTS idx_projects_is_demo ON projects(is_demo) WHERE is_de
 CREATE INDEX IF NOT EXISTS idx_matches_is_demo ON matches(is_demo) WHERE is_demo = true;
 CREATE INDEX IF NOT EXISTS idx_reviews_is_demo ON reviews(is_demo) WHERE is_demo = true;
 CREATE INDEX IF NOT EXISTS idx_community_posts_is_demo ON community_posts(is_demo) WHERE is_demo = true;
-CREATE INDEX IF NOT EXISTS idx_conversations_is_demo ON conversations(is_demo) WHERE is_demo = true;
 CREATE INDEX IF NOT EXISTS idx_messages_is_demo ON messages(is_demo) WHERE is_demo = true;
-CREATE INDEX IF NOT EXISTS idx_invoices_is_demo ON invoices(is_demo) WHERE is_demo = true;
 
 -- ============================================================
 -- RLS POLICIES: RESTRICTIVE ONLY (deny is_demo=true rows to non-service roles)
@@ -123,42 +103,10 @@ CREATE POLICY "demo_isolation_referrals" ON referrals
   FOR SELECT
   USING (is_demo = false);
 
--- Conversations: RESTRICTIVE
-ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS "demo_isolation_conversations" ON conversations;
-CREATE POLICY "demo_isolation_conversations" ON conversations
-  AS RESTRICTIVE
-  FOR SELECT
-  USING (is_demo = false);
-
 -- Messages: RESTRICTIVE
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "demo_isolation_messages" ON messages;
 CREATE POLICY "demo_isolation_messages" ON messages
-  AS RESTRICTIVE
-  FOR SELECT
-  USING (is_demo = false);
-
--- Invoices: RESTRICTIVE
-ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS "demo_isolation_invoices" ON invoices;
-CREATE POLICY "demo_isolation_invoices" ON invoices
-  AS RESTRICTIVE
-  FOR SELECT
-  USING (is_demo = false);
-
--- Payouts: RESTRICTIVE
-ALTER TABLE payouts ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS "demo_isolation_payouts" ON payouts;
-CREATE POLICY "demo_isolation_payouts" ON payouts
-  AS RESTRICTIVE
-  FOR SELECT
-  USING (is_demo = false);
-
--- Notifications: RESTRICTIVE
-ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS "demo_isolation_notifications" ON notifications;
-CREATE POLICY "demo_isolation_notifications" ON notifications
   AS RESTRICTIVE
   FOR SELECT
   USING (is_demo = false);
@@ -181,7 +129,7 @@ RETURNS TABLE (
   purged_records INT,
   orphaned_records INT,
   details JSONB,
-  timestamp TIMESTAMP WITH TIME ZONE
+  purged_at TIMESTAMP WITH TIME ZONE
 ) AS $$
 DECLARE
   confirm_required TEXT := 'PURGE_DEMO_DATA';
@@ -192,13 +140,7 @@ DECLARE
   r_count INT := 0;
   po_count INT := 0;
   re_count INT := 0;
-  conv_count INT := 0;
   msg_count INT := 0;
-  pers_count INT := 0;
-  comp_count INT := 0;
-  inv_count INT := 0;
-  payout_count INT := 0;
-  notif_count INT := 0;
   abusecheck_count INT := 0;
   auth_count INT := 0;
   orphan_count INT := 0;
@@ -211,33 +153,9 @@ BEGIN
 
   -- BEGIN TRANSACTION
   BEGIN
-    -- Delete notifications
-    DELETE FROM notifications WHERE is_demo = true;
-    GET DIAGNOSTICS notif_count = ROW_COUNT;
-
-    -- Delete payouts
-    DELETE FROM payouts WHERE is_demo = true;
-    GET DIAGNOSTICS payout_count = ROW_COUNT;
-
-    -- Delete invoices
-    DELETE FROM invoices WHERE is_demo = true;
-    GET DIAGNOSTICS inv_count = ROW_COUNT;
-
-    -- Delete compatibility scores
-    DELETE FROM compatibility_scores WHERE is_demo = true;
-    GET DIAGNOSTICS comp_count = ROW_COUNT;
-
-    -- Delete personality responses
-    DELETE FROM personality_responses WHERE is_demo = true;
-    GET DIAGNOSTICS pers_count = ROW_COUNT;
-
     -- Delete messages
     DELETE FROM messages WHERE is_demo = true;
     GET DIAGNOSTICS msg_count = ROW_COUNT;
-
-    -- Delete conversations
-    DELETE FROM conversations WHERE is_demo = true;
-    GET DIAGNOSTICS conv_count = ROW_COUNT;
 
     -- Delete referral abuse checks
     DELETE FROM referral_abuse_checks WHERE is_demo = true;
@@ -283,13 +201,10 @@ BEGIN
       UNION ALL
       SELECT id FROM matches WHERE homeowner_id NOT IN (SELECT id FROM profiles)
         OR contractor_id NOT IN (SELECT id FROM contractor_profiles)
-      UNION ALL
-      SELECT id FROM conversations WHERE homeowner_id NOT IN (SELECT id FROM profiles)
-        OR contractor_id NOT IN (SELECT id FROM contractor_profiles)
     ) orphans;
 
     -- Calculate total
-    total_purged := p_count + c_count + pr_count + m_count + r_count + po_count + re_count + conv_count + msg_count + pers_count + comp_count + inv_count + payout_count + notif_count + abusecheck_count + auth_count;
+    total_purged := p_count + c_count + pr_count + m_count + r_count + po_count + re_count + msg_count + abusecheck_count + auth_count;
 
     RETURN QUERY SELECT
       true AS success,
@@ -303,17 +218,11 @@ BEGIN
         'reviews', r_count,
         'posts', po_count,
         'referrals', re_count,
-        'conversations', conv_count,
         'messages', msg_count,
-        'personality_responses', pers_count,
-        'compatibility_scores', comp_count,
-        'invoices', inv_count,
-        'payouts', payout_count,
-        'notifications', notif_count,
         'referral_abuse_checks', abusecheck_count,
         'auth_users', auth_count
       ) AS details,
-      now() AS timestamp;
+      now() AS purged_at;
 
   EXCEPTION WHEN OTHERS THEN
     RAISE EXCEPTION 'Purge transaction failed: %', SQLERRM;

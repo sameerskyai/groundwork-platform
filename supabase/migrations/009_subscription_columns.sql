@@ -1,5 +1,5 @@
 -- ============================================================
--- 008 — Subscription Columns
+-- 009 — Subscription Columns
 -- Add subscription tiers and billing state to profiles and contractor_profiles
 -- Homeowner: $20/mo base, $10/mo at 10 verified referrals
 -- Contractor: Freemium (1 lead/week free) or $49/mo unlimited
@@ -54,7 +54,7 @@ CREATE INDEX IF NOT EXISTS idx_referrals_referred ON referrals(referred_id);
 CREATE INDEX IF NOT EXISTS idx_referrals_activated ON referrals(activated_at) WHERE activated_at IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_referral_abuse_checks_referred ON referral_abuse_checks(referred_id);
 
--- RLS: Enable and set basic policies (demo isolation RLS added in migration 011)
+-- RLS: Enable and set basic policies (demo isolation RLS added in migration 012)
 ALTER TABLE referrals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE referral_abuse_checks ENABLE ROW LEVEL SECURITY;
 
