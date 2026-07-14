@@ -54,6 +54,22 @@ export default function EstimatePage() {
   async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
     if (!files.length) return
+
+    // Validate file types (MEDIUM security: S4)
+    const validMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    const invalidFiles = files.filter(f => !validMimeTypes.includes(f.type))
+    if (invalidFiles.length > 0) {
+      setError('Only JPEG, PNG, WebP, and GIF images are allowed')
+      return
+    }
+
+    // Validate max 3 files
+    if (files.length > 3) {
+      setError('Maximum 3 photos allowed')
+      return
+    }
+
+    setError('')
     setUploading(true)
     setPhotos(files)
     const urls = await uploadPhotos(files)
@@ -141,6 +157,7 @@ export default function EstimatePage() {
                   onChange={e => setDescription(e.target.value)}
                   required
                   rows={5}
+                  maxLength={2000}
                   className="w-full px-3 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] [font-size:var(--text-sm)] [color:var(--color-text-primary)] [background-color:var(--color-surface-primary)] [font-family:var(--font-sans)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
                   placeholder="e.g. I need my 200 sqft kitchen completely remodeled — new cabinets, countertops, tile backsplash, and new flooring."
                 />
