@@ -12,8 +12,8 @@ interface Stats {
   totalProjects: number
   totalMatches: number
   estimatedMRR: number
-  standardTier: number
-  growthTier: number
+  freeTier: number
+  paidTier: number
 }
 
 export default function AdminDashboard() {
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
     { label: 'Total projects', value: stats.totalProjects, icon: TrendingUp, color: 'text-purple-500' },
     { label: 'Total matches', value: stats.totalMatches, icon: MessageCircle, color: 'text-green-500' },
     { label: 'Estimated MRR', value: formatCurrency(stats.estimatedMRR), icon: DollarSign, color: 'text-emerald-500' },
-    { label: 'Growth tier', value: stats.growthTier, icon: TrendingUp, color: 'text-[#FF6B35]' }
+    { label: 'Paid tier', value: stats.paidTier, icon: TrendingUp, color: 'text-[#FF6B35]' }
   ]
 
   return (

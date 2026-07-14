@@ -242,7 +242,7 @@ export default function ContractorDashboard() {
             <div style={{ display: 'flex', gap: 14, marginTop: 22 }}>
               <div style={{ flex: 1, background: C.navy, border: `1px solid ${C.line}`, borderRadius: 14, padding: '14px 16px' }}>
                 <div style={{ color: C.textDim, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Plan</div>
-                <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 18, fontWeight: 600, textTransform: 'capitalize' }}>{profile?.subscription_tier ?? 'standard'}</div>
+                <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 18, fontWeight: 600, textTransform: 'capitalize' }}>{profile?.subscription_tier ?? 'free'}</div>
               </div>
               <div style={{ flex: 1, background: C.navy, border: `1px solid ${C.line}`, borderRadius: 14, padding: '14px 16px' }}>
                 <div style={{ color: C.textDim, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Swipes left</div>

@@ -31,7 +31,7 @@ export interface ContractorData {
   lat: number | null
   lng: number | null
   verified_job_count: number
-  subscription_tier: 'standard' | 'growth'
+  subscription_tier: 'free' | 'paid_unlimited'
 }
 
 export interface MatchScore {
