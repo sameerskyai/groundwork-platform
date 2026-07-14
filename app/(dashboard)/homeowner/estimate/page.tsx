@@ -238,48 +238,28 @@ export default function EstimatePage() {
                 {estimate.reasoning}
               </p>
 
-              {/* Locked line items CTA */}
+              {/* Full itemized breakdown */}
               <div style={{
-                backgroundColor: 'var(--color-surface-tertiary)',
+                backgroundColor: 'var(--color-surface-secondary)',
                 borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-lg)',
-                position: 'relative',
-                overflow: 'hidden'
+                padding: 'var(--space-lg)'
               }}>
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  backdropFilter: 'blur(2px)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 10,
-                  borderRadius: 'var(--radius-lg)'
-                }}>
-                  <p style={{ fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
-                    Full itemized breakdown
-                  </p>
-                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>
-                    Labor vs. materials + {estimate.lineItems.length} line items
-                  </p>
-                  <Button size="sm">Unlock for $9.99</Button>
-                </div>
-                <div style={{ opacity: 0.15 }}>
-                  {estimate.lineItems.map(li => (
-                    <div key={li.item} style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontSize: 'var(--text-sm)',
-                      padding: 'var(--space-md) 0',
-                      borderBottom: '1px solid var(--color-border)'
-                    }} className="last:border-0">
-                      <span>{li.item}</span>
-                      <span style={{ fontWeight: 'var(--weight-medium)' }}>{formatRange(li.low, li.high)}</span>
-                    </div>
-                  ))}
-                </div>
+                <h3 style={{ fontWeight: 'var(--weight-semibold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-lg)' }}>
+                  Itemized breakdown
+                </h3>
+                {estimate.lineItems.map(li => (
+                  <div key={li.item} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    fontSize: 'var(--text-sm)',
+                    padding: 'var(--space-md) 0',
+                    borderBottom: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)'
+                  }} className="last:border-0">
+                    <span>{li.item}</span>
+                    <span style={{ fontWeight: 'var(--weight-medium)' }}>{formatRange(li.low, li.high)}</span>
+                  </div>
+                ))}
               </div>
             </Card>
 
