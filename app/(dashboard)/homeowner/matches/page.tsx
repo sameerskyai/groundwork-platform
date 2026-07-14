@@ -1,6 +1,5 @@
 'use client'
 
-import '@/app/styles/design-tokens.css'
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'

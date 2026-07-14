@@ -1,6 +1,5 @@
 'use client'
 
-import '@/app/styles/design-tokens.css'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
