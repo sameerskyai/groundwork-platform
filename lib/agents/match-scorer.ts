@@ -34,12 +34,6 @@ export interface ContractorData {
   subscription_tier: 'standard' | 'growth'
 }
 
-export interface RealtorPortalData {
-  working_areas: string[] // e.g. ["Arlington, VA", "Alexandria, VA", "Washington, DC"]
-  lat: number | null
-  lng: number | null
-}
-
 export interface MatchScore {
   match_percentage: number // 0-100
   should_surface: boolean // true if >= 80%
@@ -138,71 +132,6 @@ Score this match from 0-100. Only score 85+ if it's a strong fit.`
       distance_compatibility: result.distance_compatibility,
       experience_compatibility: result.experience_compatibility,
       personality_compatibility: result.personality_compatibility
-    },
-    reasoning: result.reasoning
-  }
-}
-
-/**
- * Calculate match score between project and realtor/PM service area
- */
-export async function scoreProjectRealtorMatch(
-  project: ProjectData,
-  realtorPortal: RealtorPortalData
-): Promise<MatchScore> {
-  const systemPrompt = `You are matching a home improvement project to a realtor/property manager's service areas.
-
-Score based on:
-1. Geographic alignment (0-50 points)
-   - Is the project ZIP in one of the realtor's working areas?
-   - More points = exact area match vs nearby area
-2. Project scale fit (0-30 points)
-   - Does project type/scope match realtor's portfolio?
-3. Service alignment (0-20 points)
-   - Portfolio type (residential/commercial) matches project needs
-
-Return ONLY valid JSON:
-{
-  "geographic_compatibility": number (0-50),
-  "scale_compatibility": number (0-30),
-  "service_compatibility": number (0-20),
-  "total": number (0-100),
-  "reasoning": "string"
-}`
-
-  const userPrompt = `Project:
-- ZIP Code: ${project.zip_code}
-- Description: ${project.description}
-- Budget: $${project.budget_min}-$${project.budget_max}
-
-Realtor/PM Service Areas:
-${realtorPortal.working_areas.map(a => `- ${a}`).join('\n')}
-
-Score the geographic alignment and project fit. 80+ only if strong match to service area.`
-
-  const response = await client().messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 400,
-    system: systemPrompt,
-    messages: [
-      { role: 'user', content: userPrompt }
-    ]
-  })
-
-  const text = response.content[0].type === 'text' ? response.content[0].text : ''
-  const jsonMatch = text.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) throw new Error('Realtor match scorer returned invalid response')
-
-  const result = JSON.parse(jsonMatch[0])
-
-  return {
-    match_percentage: result.total,
-    should_surface: result.total >= 80,
-    factors: {
-      budget_compatibility: 0,
-      distance_compatibility: result.geographic_compatibility,
-      experience_compatibility: result.scale_compatibility,
-      personality_compatibility: result.service_compatibility
     },
     reasoning: result.reasoning
   }
