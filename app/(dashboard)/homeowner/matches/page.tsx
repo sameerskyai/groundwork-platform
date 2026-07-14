@@ -124,8 +124,8 @@ function MatchesContent() {
                         <span style={{ fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)' }}>
                           {c.business_name}
                         </span>
-                        {c.subscription_tier === 'growth' && (
-                          <Badge variant="info">Featured</Badge>
+                        {c.subscription_tier === 'paid_unlimited' && (
+                          <Badge variant="success">Pro</Badge>
                         )}
                       </div>
                       <div className="flex items-center gap-3 text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>
