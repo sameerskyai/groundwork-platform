@@ -42,7 +42,7 @@ export interface RealtorPortalData {
 
 export interface MatchScore {
   match_percentage: number // 0-100
-  should_surface: boolean // true if >= 85%
+  should_surface: boolean // true if >= 80%
   factors: {
     budget_compatibility: number
     distance_compatibility: number
@@ -71,7 +71,7 @@ export async function scoreProjectContractorMatch(
     contractor.lng
   )
 
-  const systemPrompt = `You are a home improvement project matching algorithm. Score the compatibility between a homeowner's project and a contractor's profile on a scale of 0-100, with 85%+ being a strong match.
+  const systemPrompt = `You are a home improvement project matching algorithm. Score the compatibility between a homeowner's project and a contractor's profile on a scale of 0-100, with 80%+ being a strong match.
 
 Consider these factors:
 1. Budget compatibility (0-25 points)
@@ -132,7 +132,7 @@ Score this match from 0-100. Only score 85+ if it's a strong fit.`
 
   return {
     match_percentage: result.total,
-    should_surface: result.total >= 85,
+    should_surface: result.total >= 80,
     factors: {
       budget_compatibility: result.budget_compatibility,
       distance_compatibility: result.distance_compatibility,
@@ -178,7 +178,7 @@ Return ONLY valid JSON:
 Realtor/PM Service Areas:
 ${realtorPortal.working_areas.map(a => `- ${a}`).join('\n')}
 
-Score the geographic alignment and project fit. 85+ only if strong match to service area.`
+Score the geographic alignment and project fit. 80+ only if strong match to service area.`
 
   const response = await client().messages.create({
     model: 'claude-sonnet-4-6',
@@ -197,7 +197,7 @@ Score the geographic alignment and project fit. 85+ only if strong match to serv
 
   return {
     match_percentage: result.total,
-    should_surface: result.total >= 85,
+    should_surface: result.total >= 80,
     factors: {
       budget_compatibility: 0,
       distance_compatibility: result.geographic_compatibility,

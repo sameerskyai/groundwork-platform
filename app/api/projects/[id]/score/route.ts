@@ -88,15 +88,21 @@ export async function POST(
       )
     )
 
-    // Filter to 85%+ and sort
+    // Filter to 80%+ (HARD GATE: server-side enforcement)
+    // Sub-80% matches never returned to client, even if they exist in DB
+    const COMPATIBILITY_THRESHOLD = 80
     const strongMatches = scores
-      .filter(s => s.should_surface)
+      .filter(s => s.match_percentage >= COMPATIBILITY_THRESHOLD)
       .sort((a, b) => b.match_percentage - a.match_percentage)
+
+    const subThresholdCount = scores.length - strongMatches.length
 
     return NextResponse.json({
       project_id: projectId,
       total_candidates: candidates.length,
       matches_found: strongMatches.length,
+      matches_sub_threshold: subThresholdCount,
+      threshold: COMPATIBILITY_THRESHOLD,
       matches: strongMatches
     })
   } catch (err) {
