@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-const MONTHLY_CAP: Record<string, number> = { standard: 15, growth: 40 }
+const MONTHLY_CAP: Record<string, number> = { free: 5, paid_unlimited: 9999 }
 
 function isPriorMonth(dateStr: string | null): boolean {
   if (!dateStr) return true
@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
         .single()
 
       if (contractor) {
-        const tier = contractor.subscription_tier ?? 'standard'
-        const limit = MONTHLY_CAP[tier] ?? MONTHLY_CAP.standard
+        const tier = contractor.subscription_tier ?? 'free'
+        const limit = MONTHLY_CAP[tier] ?? MONTHLY_CAP.free
         const reset = isPriorMonth(contractor.monthly_swipe_reset_at)
         const used = reset ? 0 : (contractor.monthly_swipe_count ?? 0)
 

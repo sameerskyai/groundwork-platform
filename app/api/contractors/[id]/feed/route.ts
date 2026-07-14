@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { haversineDistanceMiles } from '@/lib/geo'
 
-const MONTHLY_CAP: Record<string, number> = { standard: 15, growth: 40 }
+const MONTHLY_CAP: Record<string, number> = { free: 5, paid_unlimited: 9999 }
 
 function isPriorMonth(dateStr: string | null): boolean {
   if (!dateStr) return true
@@ -43,8 +43,8 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const tier = contractor.subscription_tier ?? 'standard'
-    const limit = MONTHLY_CAP[tier] ?? MONTHLY_CAP.standard
+    const tier = contractor.subscription_tier ?? 'free'
+    const limit = MONTHLY_CAP[tier] ?? MONTHLY_CAP.free
 
     // 4. Reset monthly counter if the reset date is in a prior month
     let usedCount = contractor.monthly_swipe_count ?? 0

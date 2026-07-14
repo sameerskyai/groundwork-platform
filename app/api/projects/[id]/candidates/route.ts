@@ -70,7 +70,7 @@ export async function GET(
           years_in_business: c.years_in_business ?? 0,
           trust_score: c.trust_score ?? null,
           verified_job_count: c.verified_job_count ?? 0,
-          subscription_tier: c.subscription_tier ?? 'standard',
+          subscription_tier: c.subscription_tier ?? 'free',
           distance_miles: Math.round(distance * 10) / 10,
           zip_code: c.zip_code ?? ''
         }

@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
         reviewCount: c.review_count ?? 0,
         yearsInBusiness: c.years_in_business ?? 1,
         responseRate: c.response_rate ?? 100,
-        subscriptionTier: c.subscription_tier ?? 'standard',
+        subscriptionTier: c.subscription_tier ?? 'free',
         pricingRange: pricingVals?.length
           ? { low: Math.min(...pricingVals), high: Math.max(...pricingVals) }
           : undefined,

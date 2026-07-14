@@ -25,9 +25,9 @@ export async function GET(req: NextRequest) {
       supabase.from('contractor_profiles').select('subscription_tier').eq('subscription_active', true)
     ])
 
-    const standard = tierBreakdown?.filter(c => c.subscription_tier === 'standard').length ?? 0
-    const growth = tierBreakdown?.filter(c => c.subscription_tier === 'growth').length ?? 0
-    const estimatedMRR = standard * 79 + growth * 149
+    const freeTier = tierBreakdown?.filter(c => c.subscription_tier === 'free').length ?? 0
+    const paidTier = tierBreakdown?.filter(c => c.subscription_tier === 'paid_unlimited').length ?? 0
+    const estimatedMRR = paidTier * 49
 
     return NextResponse.json({
       stats: {
@@ -37,8 +37,8 @@ export async function GET(req: NextRequest) {
         totalProjects,
         totalMatches,
         estimatedMRR,
-        standardTier: standard,
-        growthTier: growth
+        freeTierContractors: freeTier,
+        paidTierContractors: paidTier
       },
       recentProjects
     })
