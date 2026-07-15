@@ -4,333 +4,355 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { Wrench, ChevronRight, Check } from 'lucide-react'
+import { ChevronLeft, Home, HardHat, Building2, Briefcase } from 'lucide-react'
 
-interface Trade {
-  id: string
-  name: string
-  slug: string
-  icon: string
-}
+type UserSegment = 'homeowner' | 'contractor' | 'property_manager' | 'agent'
+type OnboardingStep = 'segment' | 'zip' | 'preference' | 'early_access'
 
-interface TradeQuestion {
-  id: string
-  trade_id: string
-  question: string
-  field_key: string
-  unit: string
-  input_type: string
-  display_order: number
-}
+const SEGMENT_OPTIONS = [
+  {
+    id: 'homeowner' as UserSegment,
+    label: "I'm a homeowner",
+    icon: Home,
+    description: 'Looking to renovate or repair my home'
+  },
+  {
+    id: 'contractor' as UserSegment,
+    label: "I'm a contractor",
+    icon: HardHat,
+    description: 'I offer home services and want to find work'
+  },
+  {
+    id: 'property_manager' as UserSegment,
+    label: 'I manage properties',
+    icon: Building2,
+    description: 'I oversee residential properties for owners'
+  },
+  {
+    id: 'agent' as UserSegment,
+    label: "I'm a real estate agent",
+    icon: Briefcase,
+    description: 'I buy and sell homes'
+  }
+]
+
+const PREF_OPTIONS = [
+  { id: 'estimate', label: 'Get a free AI estimate', description: 'Describe your project and get an instant estimate' },
+  { id: 'match', label: 'Find my contractor match', description: 'See vetted contractors available in my area' }
+]
 
 export default function OnboardingPage() {
-  const [role, setRole] = useState<string>('')
-  const [step, setStep] = useState(0)
-  const [trades, setTrades] = useState<Trade[]>([])
-  const [selectedTrades, setSelectedTrades] = useState<string[]>([])
-  const [questions, setQuestions] = useState<TradeQuestion[]>([])
-  const [answers, setAnswers] = useState<Record<string, string>>({})
-  const [businessName, setBusinessName] = useState('')
-  const [yearsInBusiness, setYearsInBusiness] = useState('')
-  const [contractorId, setContractorId] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string>('')
-  const [timedOut, setTimedOut] = useState(false)
   const router = useRouter()
+  const [userId, setUserId] = useState<string>('')
+  const [step, setStep] = useState<OnboardingStep>('segment')
+  const [segment, setSegment] = useState<UserSegment | null>(null)
+  const [zip, setZip] = useState('')
+  const [preference, setPreference] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [history, setHistory] = useState<OnboardingStep[]>(['segment'])
 
   useEffect(() => {
     async function load() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
-
-      // Set 5-second timeout for profile fetch
-      const timeoutId = setTimeout(() => {
-        setTimedOut(true)
-        setError('Profile load timeout. Try refreshing the page.')
-      }, 5000)
-
-      try {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role, onboarding_complete')
-          .eq('id', user.id)
-          .single()
-
-        clearTimeout(timeoutId)
-
-        if (profileError) {
-          setError(`Failed to load profile: ${profileError.message}`)
-          return
-        }
-
-        if (!profile) {
-          setError('Profile not found. Please contact support.')
-          return
-        }
-
-        // If already onboarded, redirect to dashboard
-        if (profile.onboarding_complete) {
-          router.push(profile.role === 'contractor' ? '/contractor' : '/homeowner')
-          return
-        }
-
-        setRole(profile.role ?? '')
-
-        if (profile.role === 'contractor') {
-          const { data: cp } = await supabase.from('contractor_profiles').select('id').eq('user_id', user.id).single()
-          setContractorId(cp?.id ?? '')
-        }
-
-        const { data: tradeData } = await supabase.from('trades').select('*').eq('active', true).order('name')
-        setTrades(tradeData ?? [])
-      } catch (err: any) {
-        clearTimeout(timeoutId)
-        setError(`Error: ${err.message}`)
+      if (!user) {
+        router.push('/login')
+        return
       }
+      setUserId(user.id)
     }
     load()
   }, [router])
 
-  async function loadQuestionsForTrades(tradeIds: string[]) {
-    const supabase = createClient()
-    const { data } = await supabase
-      .from('trade_questions')
-      .select('*')
-      .in('trade_id', tradeIds)
-      .eq('active', true)
-      .order('display_order')
-    setQuestions(data ?? [])
-  }
+  const handleSegmentSelect = async (selectedSegment: UserSegment) => {
+    setSegment(selectedSegment)
+    setError('')
 
-  function toggleTrade(tradeId: string) {
-    setSelectedTrades(prev =>
-      prev.includes(tradeId) ? prev.filter(t => t !== tradeId) : [...prev, tradeId]
-    )
-  }
-
-  async function handleNext() {
-    setLoading(true)
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    if (role === 'homeowner' || role === 'property_manager') {
-      await supabase.from('profiles').update({ onboarding_complete: true }).eq('id', user.id)
-      router.push(role === 'homeowner' ? '/homeowner' : '/homeowner')
-      return
-    }
-
-    // Contractor flow
-    if (step === 0) {
-      // Save business info
-      await supabase.from('contractor_profiles').update({
-        business_name: businessName,
-        years_in_business: parseInt(yearsInBusiness) || 1
-      }).eq('user_id', user.id)
-      setStep(1)
-      setLoading(false)
-      return
-    }
-
-    if (step === 1) {
-      // Save trade selections
-      await supabase.from('contractor_trades').delete().eq('contractor_id', contractorId)
-      if (selectedTrades.length) {
-        await supabase.from('contractor_trades').insert(
-          selectedTrades.map(tradeId => ({ contractor_id: contractorId, trade_id: tradeId }))
-        )
+    if (selectedSegment === 'homeowner') {
+      // Homeowners: move to ZIP
+      setHistory(prev => [...prev, 'zip'])
+      setStep('zip')
+    } else if (selectedSegment === 'contractor') {
+      // Contractors: go to contractor onboarding
+      try {
+        const supabase = createClient()
+        await supabase.from('profiles').update({
+          user_segment: 'contractor',
+          onboarding_complete: false
+        }).eq('id', userId)
+        router.push('/onboarding/contractor')
+      } catch (err) {
+        setError('Failed to proceed. Try again.')
       }
-      await loadQuestionsForTrades(selectedTrades)
-      setStep(2)
-      setLoading(false)
+    } else {
+      // PM or Agent: show early-access state
+      try {
+        const supabase = createClient()
+        const segmentMetadata = selectedSegment === 'property_manager'
+          ? { door_count: null }
+          : { agent_type: null }
+
+        await supabase.from('profiles').update({
+          user_segment: selectedSegment,
+          segment_metadata: segmentMetadata,
+          onboarding_complete: true
+        }).eq('id', userId)
+
+        setHistory(prev => [...prev, 'early_access'])
+        setStep('early_access')
+      } catch (err) {
+        setError('Failed to save. Try again.')
+      }
+    }
+  }
+
+  const handleZipSubmit = async () => {
+    if (!zip || !/^\d{5}$/.test(zip)) {
+      setError('Please enter a valid 5-digit ZIP code')
       return
     }
+    setError('')
+    setLoading(true)
 
-    if (step === 2) {
-      // Submit answers to interview API
-      const tradeMap = Object.fromEntries(trades.map(t => [t.id, t.name]))
-      const answerPayload = questions.map(q => ({
-        question: q.question,
-        field_key: q.field_key,
-        unit: q.unit,
-        raw_input: answers[q.field_key] ?? '',
-        trade_id: q.trade_id,
-        trade_name: tradeMap[q.trade_id] ?? ''
-      })).filter(a => a.raw_input)
+    try {
+      const supabase = createClient()
+      // Save ZIP to profile, never ask again
+      await supabase.from('profiles').update({
+        zip_code: zip,
+        user_segment: 'homeowner'
+      }).eq('id', userId)
 
-      await fetch('/api/interview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: answerPayload, contractorId })
+      // Create default property for this ZIP
+      await supabase.from('properties').insert({
+        owner_id: userId,
+        zip_code: zip,
+        label: 'Home',
+        is_demo: false
       })
 
-      await supabase.from('profiles').update({ onboarding_complete: true }).eq('id', user.id)
-      router.push('/contractor')
+      setHistory(prev => [...prev, 'preference'])
+      setStep('preference')
+    } catch (err: any) {
+      setError(err.message || 'Failed to save ZIP code')
+    } finally {
+      setLoading(false)
     }
   }
 
-  if (error) return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-          <h2 className="text-lg font-semibold text-red-900 mb-2">Load Error</h2>
-          <p className="text-red-700 mb-4">{error}</p>
-          <Button
-            onClick={() => window.location.reload()}
-            className="w-full"
-          >
-            Refresh Page
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
+  const handlePreferenceSelect = async (pref: string) => {
+    setPreference(pref)
+    setLoading(true)
+    setError('')
 
-  if (!role) return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm text-center">
-        <div className="mb-4">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-800"></div>
-        </div>
-        <p className="text-gray-600 mb-2">Loading...</p>
-        {timedOut && (
-          <p className="text-sm text-gray-500">
-            Still loading? Check your connection or <button onClick={() => window.location.reload()} className="text-blue-600 underline">refresh</button>
-          </p>
-        )}
-      </div>
-    </div>
-  )
+    try {
+      const supabase = createClient()
+      await supabase.from('profiles').update({
+        onboarding_complete: true
+      }).eq('id', userId)
 
-  // Homeowner/PM: just redirect
-  if (role === 'homeowner' || role === 'property_manager') {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4">
-        <div className="w-full max-w-sm text-center">
-          <div className="w-16 h-16 rounded-2xl gradient-brand flex items-center justify-center mx-auto mb-6">
-            <Wrench className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold mb-3">You&apos;re all set!</h1>
-          <p className="text-gray-500 mb-8">Ready to get your first estimate?</p>
-          <Button size="lg" onClick={handleNext} disabled={loading} className="w-full">
-            {loading ? 'Setting up...' : 'Start my first project'}
-            <ChevronRight className="w-5 h-5 ml-1" />
-          </Button>
-        </div>
-      </div>
-    )
+      // Route based on preference
+      if (pref === 'estimate') {
+        router.push('/homeowner/estimate')
+      } else {
+        router.push('/homeowner/matches')
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to proceed')
+      setLoading(false)
+    }
+  }
+
+  const goBack = () => {
+    if (history.length > 1) {
+      const newHistory = history.slice(0, -1)
+      const prevStep = newHistory[newHistory.length - 1]
+      setHistory(newHistory)
+      setStep(prevStep)
+
+      // Reset state for previous step
+      if (prevStep === 'segment') {
+        setSegment(null)
+        setZip('')
+        setPreference(null)
+      } else if (prevStep === 'zip') {
+        setPreference(null)
+      }
+    }
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] px-4 py-12">
-      <div className="max-w-lg mx-auto">
-        {/* Progress */}
-        <div className="flex items-center gap-2 mb-10">
-          {['Business info', 'Your trades', 'Set your rates'].map((s, i) => (
-            <div key={s} className="flex items-center gap-2 flex-1">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                i < step ? 'gradient-brand text-white' : i === step ? 'bg-[#FF6B35] text-white' : 'bg-gray-200 text-gray-500'
-              }`}>
-                {i < step ? <Check className="w-4 h-4" /> : i + 1}
-              </div>
-              <span className={`text-xs font-medium ${i === step ? 'text-gray-900' : 'text-gray-400'}`}>{s}</span>
-              {i < 2 && <div className={`flex-1 h-0.5 ${i < step ? 'bg-[#FF6B35]' : 'bg-gray-200'}`} />}
-            </div>
-          ))}
-        </div>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
+      <div className="w-full max-w-md">
+        {/* Back button (only show if not first step) */}
+        {history.length > 1 && (
+          <button
+            onClick={goBack}
+            className="mb-8 flex items-center gap-2 text-sm"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Back
+          </button>
+        )}
 
-        {step === 0 && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-bold mb-1">Tell us about your business</h2>
-            <p className="text-gray-500 text-sm mb-6">This shows on your public profile.</p>
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Business name</label>
-                <input
-                  type="text"
-                  value={businessName}
-                  onChange={e => setBusinessName(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"
-                  placeholder="Baz Construction LLC"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Years in business</label>
-                <input
-                  type="number"
-                  value={yearsInBusiness}
-                  onChange={e => setYearsInBusiness(e.target.value)}
-                  min="1"
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"
-                  placeholder="5"
-                />
-              </div>
+        {/* STEP 1: SEGMENT SELECTION */}
+        {step === 'segment' && (
+          <div className="flex flex-col gap-8">
+            <div>
+              <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.25rem)', fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+                What brings you to Groundwork?
+              </h1>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>
+                We'll customize your experience based on what you do
+              </p>
             </div>
-            <Button size="lg" onClick={handleNext} disabled={!businessName || loading} className="w-full mt-6">
-              Continue <ChevronRight className="w-4 h-4 ml-1" />
+
+            <div className="flex flex-col gap-3">
+              {SEGMENT_OPTIONS.map(opt => {
+                const Icon = opt.icon
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => handleSegmentSelect(opt.id)}
+                    className="p-4 rounded-lg border-2 transition-all duration-200 text-left hover:border-[color:var(--color-brand)]"
+                    style={{
+                      borderColor: segment === opt.id ? 'var(--color-brand)' : 'var(--color-border)',
+                      backgroundColor: segment === opt.id ? 'var(--color-brand-lighter)' : 'var(--color-surface-secondary)'
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: segment === opt.id ? 'var(--color-brand)' : 'var(--color-text-secondary)' }} />
+                      <div>
+                        <div style={{ fontWeight: 'var(--weight-semibold)', color: 'var(--color-text-primary)' }}>
+                          {opt.label}
+                        </div>
+                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>
+                          {opt.description}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+
+            {error && <p style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)' }}>{error}</p>}
+
+            <Button
+              onClick={() => segment && handleSegmentSelect(segment)}
+              disabled={!segment || loading}
+              className="w-full"
+            >
+              Continue
             </Button>
           </div>
         )}
 
-        {step === 1 && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-bold mb-1">What trades do you offer?</h2>
-            <p className="text-gray-500 text-sm mb-6">Select all that apply.</p>
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {trades.map(t => (
+        {/* STEP 2: ZIP CODE */}
+        {step === 'zip' && (
+          <div className="flex flex-col gap-8">
+            <div>
+              <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.25rem)', fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+                What's your ZIP code?
+              </h1>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>
+                We'll use this to find contractors near you and remember it everywhere
+              </p>
+            </div>
+
+            <div>
+              <input
+                type="text"
+                value={zip}
+                onChange={(e) => setZip(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                placeholder="20155"
+                maxLength={5}
+                className="w-full px-4 py-3 text-lg text-center rounded-lg border-2 border-[color:var(--color-border)]"
+                style={{
+                  color: 'var(--color-text-primary)',
+                  backgroundColor: 'var(--color-surface-secondary)',
+                  fontFamily: 'monospace'
+                }}
+                onKeyDown={(e) => e.key === 'Enter' && zip && handleZipSubmit()}
+              />
+              {zip && !/^\d{5}$/.test(zip) && (
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-warning)', marginTop: 'var(--space-sm)' }}>
+                  Enter a 5-digit ZIP code
+                </p>
+              )}
+            </div>
+
+            {error && <p style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)' }}>{error}</p>}
+
+            <Button
+              onClick={handleZipSubmit}
+              disabled={!zip || !/^\d{5}$/.test(zip) || loading}
+              className="w-full"
+            >
+              {loading ? 'Saving...' : 'Continue'}
+            </Button>
+          </div>
+        )}
+
+        {/* STEP 3: PREFERENCE (Estimate or Match) */}
+        {step === 'preference' && (
+          <div className="flex flex-col gap-8">
+            <div>
+              <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.25rem)', fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+                What would you like to do first?
+              </h1>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>
+                Both are always available — just tell us where to start
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {PREF_OPTIONS.map(opt => (
                 <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => toggleTrade(t.id)}
-                  className={`p-4 rounded-xl border-2 text-left transition-all ${
-                    selectedTrades.includes(t.id)
-                      ? 'border-[#FF6B35] bg-orange-50'
-                      : 'border-gray-100 hover:border-gray-200'
-                  }`}
+                  key={opt.id}
+                  onClick={() => handlePreferenceSelect(opt.id)}
+                  disabled={loading}
+                  className="p-6 rounded-lg border-2 transition-all duration-200 text-left hover:border-[color:var(--color-brand)] disabled:opacity-50"
+                  style={{
+                    borderColor: preference === opt.id ? 'var(--color-brand)' : 'var(--color-border)',
+                    backgroundColor: preference === opt.id ? 'var(--color-brand-lighter)' : 'var(--color-surface-secondary)'
+                  }}
                 >
-                  <div className="text-sm font-semibold text-gray-900">{t.name}</div>
+                  <div style={{ fontWeight: 'var(--weight-semibold)', fontSize: 'var(--text-lg)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+                    {opt.label}
+                  </div>
+                  <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
+                    {opt.description}
+                  </div>
                 </button>
               ))}
             </div>
-            <Button
-              size="lg"
-              onClick={handleNext}
-              disabled={!selectedTrades.length || loading}
-              className="w-full"
-            >
-              Continue <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
+
+            {error && <p style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)' }}>{error}</p>}
           </div>
         )}
 
-        {step === 2 && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-bold mb-1">Set your rates</h2>
-            <p className="text-gray-500 text-sm mb-6">
-              Answer honestly — this builds your AI profile and helps homeowners find you faster.
-            </p>
-            <div className="flex flex-col gap-5">
-              {questions.map(q => (
-                <div key={q.id}>
-                  <label className="block text-sm font-medium text-gray-800 mb-1">{q.question}</label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-400 text-sm">$</span>
-                    <input
-                      type="text"
-                      value={answers[q.field_key] ?? ''}
-                      onChange={e => setAnswers(prev => ({ ...prev, [q.field_key]: e.target.value }))}
-                      className="flex-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6B35]"
-                      placeholder={`e.g. 50-75 ${q.unit}`}
-                    />
-                    <span className="text-xs text-gray-400 whitespace-nowrap">{q.unit}</span>
-                  </div>
-                </div>
-              ))}
+        {/* STEP 4: EARLY ACCESS (for PM/Agent) */}
+        {step === 'early_access' && (
+          <div className="flex flex-col gap-8 text-center">
+            <div>
+              <div style={{ fontSize: '3rem', marginBottom: 'var(--space-lg)' }}>🚀</div>
+              <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.25rem)', fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+                You're on the list
+              </h1>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>
+                We're starting with homeowners and contractors. You're our first call when we launch for {segment === 'property_manager' ? 'property managers' : 'real estate professionals'}.
+              </p>
             </div>
-            <Button size="lg" onClick={handleNext} disabled={loading} className="w-full mt-6">
-              {loading ? 'Building your profile...' : 'Complete setup'}
+
+            <Button onClick={() => router.push('/homeowner')} className="w-full">
+              Explore the marketplace
             </Button>
+
+            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)' }}>
+              We'll email you the moment your features are ready.
+            </p>
           </div>
         )}
       </div>
