@@ -34,6 +34,8 @@ export default function OnboardingPage() {
   const [yearsInBusiness, setYearsInBusiness] = useState('')
   const [contractorId, setContractorId] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string>('')
+  const [timedOut, setTimedOut] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -42,16 +44,50 @@ export default function OnboardingPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-      setRole(profile?.role ?? '')
+      // Set 5-second timeout for profile fetch
+      const timeoutId = setTimeout(() => {
+        setTimedOut(true)
+        setError('Profile load timeout. Try refreshing the page.')
+      }, 5000)
 
-      if (profile?.role === 'contractor') {
-        const { data: cp } = await supabase.from('contractor_profiles').select('id').eq('user_id', user.id).single()
-        setContractorId(cp?.id ?? '')
+      try {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role, onboarding_complete')
+          .eq('id', user.id)
+          .single()
+
+        clearTimeout(timeoutId)
+
+        if (profileError) {
+          setError(`Failed to load profile: ${profileError.message}`)
+          return
+        }
+
+        if (!profile) {
+          setError('Profile not found. Please contact support.')
+          return
+        }
+
+        // If already onboarded, redirect to dashboard
+        if (profile.onboarding_complete) {
+          router.push(profile.role === 'contractor' ? '/contractor' : '/homeowner')
+          return
+        }
+
+        setRole(profile.role ?? '')
+
+        if (profile.role === 'contractor') {
+          const { data: cp } = await supabase.from('contractor_profiles').select('id').eq('user_id', user.id).single()
+          setContractorId(cp?.id ?? '')
+        }
+
+        const { data: tradeData } = await supabase.from('trades').select('*').eq('active', true).order('name')
+        setTrades(tradeData ?? [])
+      } catch (err: any) {
+        clearTimeout(timeoutId)
+        setError(`Error: ${err.message}`)
       }
-
-      const { data: tradeData } = await supabase.from('trades').select('*').eq('active', true).order('name')
-      setTrades(tradeData ?? [])
     }
     load()
   }, [router])
@@ -134,9 +170,36 @@ export default function OnboardingPage() {
     }
   }
 
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+          <h2 className="text-lg font-semibold text-red-900 mb-2">Load Error</h2>
+          <p className="text-red-700 mb-4">{error}</p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="w-full"
+          >
+            Refresh Page
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+
   if (!role) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-gray-400">Loading...</div>
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="w-full max-w-sm text-center">
+        <div className="mb-4">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-800"></div>
+        </div>
+        <p className="text-gray-600 mb-2">Loading...</p>
+        {timedOut && (
+          <p className="text-sm text-gray-500">
+            Still loading? Check your connection or <button onClick={() => window.location.reload()} className="text-blue-600 underline">refresh</button>
+          </p>
+        )}
+      </div>
     </div>
   )
 

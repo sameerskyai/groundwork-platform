@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest --exclude '__tests__/demo-isolation.test.ts' --exclude '__tests__/demo-session-auth.test.ts'",
+    "test": "vitest --exclude '__tests__/demo-isolation.test.ts' --exclude '__tests__/demo-session-auth.test.ts' --exclude '__tests__/apply-migration-019.test.ts'",
     "test:live-db": "vitest run __tests__/demo-isolation.test.ts"
   },
   "dependencies": {

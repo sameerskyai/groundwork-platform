@@ -417,7 +417,8 @@ export async function seedMarketplace() {
         email: adminEmail,
         full_name: 'Founder Demo',
         role: 'admin',
-        is_demo: true
+        is_demo: true,
+        onboarding_complete: true
       })
 
       console.log(`    ✓ Admin user created: ${adminEmail}`)
