@@ -66,7 +66,40 @@ projects additions:
 
 ---
 
-## Next: J5 — Profiles (In Progress)
+### ✅ J5 — Profiles (Commit 5a2033d)
+
+**What shipped:**
+- Contractor public profile storefront: `/contractor/[id]`
+  - Business name, avatar, rating + reviews
+  - Trust badges (verified, jobs completed)
+  - Bio, years in business, service area
+  - Match context banner (if coming from match)
+  - Save + Message action buttons
+  - Recent reviews list (5 most recent)
+  
+- Saved contractors functionality:
+  - Users can save contractors without messaging (J8 integration)
+  - saved_contractors table: user_id, contractor_id, is_demo + RLS
+  - RLS: users see only their own saves
+
+**Files:**
+- `app/contractor/[id]/page.tsx` (storefront, 406 lines)
+- `supabase/migrations/021_profiles_and_saved_contractors.sql` (new)
+
+**Test to verify (browser):**
+1. Navigate to `/contractor/<contractor_id>`
+2. Should show full storefront: name, rating, reviews, bio
+3. Click Save button → should toggle saved state
+4. Click Message → should route to matches (J4 integration TBD)
+
+**Not Yet Shipped (J5 Phase 2):**
+- Work gallery (before/after images)
+- Homeowner profile (visible to matched contractors only)
+- Own-profile editing (avatar upload, bio, ZIP edit)
+
+---
+
+## Next: Estimate E2E Verification (Blocked)
 
 **What's needed:**
 - Contractor public profile (storefront): photo, name, rating, badges, bio, tags, gallery, reviews
@@ -119,9 +152,12 @@ projects additions:
 ## Execution Path
 
 ```
-J1 ✓ → J1b ✓ → J5 (IN PROGRESS) → estimate E2E (blocked) → 
+J1 ✓ (fa16778) → J1b ✓ (fa16778) → J5 ✓ (5a2033d) → 
+estimate E2E (BLOCKED: ANTHROPIC_API_KEY) → 
 J2a → J2 → J3 → J8 → J4 → J9 → J7 → J6 → design pass
 ```
+
+**Current Status:** 3 major J-steps complete, estimate verification blocked on API key
 
 ---
 
@@ -129,8 +165,16 @@ J2a → J2 → J3 → J8 → J4 → J9 → J7 → J6 → design pass
 
 - [x] J1 complete: build clean + 108/108 + commit
 - [x] J1b complete: migration 020 applied + commit
-- [ ] J5 complete: build clean + 108/108 + commit
+- [x] J5 complete: build clean + 108/108 + commit
 - [ ] Estimate E2E: founder provides API key + test flow
+- [ ] J2a complete: budget step
+- [ ] J2 complete: 5 personality questions
+- [ ] J3 complete: swipe/heart/save
+- [ ] J8 complete: saved contractors list page
+- [ ] J4 complete: messaging inbox
+- [ ] J9 complete: ZIP communities
+- [ ] J7 complete: project checklist
+- [ ] J6 complete: founder demo seed data
 - [ ] All J-steps: full journey walkthrough evidence before design pass
 
 ---
