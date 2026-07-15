@@ -10,13 +10,21 @@ import { AlertTriangle } from 'lucide-react'
 
 export function DemoModeWatermark() {
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-amber-50 border-b border-amber-200 px-4 py-3 flex items-center gap-3">
-      <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-      <div className="text-sm text-amber-900">
-        <span className="font-semibold">🎭 FOUNDER DEMO MODE</span>
-        <span className="ml-2 text-amber-800">
-          Viewing demo marketplace (demo rows visible, RLS bypassed)
-        </span>
+    <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3 flex items-center justify-between gap-4" style={{
+      backgroundColor: 'rgba(140, 80, 50, 0.08)',
+      borderBottom: '1px solid rgba(140, 80, 50, 0.2)',
+      backdropFilter: 'blur(8px)'
+    }}>
+      <div className="flex items-center gap-3 flex-1">
+        <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--color-brand)' }} />
+        <div className="text-sm">
+          <span className="font-semibold" style={{ color: 'var(--color-brand)' }}>
+            🎭 Demo Mode
+          </span>
+          <span className="ml-3" style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
+            Viewing demo marketplace data
+          </span>
+        </div>
       </div>
     </div>
   )
