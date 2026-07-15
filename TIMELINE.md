@@ -149,15 +149,15 @@ projects additions:
 
 ---
 
-## Execution Path
+## Execution Path (Overnight Queue in Progress)
 
 ```
 J1 ✓ (fa16778) → J1b ✓ (fa16778) → J5 ✓ (5a2033d) → 
-estimate E2E (BLOCKED: ANTHROPIC_API_KEY) → 
-J2a → J2 → J3 → J8 → J4 → J9 → J7 → J6 → design pass
+J2a ✓ (820be25) → J2 (⏳ founder questions) → J3 (BUILDING) → 
+J8 → J4 → J9 → J7 → J6 → estimate E2E (BLOCKED: ANTHROPIC_API_KEY) → design pass
 ```
 
-**Current Status:** 3 major J-steps complete, estimate verification blocked on API key
+**Current Status:** 4 J-steps complete (J2a shipped), overnight queue running, J2 questions flagged for morning review
 
 ---
 
