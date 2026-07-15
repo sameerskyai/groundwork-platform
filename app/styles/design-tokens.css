@@ -1,48 +1,49 @@
 /**
- * ReNova Design System — Modern Premium Edition
- * Intentional, opinionated, specific to product
- * No generic defaults; every choice has reasoning
+ * Groundwork Design System — Warm Copper Edition
+ * Trust-first, approachable home services product
+ * Target: Homeowners 35–60, seeking trustworthy contractors
+ * Warm, grounded, human-centered
  */
 
 :root {
   /* ============================================================
-     COLOR PALETTE — Disciplined, semantic, not decorative
+     COLOR PALETTE — Warm, earthy, trustworthy
      ============================================================ */
 
   /* Surfaces & Backgrounds */
-  --color-surface-primary: oklch(98% 0 0); /* Off-white, warm */
-  --color-surface-secondary: oklch(94% 0.005 250); /* Subtle blue tint */
-  --color-surface-tertiary: oklch(88% 0 0); /* Mid gray, accents */
+  --color-surface-primary: oklch(97% 0.01 60); /* Warm off-white, cream tint */
+  --color-surface-secondary: oklch(93% 0.02 55); /* Warm beige for depth */
+  --color-surface-tertiary: oklch(86% 0.01 60); /* Warm mid-gray, accents */
 
   /* Text — high contrast mandatory */
-  --color-text-primary: oklch(18% 0 0); /* Near-black */
-  --color-text-secondary: oklch(45% 0 0); /* Mid gray */
-  --color-text-tertiary: oklch(60% 0 0); /* Light gray, hints */
+  --color-text-primary: oklch(20% 0.02 40); /* Dark warm brown */
+  --color-text-secondary: oklch(50% 0.01 50); /* Warm mid-gray */
+  --color-text-tertiary: oklch(65% 0 0); /* Light gray, hints */
   --color-text-inverse: oklch(97% 0 0); /* For dark backgrounds */
 
   /* Semantic Colors */
-  --color-success: oklch(66% 0.19 130); /* Vibrant green */
-  --color-warning: oklch(74% 0.20 70); /* Warm amber */
-  --color-error: oklch(60% 0.25 30); /* True red */
-  --color-info: oklch(68% 0.21 250); /* Cobalt blue */
+  --color-success: oklch(65% 0.18 130); /* Warm green (trust) */
+  --color-warning: oklch(74% 0.20 70); /* Amber (caution) */
+  --color-error: oklch(62% 0.22 20); /* Warm red (approachable error) */
+  --color-info: oklch(68% 0.15 230); /* Softer blue (informational) */
 
-  /* Brand Primary — Modern Premium accent */
-  --color-brand: oklch(58% 0.25 265); /* Deep purple-blue */
-  --color-brand-light: oklch(72% 0.18 265); /* Lighter purple */
-  --color-brand-lighter: oklch(82% 0.12 265); /* Very light purple */
+  /* Brand Primary — Warm Copper, trusted and approachable */
+  --color-brand: oklch(55% 0.22 40); /* Warm copper-brown */
+  --color-brand-light: oklch(70% 0.16 45); /* Lighter copper */
+  --color-brand-lighter: oklch(84% 0.08 50); /* Very light warm copper */
 
   /* Interactive States */
-  --color-interactive-hover: oklch(78% 0.15 265); /* Lighter on hover */
-  --color-interactive-active: oklch(48% 0.28 265); /* Darker when active */
-  --color-interactive-disabled: oklch(75% 0 0); /* Gray disabled */
+  --color-interactive-hover: oklch(73% 0.14 42); /* Lighter warm on hover */
+  --color-interactive-active: oklch(45% 0.24 38); /* Darker copper when active */
+  --color-interactive-disabled: oklch(78% 0.01 50); /* Warm gray disabled */
 
   /* ============================================================
-     TYPOGRAPHY — Character & intention
+     TYPOGRAPHY — Warm, approachable, readable
      ============================================================ */
 
-  /* Font Family: Two faces, deliberate pairing */
-  --font-serif: 'Crimson Text', 'Georgia', serif;
-  --font-sans: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+  /* Font Family: Two faces, warm pairing for home services */
+  --font-serif: 'Lora', 'Georgia', serif; /* Warm, friendly serif for warmth */
+  --font-sans: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif; /* Familiar, clear sans */
 
   /* Font Sizes — Fluid scaling with intent */
   --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); /* Small labels */
@@ -156,20 +157,25 @@
 }
 
 /* ============================================================
-   DARK MODE — Intentional inversion, not auto-applied
+   DARK MODE — Warm copper inversion, intentional
    ============================================================ */
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-surface-primary: oklch(15% 0 0);
-    --color-surface-secondary: oklch(20% 0.008 265);
-    --color-surface-tertiary: oklch(28% 0 0);
+    --color-surface-primary: oklch(18% 0.01 40); /* Warm dark brown */
+    --color-surface-secondary: oklch(23% 0.015 45); /* Warm dark secondary */
+    --color-surface-tertiary: oklch(30% 0.01 40); /* Warm dark tertiary */
 
-    --color-text-primary: oklch(97% 0 0);
-    --color-text-secondary: oklch(72% 0 0);
-    --color-text-tertiary: oklch(55% 0 0);
+    --color-text-primary: oklch(96% 0.01 60); /* Warm light text */
+    --color-text-secondary: oklch(72% 0.01 50); /* Warm mid-light text */
+    --color-text-tertiary: oklch(58% 0 0); /* Muted light text */
 
-    --color-border: oklch(25% 0 0);
-    --color-border-strong: oklch(40% 0 0);
+    --color-border: oklch(28% 0.01 45); /* Warm dark border */
+    --color-border-strong: oklch(42% 0.01 45); /* Warmer stronger border */
+
+    /* Warm copper brand in dark mode — slightly lighter */
+    --color-brand: oklch(62% 0.20 40); /* Lighter copper for visibility */
+    --color-brand-light: oklch(74% 0.14 42); /* Lighter again */
+    --color-brand-lighter: oklch(82% 0.08 45); /* Very light */
   }
 }

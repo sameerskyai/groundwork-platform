@@ -64,7 +64,7 @@ export default function WaitlistPage() {
       <div
         className="flex-1 flex items-center justify-center relative overflow-hidden"
         style={{
-          backgroundImage: 'linear-gradient(135deg, rgba(58, 52, 140, 0.1) 0%, rgba(115, 75, 200, 0.15) 100%)',
+          backgroundImage: 'linear-gradient(135deg, rgba(140, 80, 50, 0.12) 0%, rgba(180, 100, 60, 0.15) 100%)',
           backgroundColor: 'var(--color-surface-secondary)'
         }}
       >
