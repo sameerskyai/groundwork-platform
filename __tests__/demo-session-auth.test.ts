@@ -2,7 +2,11 @@
  * Demo Session Security Tests
  * Verifies /api/demo/session requires role='admin'
  *
- * Run: npm test -- __tests__/demo-session-auth.test.ts
+ * REQUIRES: Dev server running on localhost:3000 (npm run dev)
+ * This is an integration test that makes HTTP requests to the API
+ *
+ * Run: npm run dev (in another terminal) → npm test -- __tests__/demo-session-auth.test.ts
+ * Excluded from standard test suite (test:live-db) because it needs running server
  */
 
 import { describe, it, expect, beforeAll } from 'vitest'

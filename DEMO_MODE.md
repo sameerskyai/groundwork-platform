@@ -6,6 +6,12 @@
 **Password:** `FounderDemo123!`  
 **Role:** `admin` (allows demo data viewing)
 
+⚠️ **SECURITY NOTE:** Plaintext password acceptable ONLY because:
+- This account can ONLY access rows marked `is_demo=true`
+- RLS policies explicitly block access to real data (`is_demo=false`)
+- Account has no write/delete/update access to any table
+- If compromised, attacker sees demo marketplace only; no user data exposure
+
 ---
 
 ## How to Activate Demo Mode

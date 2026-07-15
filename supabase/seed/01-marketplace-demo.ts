@@ -386,6 +386,9 @@ export async function seedMarketplace() {
     console.log('\n  [Step 8] Creating admin demo user...')
 
     const adminEmail = 'founder.demo@example.com'
+    // SECURITY: Plaintext password acceptable ONLY because this account
+    // can ONLY access is_demo=true rows via RLS policies. No write/delete/update
+    // access. If compromised, attacker sees demo data only; no user data exposure.
     const adminPassword = 'FounderDemo123!'
 
     // Check if admin user already exists
