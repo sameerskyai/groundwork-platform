@@ -92,10 +92,13 @@ None yet.
 
 ## Warm Copper Rollout Completed
 
-**All legacy color-constant pages updated to CSS variables:**
+**Legacy color-constant pages updated to CSS variables:**
 - ✓ Homeowner dashboard: C color constants → CSS variables
 - ✓ Contractor dashboard: C color constants → CSS variables  
-- ✓ Auth pages (signup, login, forgot-password, reset-password): Hardcoded hex → CSS variables
+- ✓ Auth pages: Fixed with safe direct hex→var replacement
+  - signup, login, forgot-password, reset-password now use var(--token) strings
+  - No runtime calls; safe for SSR components
+  - Build verified clean
 - ✓ Admin page: N/A (doesn't exist yet)
 
 **Color Mappings Applied:**
@@ -134,10 +137,14 @@ None yet.
 - ✓ Tests: 108/108 passing
 - ✓ Demo mode auth working correctly
 
-## Notes for Next Polish Pass
+## Reverted and Retried Work (Now Completed)
 
-Deferred (stable but needs refinement):
-- Matches page status labels (JSX complexity, defer refinement)
+- ✓ Auth pages (4): First attempt caused SSR errors → reverted → retried with safe direct hex→var strings → succeeded
+- ✓ Matches page status labels: First attempt broke JSX → reverted → retried with perl safe edit → succeeded
+
+## Notes for Next Polish Pass (Real Deferred Items)
+
+Stable but needs future refinement:
 - Button/form focus states (accessibility enhancement)
 - Loading states across pages
 

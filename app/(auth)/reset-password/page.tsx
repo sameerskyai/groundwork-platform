@@ -118,8 +118,8 @@ function ResetPasswordForm() {
                     onChange={e => f.set(e.target.value)}
                     required
                     minLength={8}
-                    className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#BF7A3A]"
-                    style={{ background: 'var(--color-surface-primary)', border: '1px solid #2A2825', color: 'var(--color-text-inverse)' }}
+                    className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
+                    style={{ background: 'var(--color-surface-primary)', border: '1px solid var(--color-border-strong)', color: 'var(--color-text-inverse)' }}
                     placeholder={f.placeholder}
                   />
                 </div>

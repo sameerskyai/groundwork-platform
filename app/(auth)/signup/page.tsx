@@ -86,7 +86,7 @@ function SignupForm() {
                 onClick={() => setRole(r.value)}
                 className="p-3 rounded-xl text-left transition-all"
                 style={{
-                  border: role === r.value ? '2px solid #BF7A3A' : '2px solid #2A2825',
+                  border: role === r.value ? '2px solid var(--color-brand)' : '2px solid var(--color-border-strong)',
                   background: role === r.value ? 'var(--color-surface-primary)' : 'transparent'
                 }}
               >
@@ -111,8 +111,8 @@ function SignupForm() {
                   onChange={e => f.set(e.target.value)}
                   required={f.required}
                   minLength={f.type === 'password' ? 8 : undefined}
-                  className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#BF7A3A]"
-                  style={{ background: 'var(--color-surface-primary)', border: '1px solid #2A2825', color: 'var(--color-text-inverse)' }}
+                  className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
+                  style={{ background: 'var(--color-surface-primary)', border: '1px solid var(--color-border-strong)', color: 'var(--color-text-inverse)' }}
                   placeholder={f.placeholder}
                 />
               </div>

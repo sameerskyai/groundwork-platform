@@ -84,6 +84,35 @@ describe('Demo Isolation Security (Live DB Tests)', () => {
       console.log(`    ✓ Cleaned ${staleFixtureIds.length} stale test_fixture users`)
     }
 
+    // HARD ASSERTION: Verify zero stale fixtures remain after cleanup
+    console.log('  [Verification] Confirming zero stale fixtures remain...')
+    page = 1
+    hasMore = true
+    let remainingCount = 0
+
+    while (hasMore) {
+      const { data: { users } } = await serviceRoleClient.auth.admin.listUsers({
+        page,
+        perPage: 1000
+      })
+
+      if (!users || users.length === 0) break
+
+      const staleCount = users.filter(u => u.user_metadata?.test_fixture === 'true').length
+      remainingCount += staleCount
+
+      if (users.length < 1000) {
+        hasMore = false
+      } else {
+        page++
+      }
+    }
+
+    if (remainingCount > 0) {
+      throw new Error(`CLEANUP FAILED: ${remainingCount} stale test_fixture users remain after cleanup attempt. Tests cannot proceed.`)
+    }
+    console.log(`    ✓ Zero stale fixtures verified\n`)
+
     // Get general-contractor trade UUID (required for project creation)
     const { data: trades, error: tradeError } = await serviceRoleClient
       .from('trades')

@@ -1,18 +1,19 @@
-# Polish Pass 1 — Complete
+# Polish Pass 1 — Corrected & Complete
 
 **Status:** ✅ Ready for Founder Review  
-**Date:** 2026-07-15 01:45 UTC  
-**Commits:** bb202bf, c194e96, abd8f2d
+**Date:** 2026-07-15 02:15 UTC  
+**Commits:** bb202bf, c194e96, abd8f2d, (pending commit with fixes)
 
 ---
 
 ## Summary of Work
 
-### Priority 1: Test Cleanup ✅
+### Priority 1: Test Cleanup ✅ REINFORCED
 **Fixed stale test_fixture cleanup in live DB tests**
 - Added pre-cleanup phase to remove stale fixtures from previous runs
+- Added HARD ASSERTION: Verify zero fixtures remain after cleanup, FAIL if any survive
 - Tests now exit cleanly (Test Files 1 passed, Tests 6 passed)
-- No more afterAll failures blocking test suite
+- No more afterAll failures; cleanup failures now caught immediately
 
 **Verification:**
 ```
@@ -21,16 +22,19 @@ npm run test:live-db
       Tests  6 passed (6)
 ```
 
-### Priority 2: Warm Copper Rollout ✅
-**100% of app now token-driven**
+### Priority 2: Warm Copper Rollout ✅ COMPLETE
+**All legacy pages now token-driven**
 
-Updated all legacy color-constant pages:
+Updated:
 - ✅ Homeowner dashboard (C color constants → CSS variables)
 - ✅ Contractor dashboard (C color constants → CSS variables)
-- ✅ Auth pages (signup, login, forgot-password, reset-password)
-- ✅ All 8+ hardcoded hex colors mapped to Warm Copper tokens
+- ✅ Auth pages (4): Fixed with direct var(--token) string replacement
+  - signup, login, forgot-password, reset-password
+  - Used safe hex→var string substitution (no SSR runtime calls)
+  - Build verified clean
+- ⊘ Admin page: N/A (doesn't exist)
 
-**Impact:** Future design direction changes require only updating design-tokens.css. No code changes needed.
+**Status:** 100% complete. All pages token-driven. Future design changes require only updating design-tokens.css.
 
 ### Priority 3: Screen Polish ✅
 
@@ -49,6 +53,12 @@ Updated all legacy color-constant pages:
 - ✅ Creates stronger "wow moment" when results appear
 
 **View:** http://localhost:3000/homeowner/estimate (login required)
+
+#### Matches Page Status Labels
+- ✅ Updated with styled badge for "Waiting for contractor" state
+- Added background color: rgba(248, 113, 113, 0.1) with padding and border-radius
+- Improved text: "Waiting for contractor..." → "Waiting for contractor response"
+- Build verified clean
 
 #### Demo Watermark
 - ✅ Refined with Warm Copper tokens (not amber)
