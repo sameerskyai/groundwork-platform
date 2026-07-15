@@ -44,22 +44,36 @@ function MatchesContent() {
   const [limitReached, setLimitReached] = useState(false)
   const [userTier, setUserTier] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string>('')
   const [running, setRunning] = useState(false)
   const router = useRouter()
 
   const loadMatches = useCallback(async () => {
-    const supabase = createClient()
-    const { data } = await supabase
-      .from('matches')
-      .select(`*, contractor_profiles(*, profiles(zip_code))`)
-      .eq('project_id', projectId)
-      .order('match_score', { ascending: false })
-    setMatches(data ?? [])
-    setLoading(false)
+    try {
+      setError('')
+      const supabase = createClient()
+      const { data, error: queryError } = await supabase
+        .from('matches')
+        .select(`*, contractor_profiles(*, profiles(zip_code))`)
+        .eq('project_id', projectId)
+        .order('match_score', { ascending: false })
+
+      if (queryError) {
+        setError('Failed to load matches. Try refreshing.')
+        setMatches([])
+      } else {
+        setMatches(data ?? [])
+      }
+    } finally {
+      setLoading(false)
+    }
   }, [projectId])
 
   useEffect(() => {
-    if (!projectId) { router.push('/homeowner'); return }
+    if (!projectId) {
+      router.push('/homeowner')
+      return
+    }
     loadMatches()
   }, [projectId, router, loadMatches])
 
@@ -88,8 +102,27 @@ function MatchesContent() {
   }
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ color: 'var(--color-text-secondary)' }}>
-      Loading your matches...
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-800 mb-4"></div>
+        <p style={{ color: 'var(--color-text-secondary)' }}>Loading your matches...</p>
+      </div>
+    </div>
+  )
+
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <Card className="w-full max-w-sm text-center p-8">
+        <h2 style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--weight-bold)', marginBottom: 'var(--space-md)', color: 'var(--color-text-primary)' }}>
+          Load Failed
+        </h2>
+        <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>
+          {error}
+        </p>
+        <Button onClick={() => window.location.reload()} className="w-full">
+          Retry
+        </Button>
+      </Card>
     </div>
   )
 

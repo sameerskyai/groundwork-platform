@@ -25,6 +25,8 @@ function ChatContent() {
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [userId, setUserId] = useState<string>('')
   const [sending, setSending] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string>('')
   const [matchProjectId, setMatchProjectId] = useState<string | null>(null)
   const [matchZip, setMatchZip] = useState<string>('')
   const [showComplete, setShowComplete] = useState(false)
@@ -36,25 +38,43 @@ function ChatContent() {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!matchId) return
+    if (!matchId) {
+      setError('No conversation selected. Go back to matches.')
+      setLoading(false)
+      return
+    }
     loadMessages()
 
     const supabase = createClient()
     supabase.auth.getUser().then(async ({ data }) => {
-      setUserId(data.user?.id ?? '')
-      // Load match context to know project ID, ZIP, and whether this user is the homeowner
-      const { data: match } = await supabase
-        .from('matches')
-        .select('project_id, projects(zip_code, user_id, status)')
-        .eq('id', matchId)
-        .single()
-      if (match) {
-        const proj = match.projects as any
-        setMatchProjectId(match.project_id)
-        setMatchZip(proj?.zip_code ?? '')
-        setIsHomeowner(proj?.user_id === data.user?.id)
-        // If already completed show opt-in if not yet answered
-        if (proj?.status === 'completed') setShowComplete(false)
+      try {
+        setError('')
+        setUserId(data.user?.id ?? '')
+        // Load match context to know project ID, ZIP, and whether this user is the homeowner
+        const { data: match, error: matchError } = await supabase
+          .from('matches')
+          .select('project_id, projects(zip_code, user_id, status)')
+          .eq('id', matchId)
+          .single()
+
+        if (matchError) {
+          setError('Failed to load conversation.')
+          setLoading(false)
+          return
+        }
+
+        if (match) {
+          const proj = match.projects as any
+          setMatchProjectId(match.project_id)
+          setMatchZip(proj?.zip_code ?? '')
+          setIsHomeowner(proj?.user_id === data.user?.id)
+          // If already completed show opt-in if not yet answered
+          if (proj?.status === 'completed') setShowComplete(false)
+        }
+        setLoading(false)
+      } catch (err) {
+        setError('Failed to load conversation.')
+        setLoading(false)
       }
     })
 
@@ -77,9 +97,17 @@ function ChatContent() {
   }, [messages])
 
   async function loadMessages() {
-    const res = await fetch(`/api/chat?matchId=${matchId}`)
-    const data = await res.json()
-    setMessages(data.messages ?? [])
+    try {
+      const res = await fetch(`/api/chat?matchId=${matchId}`)
+      const data = await res.json()
+      if (!res.ok) {
+        setError('Failed to load messages.')
+        return
+      }
+      setMessages(data.messages ?? [])
+    } catch (err) {
+      setError('Connection error. Try refreshing.')
+    }
   }
 
   async function sendMessage(content: string) {
@@ -99,6 +127,27 @@ function ChatContent() {
     await loadMessages()
     setSending(false)
   }
+
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="text-center">
+        <h2 className="text-lg font-bold text-gray-900 mb-2">Conversation unavailable</h2>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <Link href="/homeowner/matches">
+          <Button>Back to matches</Button>
+        </Link>
+      </div>
+    </div>
+  )
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+      <div className="text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-800 mb-4"></div>
+        <p className="text-gray-600">Loading conversation...</p>
+      </div>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
