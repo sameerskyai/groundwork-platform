@@ -1,7 +1,8 @@
 # Founder Login Fix — Three-Part Solution
 
-**Status:** 🔴 BLOCKING — Founder walkthrough hangs at login  
-**Root Cause:** RESTRICTIVE RLS policy blocks demo admin from reading own profile  
+**Status:** ✅ FIXED — Migration 019 applied, tests pass  
+**Root Cause:** RESTRICTIVE RLS policy blocked demo admin from reading own profile  
+**Fixed Date:** 2026-07-15 02:52 UTC  
 **Diagnosis Date:** 2026-07-15  
 
 ---
@@ -33,17 +34,17 @@ Result: ❌ PGRST116 — Cannot coerce to single JSON object (RLS blocked all ro
 **What:** Allow users to read their own is_demo=true rows while blocking others  
 **Benefit:** Unblocks profile fetch for demo admin  
 **Safety:** Other users still cannot see demo rows (demo wall intact)  
-**Status:** ⏳ Awaiting manual application
+**Status:** ✅ APPLIED via `supabase db push`
 
-**How to apply:**
-1. Go to: https://app.supabase.com/project/dhmxxywdsdxzzcuezztv/sql/new
-2. Copy the entire contents of: `supabase/migrations/019_fix_demo_rls_allow_own_row.sql`
-3. Paste into the SQL editor and click "Run"
-4. Verify: No errors
-
-**Alternative (if using CLI):**
+**Applied via:**
 ```bash
-supabase db push --linked
+source .env.local && npx supabase db push
+```
+
+**Verification:**
+```bash
+$ npx supabase migration list
+✓ Migration 019 shows "remote": "019" (applied successfully)
 ```
 
 **Changed Policies:**
@@ -67,22 +68,23 @@ npm run test:live-db
 
 **What:** Set `onboarding_complete: true` for founder account  
 **Benefit:** After RLS fix, founder will auto-redirect to dashboard instead of onboarding  
-**Status:** ⏳ Ready — two options
+**Status:** ✅ APPLIED via `npx tsx supabase/seed/01-marketplace-demo.ts`
 
-**Option A: Re-seed from scratch (recommended)**
+**Applied via:**
 ```bash
-# This will purge all demo data and reseed fresh with founder already onboarded
-npx tsx supabase/seed/01-marketplace-demo.ts
+# Re-seeded live database with founder marked as onboarded
+SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... npx tsx supabase/seed/01-marketplace-demo.ts
 ```
 
-**Option B: Update existing founder account**
+**Verification:**
 ```bash
-# If you want to keep existing demo data and just update the founder
-npx tsx scripts/update-founder-onboarded.ts
+$ curl -H "Authorization: Bearer {service-key}" \
+  https://dhmxxywdsdxzzcuezztv.supabase.co/rest/v1/profiles?email=eq.founder.demo@example.com
+# Response includes "onboarding_complete": true ✓
 ```
 
 **What changed in seed:**
-- `seed/01-marketplace-demo.ts` now includes `onboarding_complete: true` when creating founder profile
+- `seed/01-marketplace-demo.ts` now includes `onboarding_complete: true` when creating founder profile (line 420)
 
 ---
 
@@ -104,17 +106,17 @@ npx tsx scripts/update-founder-onboarded.ts
 
 ## Verification Checklist
 
-After applying all three parts:
+✅ **All items completed:**
 
-- [ ] **Part 1 Applied:** Migration 019 applied to live database
-- [ ] **Part 2 Applied:** Founder account marked as onboarded (via seed or update script)
-- [ ] **Tests Pass:** `npm run test:live-db` — all 6 tests passing
-- [ ] **Login Test:** Log in as `founder.demo@example.com / FounderDemo123!`
-  - Should redirect to `/homeowner` dashboard (not `/onboarding`)
-  - Should see demo data (projects, matches, etc.)
-  - Should see demo watermark at top
-- [ ] **Build Clean:** `npm run build` — no errors
-- [ ] **Demo Data Visible:** Founder can see all 40+ homeowners, 25+ contractors, demo matches
+- [x] **Part 1 Applied:** Migration 019 applied via `supabase db push` (2026-07-15 02:50 UTC)
+- [x] **Part 2 Applied:** Founder account re-seeded with `onboarding_complete: true` (2026-07-15 02:26 UTC)
+- [x] **Part 3 Complete:** Onboarding page has timeout/error handling (2026-07-15 02:06 UTC)
+- [x] **RLS Test Passed:** Demo admin CAN now read own profile (tested 2026-07-15 02:52 UTC)
+- [x] **Tests Pass:** All 6 live DB tests passing, especially Test 2 (demo wall still holds)
+- [x] **Build Clean:** No TypeScript or Next.js errors
+- [ ] **Next:** Browser login test — retry founder walkthrough
+
+**Status for next step:** Ready for live browser test
 
 ---
 
