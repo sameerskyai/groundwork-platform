@@ -32,22 +32,22 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: '#0A0908' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: 'var(--color-surface-primary)' }}>
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
           <Link href="/" className="inline-flex justify-center mb-8">
             <Wordmark size="lg" />
           </Link>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#EDE8DF' }}>Reset your password</h1>
-          <p className="text-sm" style={{ color: '#7A756E' }}>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--color-text-inverse)' }}>Reset your password</h1>
+          <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>
             {sent ? 'Check your inbox' : "We'll email you a reset link"}
           </p>
         </div>
 
-        <div className="rounded-2xl p-6 border" style={{ background: '#161513', borderColor: '#2A2825' }}>
+        <div className="rounded-2xl p-6 border" style={{ background: 'var(--color-surface-secondary)', borderColor: 'var(--color-border-strong)' }}>
           {sent ? (
             <p className="text-sm leading-relaxed" style={{ color: '#C4BDB3' }}>
-              If an account exists for <span style={{ color: '#EDE8DF' }}>{email}</span>, a password
+              If an account exists for <span style={{ color: 'var(--color-text-inverse)' }}>{email}</span>, a password
               reset link is on its way. The link expires after a short time — if it does,
               just request a new one.
             </p>
@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
                   onChange={e => setEmail(e.target.value)}
                   required
                   className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#BF7A3A]"
-                  style={{ background: '#0A0908', border: '1px solid #2A2825', color: '#EDE8DF' }}
+                  style={{ background: 'var(--color-surface-primary)', border: '1px solid #2A2825', color: 'var(--color-text-inverse)' }}
                   placeholder="you@example.com"
                 />
               </div>
@@ -73,9 +73,9 @@ export default function ForgotPasswordPage() {
           )}
         </div>
 
-        <p className="text-center text-sm mt-6" style={{ color: '#4A4640' }}>
+        <p className="text-center text-sm mt-6" style={{ color: 'var(--color-text-tertiary)' }}>
           Remembered it?{' '}
-          <Link href="/login" className="font-medium hover:underline" style={{ color: '#BF7A3A' }}>
+          <Link href="/login" className="font-medium hover:underline" style={{ color: 'var(--color-brand)' }}>
             Sign in
           </Link>
         </p>

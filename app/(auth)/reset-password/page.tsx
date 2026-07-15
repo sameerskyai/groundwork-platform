@@ -77,17 +77,17 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: '#0A0908' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: 'var(--color-surface-primary)' }}>
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
           <Link href="/" className="inline-flex justify-center mb-8">
             <Wordmark size="lg" />
           </Link>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#EDE8DF' }}>Set a new password</h1>
-          <p className="text-sm" style={{ color: '#7A756E' }}>Choose something you&apos;ll remember</p>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--color-text-inverse)' }}>Set a new password</h1>
+          <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>Choose something you&apos;ll remember</p>
         </div>
 
-        <div className="rounded-2xl p-6 border" style={{ background: '#161513', borderColor: '#2A2825' }}>
+        <div className="rounded-2xl p-6 border" style={{ background: 'var(--color-surface-secondary)', borderColor: 'var(--color-border-strong)' }}>
           {linkState === 'checking' && (
             <p className="text-sm" style={{ color: '#C4BDB3' }}>Verifying your reset link...</p>
           )}
@@ -119,7 +119,7 @@ function ResetPasswordForm() {
                     required
                     minLength={8}
                     className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#BF7A3A]"
-                    style={{ background: '#0A0908', border: '1px solid #2A2825', color: '#EDE8DF' }}
+                    style={{ background: 'var(--color-surface-primary)', border: '1px solid #2A2825', color: 'var(--color-text-inverse)' }}
                     placeholder={f.placeholder}
                   />
                 </div>
@@ -138,7 +138,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0908' }} />}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--color-surface-primary)' }} />}>
       <ResetPasswordForm />
     </Suspense>
   )

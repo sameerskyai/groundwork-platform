@@ -66,17 +66,17 @@ function SignupForm() {
   ] as const
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: '#0A0908' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: 'var(--color-surface-primary)' }}>
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
           <Link href="/" className="inline-flex justify-center mb-8">
             <Wordmark size="lg" />
           </Link>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#EDE8DF' }}>Create your account</h1>
-          <p className="text-sm" style={{ color: '#7A756E' }}>Get started in under 2 minutes</p>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--color-text-inverse)' }}>Create your account</h1>
+          <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>Get started in under 2 minutes</p>
         </div>
 
-        <div className="rounded-2xl p-6 border" style={{ background: '#161513', borderColor: '#2A2825' }}>
+        <div className="rounded-2xl p-6 border" style={{ background: 'var(--color-surface-secondary)', borderColor: 'var(--color-border-strong)' }}>
           {/* Role picker */}
           <div className="grid grid-cols-3 gap-2 mb-5">
             {roles.map(r => (
@@ -87,11 +87,11 @@ function SignupForm() {
                 className="p-3 rounded-xl text-left transition-all"
                 style={{
                   border: role === r.value ? '2px solid #BF7A3A' : '2px solid #2A2825',
-                  background: role === r.value ? '#1F1A14' : 'transparent'
+                  background: role === r.value ? 'var(--color-surface-primary)' : 'transparent'
                 }}
               >
-                <div className="text-xs font-semibold" style={{ color: '#EDE8DF' }}>{r.label}</div>
-                <div className="text-[10px] mt-0.5 leading-tight" style={{ color: '#7A756E' }}>{r.desc}</div>
+                <div className="text-xs font-semibold" style={{ color: 'var(--color-text-inverse)' }}>{r.label}</div>
+                <div className="text-[10px] mt-0.5 leading-tight" style={{ color: 'var(--color-text-tertiary)' }}>{r.desc}</div>
               </button>
             ))}
           </div>
@@ -112,7 +112,7 @@ function SignupForm() {
                   required={f.required}
                   minLength={f.type === 'password' ? 8 : undefined}
                   className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#BF7A3A]"
-                  style={{ background: '#0A0908', border: '1px solid #2A2825', color: '#EDE8DF' }}
+                  style={{ background: 'var(--color-surface-primary)', border: '1px solid #2A2825', color: 'var(--color-text-inverse)' }}
                   placeholder={f.placeholder}
                 />
               </div>
@@ -124,9 +124,9 @@ function SignupForm() {
           </form>
         </div>
 
-        <p className="text-center text-sm mt-6" style={{ color: '#4A4640' }}>
+        <p className="text-center text-sm mt-6" style={{ color: 'var(--color-text-tertiary)' }}>
           Already have an account?{' '}
-          <Link href="/login" className="font-medium hover:underline" style={{ color: '#BF7A3A' }}>
+          <Link href="/login" className="font-medium hover:underline" style={{ color: 'var(--color-brand)' }}>
             Sign in
           </Link>
         </p>
@@ -137,7 +137,7 @@ function SignupForm() {
 
 export default function SignupPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0908' }} />}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--color-surface-primary)' }} />}>
       <SignupForm />
     </Suspense>
   )

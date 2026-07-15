@@ -167,7 +167,7 @@ function MatchesContent() {
                         </p>
                       )}
                     </div>
-                    <div style={{ textAlign: 'right', fontSize: 'var(--text-xs)', color: 'var(--color-text-tertiary)' }}>
+                    <div style={{ textAlign: "right" }}>
                       {Math.round(m.match_score * 100)}% match
                     </div>
                   </div>

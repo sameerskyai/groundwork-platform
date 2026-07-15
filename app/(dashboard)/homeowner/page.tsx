@@ -13,14 +13,14 @@ const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['500', '600'], variabl
 
 // Design tokens
 const C = {
-  navy: '#12181F',
-  navy2: '#1B232D',
-  offWhite: '#F7F5F1',
-  amber: '#E8722C',
-  slate: '#4A6B8A',
-  green: '#2E8B57',
-  line: '#2A3440',
-  textDim: '#93A0AD'
+  navy: "var(--color-surface-primary)",
+  navy2: "var(--color-surface-secondary)",
+  offWhite: 'var(--color-text-inverse)',
+  amber: "var(--color-brand)",
+  slate: "var(--color-text-secondary)",
+  green: "var(--color-success)",
+  line: "var(--color-border-strong)",
+  textDim: "var(--color-text-tertiary)"
 }
 
 const THRESHOLD = 90

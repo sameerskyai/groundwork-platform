@@ -201,13 +201,13 @@ export default function EstimatePage() {
             </form>
           </Card>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6 animate-in fade-in duration-500" style={{ animationDelay: "0ms" }}>
             {/* Estimate card */}
             <Card variant="default">
               <div style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--weight-medium)', color: 'var(--color-info)', marginBottom: 'var(--space-sm)' }}>
                 {estimate.projectType}
               </div>
-              <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
+              <h2 style={{ fontSize: "clamp(2rem, 5vw, 2.5rem)"', fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
                 {formatRange(estimate.estimateLow, estimate.estimateHigh)}
               </h2>
               <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>

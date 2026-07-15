@@ -44,17 +44,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: '#0A0908' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: 'var(--color-surface-primary)' }}>
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
           <Link href="/" className="inline-flex justify-center mb-8">
             <Wordmark size="lg" />
           </Link>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#EDE8DF' }}>Welcome back</h1>
-          <p className="text-sm" style={{ color: '#7A756E' }}>Sign in to your account</p>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--color-text-inverse)' }}>Welcome back</h1>
+          <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>Sign in to your account</p>
         </div>
 
-        <div className="rounded-2xl p-6 border" style={{ background: '#161513', borderColor: '#2A2825' }}>
+        <div className="rounded-2xl p-6 border" style={{ background: 'var(--color-surface-secondary)', borderColor: 'var(--color-border-strong)' }}>
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             {[
               { label: 'Email', type: 'email', value: email, set: setEmail, placeholder: 'you@example.com' },
@@ -68,7 +68,7 @@ export default function LoginPage() {
                   onChange={e => f.set(e.target.value)}
                   required
                   className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#BF7A3A]"
-                  style={{ background: '#0A0908', border: '1px solid #2A2825', color: '#EDE8DF' }}
+                  style={{ background: 'var(--color-surface-primary)', border: '1px solid #2A2825', color: 'var(--color-text-inverse)' }}
                   placeholder={f.placeholder}
                 />
               </div>
@@ -80,16 +80,16 @@ export default function LoginPage() {
             <Link
               href="/forgot-password"
               className="text-center text-sm hover:underline"
-              style={{ color: '#7A756E' }}
+              style={{ color: 'var(--color-text-tertiary)' }}
             >
               Forgot password?
             </Link>
           </form>
         </div>
 
-        <p className="text-center text-sm mt-6" style={{ color: '#4A4640' }}>
+        <p className="text-center text-sm mt-6" style={{ color: 'var(--color-text-tertiary)' }}>
           No account?{' '}
-          <Link href="/signup" className="font-medium hover:underline" style={{ color: '#BF7A3A' }}>
+          <Link href="/signup" className="font-medium hover:underline" style={{ color: 'var(--color-brand)' }}>
             Create one free
           </Link>
         </p>

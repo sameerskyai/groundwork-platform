@@ -86,16 +86,24 @@ export default function WaitlistPage() {
           <source src="/videos/groundwork-intro.mp4" type="video/mp4" />
         </video>
 
-        <div className="relative z-10 max-w-2xl mx-auto px-6 py-16 text-center">
-          <h1 className="text-5xl font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>
+        <div className="relative z-10 max-w-2xl mx-auto px-6 py-20 text-center">
+          {/* Trust badge */}
+          <div className="mb-6 inline-block px-4 py-2 rounded-full text-sm" style={{ backgroundColor: 'var(--color-brand-lighter)', color: 'var(--color-brand)' }}>
+            ✓ Trusted by homeowners nationwide
+          </div>
+
+          <h1 style={{ fontSize: 'clamp(2.5rem, 10vw, 3.5rem)', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--color-text-primary)', lineHeight: 1.1 }}>
             Find Your Perfect Contractor
           </h1>
-          <p className="text-xl mb-8" style={{ color: 'var(--color-text-secondary)' }}>
-            AI-powered matching connects you with vetted, local contractors who fit your project. No ads, no middleman.
+          <p style={{ fontSize: 'clamp(1.125rem, 3vw, 1.25rem)', marginBottom: '2.5rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+            AI-powered matching connects you with vetted, local contractors who fit your project.
+          </p>
+          <p style={{ fontSize: '0.95rem', marginBottom: '2rem', color: 'var(--color-text-tertiary)' }}>
+            No ads. No middleman. Just the right fit.
           </p>
 
           {!submitted ? (
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
+            <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-5 bg-white/5 backdrop-blur-sm p-8 rounded-2xl border" style={{ borderColor: 'var(--color-border)' }}>
               <Input
                 type="text"
                 label="Full Name"
