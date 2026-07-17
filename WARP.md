@@ -30,6 +30,15 @@ These rules are non-negotiable and apply to all work on this codebase.
 - Real output is always preferred over simulated output, even if it includes errors.
 - A real log with 3 failures is worth infinitely more than a perfect imaginary one.
 
+### 3.5. Gate/Milestone Completion: Evidence Required, Definition Binding
+
+- **No J-step or Gate is "complete" based on build-clean alone.**
+- Every completion claim MUST cite the specific WAR_PLAN.md or TIMELINE.md definition being satisfied.
+- Every completion claim MUST include evidence: functional test, founder walkthrough, or real end-to-end verification.
+- "Build clean ✓" proves compilation only, not function. It is not evidence of feature completion.
+- False completion claims must be corrected immediately in TIMELINE.md and PROGRESS_MAP.md.
+- Gate 4 (Walkthrough): Founder alone declares this clear. Only the founder completing estimate → questions → match → message end-to-end with zero broken steps satisfies this gate.
+
 ### 4. Work in Small Verified Increments
 
 - One migration or one feature at a time.

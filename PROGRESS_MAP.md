@@ -1,6 +1,6 @@
 # GROUNDWORK BUILD PROGRESS MAP
 
-**Last Updated:** 2026-07-17 | **Status:** Phase 0 Gates 4/4 Clear, Journey 9/9 Live
+**Last Updated:** 2026-07-17 | **Status:** Phase 0 Gates 3/4 Clear (Walkthrough INCOMPLETE), Journey 9/9 BUILT but UNVERIFIED
 
 ---
 
@@ -118,8 +118,12 @@ graph TB
 
 ## SUMMARY
 
-- **Gates clear:** 4/4 (API key ✓, GitHub ✓, Questions ✓, Walkthrough ✓)
-- **Journey live:** 9/9 (J0-J9 complete, all surfaces interactive and testable)
+- **Gates clear:** 3/4 (API key ✓, GitHub ✓, Questions ✓ | Walkthrough ❌ INCOMPLETE per WAR_PLAN.md)
+- **Journey built:** 9/9 (J0-J9 code exists, UNVERIFIED — zero functional tests on J3-J6, zero end-to-end browser verification)
 - **Infrastructure:** 7/10 items (build, tests, DB, GitHub, backups, photo code OK; CI/CD + attorney review deferred)
-- **Known gaps:** CodeRabbit CLI not installed, photo E2E not browser-tested, attorney review deferred
-- **Next:** Design pass (light/dark + 21st.dev visual refinement), waitlist launch preparation
+- **Critical gaps:** 
+  - J3 (80%+ gate): never tested with sub-80 fixture — most important rule in product
+  - J7: spec mismatch unresolved (static vs lifecycle tracker)
+  - J6: auth fixed, seed data state untested
+  - Founder walkthrough: NEVER COMPLETED
+- **Next:** Part 2 real verification, Part 3 J7 decision, Part 4 armor repair, Part 5 dashboard — NO design pass until Gate 4 verified

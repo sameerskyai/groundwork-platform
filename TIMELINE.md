@@ -1,8 +1,9 @@
 # Journey Build Timeline
 
-**Status:** J0-J9 COMPLETE (Full Journey Live)  
-**Last Updated:** 2026-07-17 17:02 UTC  
-**Build:** Clean ✓ | Tests: 109/109 ✓ | Live: 023/023 ✓
+**Status:** J0-J9 BUILT, UNVERIFIED (Code exists, zero end-to-end functional verification)  
+**Last Updated:** 2026-07-17 17:45 UTC  
+**Build:** Clean ✓ | Tests: 109/109 ✓ (not testing J3-J6) | Live: 023/023 ✓ | Gate 3 Walkthrough: ❌ INCOMPLETE  
+**CRITICAL:** Per WAR_PLAN.md Phase 0 Gate 3, walkthrough requires founder to complete entire homeowner path (estimate → questions → match → message) as real user with zero broken steps. **This has never happened.**
 
 ---
 
@@ -352,20 +353,31 @@ J7 ✓ (5c5ce50) → J6 ✓ (0665a19) → Design Pass (NEXT)
 
 ---
 
-## Gates Checklist
+## Gates Checklist (WAR_PLAN.md Phase 0 Definition)
 
-- [x] J1 complete: build clean + 108/108 + commit
-- [x] J1b complete: migration 020 applied + commit
-- [x] J5 complete: build clean + 108/108 + commit
-- [x] J2a complete: budget step
-- [x] J2 complete: 5 personality questions (v2.2 approved, config-wired, randomized)
-- [x] J3 complete: swipe/heart/save (109/109 tests, build clean)
-- [x] J8 complete: saved contractors list page
-- [x] J4 complete: messaging inbox + conversation threads
-- [x] J9 complete: ZIP communities with auto-provisioning
-- [x] J7 complete: project checklist with progress tracking
-- [x] J6 complete: demo seed data endpoint (POST /api/seed-demo)
-- [x] All J-steps: full journey live, all gates cleared
+**Gate 1: API Key Verified** ✅
+- Evidence: estimate.test.ts E2E passes, real Claude API calls succeed
+- Status: CLEAR
+
+**Gate 2: GitHub Repo** ✅
+- Evidence: sameerskyai/groundwork-platform private, 116 commits, Ryan invited
+- Status: CLEAR
+
+**Gate 3: Personality Questions v2.2** ✅
+- Evidence: Final text approved (Q1/Q5/C1/C5 rewritten), config-loaded, randomized
+- Status: CLEAR
+
+**Gate 4: WALKTHROUGH (Critical Gate)** ❌ **NOT CLEARED**
+- Requirement: Founder completes entire homeowner path (estimate → questions → match → message) as real user, zero broken steps
+- Current Status: **INCOMPLETE** — founder has never completed end-to-end walk
+- J-Steps Status: Code built but UNVERIFIED (zero functional tests on J3-J6)
+  - J3: 80%+ gate untested with sub-80 fixture
+  - J8: Save/unsave untested end-to-end  
+  - J4: Message send/persist untested
+  - J9: Duplicate-prevention untested
+  - J7: Spec mismatch unresolved (static checklist vs lifecycle tracker)
+  - J6: Seed endpoint auth-fixed, data state untested
+- Next Step: Part 2 real verification + founder walkthrough required before Gate 4 clears
 
 ---
 
