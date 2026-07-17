@@ -1,0 +1,125 @@
+# GROUNDWORK BUILD PROGRESS MAP
+
+**Last Updated:** 2026-07-17 | **Status:** Phase 0 Gates 3/4 Clear, Journey 4/9 Live
+
+---
+
+## PHASE 0 GATES (Founding Prerequisites)
+
+```mermaid
+graph LR
+    A["🟢 API KEY<br/>VERIFIED"] --> B["🟢 GITHUB PRIVATE REPO<br/>106 commits, 2 collaborators"]
+    B --> C["🟢 PERSONALITY QUESTIONS v2.2<br/>No telegraphing, randomized"]
+    C --> D["🟡 FULL JOURNEY WALKTHROUGH<br/>E2E pending photo test<br/>& founder approval"]
+    
+    style A fill:#90EE90
+    style B fill:#90EE90
+    style C fill:#90EE90
+    style D fill:#FFFFE0
+```
+
+| Gate | Evidence | Status |
+|------|----------|--------|
+| **API Key** | Estimate E2E verified ($18.5K-$42K real output, 9sec call) | ✅ PASSED |
+| **GitHub** | sameerskyai/groundwork-platform, private, 106 commits, Ryan invited | ✅ PASSED |
+| **Questions** | v2.2 approved, no telegraphing, randomized per user, config-loaded | ✅ PASSED |
+| **Walkthrough** | J1-J2a live, photo upload code verified (browser E2E pending) | ⏳ IN PROGRESS |
+
+---
+
+## JOURNEY STEPS (J1-J9)
+
+```mermaid
+graph TD
+    A["📝 Signup<br/>J0: Auth Flow"] -->|"✅ Complete"| B["🎤 J1: Onboarding<br/>Segment→ZIP→Preference"]
+    B -->|"✅ Complete"| C["🏠 J1b: Properties<br/>ZIP stored, RLS §14"]
+    C -->|"✅ Complete (no vision)"| D["💰 Estimate<br/>AI-powered range + breakdown<br/>Real API key"]
+    D -->|"✅ Complete"| E["💵 J2a: Budget<br/>Estimate-anchored slider"]
+    E -->|"✅ Config wired"| F["❓ J2: Personality<br/>5 questions, randomized<br/>Trait vectors calculated"]
+    F -->|"⏳ Pending questions approval"| G["🔄 J3: Swipe/Match<br/>Tinder-style cards<br/>80%+ gate"]
+    G -->|"QUEUED"| H["💾 J8: Saved List<br/>Contractors user saved"]
+    H -->|"QUEUED"| I["💬 J4: Messaging<br/>DM + convo list"]
+    I -->|"QUEUED"| J["🏘️ J9: Communities<br/>ZIP-based, 42k US ZIPs"]
+    J -->|"QUEUED"| K["✓ J7: Checklist<br/>10-step project tracker"]
+    K -->|"QUEUED"| L["🎬 J6: Demo Seed<br/>Founder demo data"]
+    L -->|"QUEUED"| M["🎨 Design Pass<br/>Light/dark, 21st.dev"]
+    M -->|"QUEUED"| N["📢 Waitlist Launch<br/>Density unlock"]
+
+    style A fill:#90EE90
+    style B fill:#90EE90
+    style C fill:#90EE90
+    style D fill:#90EE90
+    style E fill:#90EE90
+    style F fill:#FFFFE0
+    style G fill:#D3D3D3
+    style H fill:#D3D3D3
+    style I fill:#D3D3D3
+    style J fill:#D3D3D3
+    style K fill:#D3D3D3
+    style L fill:#D3D3D3
+    style M fill:#D3D3D3
+    style N fill:#D3D3D3
+```
+
+| J-Step | Component | Status | Notes |
+|--------|-----------|--------|-------|
+| **J0** | Signup / Auth | 🟢 | Live, demo mode + RLS isolation working |
+| **J1** | Conversational Onboarding | 🟢 | Segment → ZIP → preference, typeform-style |
+| **J1b** | Properties Foundation | 🟢 | Migration 020, ZIP stored, RLS RESTRICTIVE |
+| **Est** | AI Estimate (Pre-J2a) | 🟢 | Real API call verified, $18.5K-$42K, regional pricing |
+| **J2a** | Budget Step | 🟢 | Estimate-anchored input, routes to personality |
+| **J2** | Personality Questions | 🟡 | Config wired, randomized, trait vectors ready — questions text approved v2.2, awaiting final approval |
+| **J3** | Swipe/Match (Full-Screen) | ⚪ | Not started — queued, depends on J2 completion |
+| **J8** | Saved Contractors List | ⚪ | Not started — queued |
+| **J4** | Messaging Inbox | ⚪ | Not started — queued |
+| **J9** | ZIP Communities | ⚪ | Not started — queued |
+| **J7** | Project Checklist | ⚪ | Not started — queued |
+| **J6** | Demo Seed | ⚪ | Not started — queued |
+| **Design** | Light/Dark + 21st.dev | ⚪ | Deferred until J1-J6 complete |
+| **Waitlist** | Launch & Growth | ⚪ | Deferred until full journey verified |
+
+---
+
+## INFRASTRUCTURE (Build, Database, CI/CD)
+
+```mermaid
+graph TB
+    A["🟢 Build Clean<br/>npm run build ✓"] --> B["🟢 Tests: 109/109<br/>Vitest + core coverage"]
+    B --> C["🟢 Live DB<br/>Migrations 001-023 applied"]
+    C --> D["🟢 GitHub Repo<br/>sameerskyai/groundwork-platform"]
+    D --> E["🟡 CodeRabbit<br/>Installed: NO<br/>Used in gates: NO"]
+    E --> F["🟢 Backup Routine<br/>git push origin/main + bundles"]
+    F --> G["⚪ CI/CD Pipeline<br/>Not wired (manual push/test)"]
+    G --> H["⚪ Attorney Review<br/>ToS + legal structures"]
+
+    style A fill:#90EE90
+    style B fill:#90EE90
+    style C fill:#90EE90
+    style D fill:#90EE90
+    style E fill:#FFFFE0
+    style F fill:#90EE90
+    style G fill:#D3D3D3
+    style H fill:#D3D3D3
+```
+
+| Item | Details | Status |
+|------|---------|--------|
+| **Build** | `npm run build` clean, no errors | 🟢 PASSING |
+| **Tests** | 109/109 passing (core + estimate E2E) | 🟢 PASSING |
+| **Live DB** | Migrations 001-023 applied, RLS active | 🟢 LIVE |
+| **GitHub** | Private repo, 106 commits, Ryan + Sameer | 🟢 ACTIVE |
+| **CodeRabbit** | Configured (API key in .env.local), NOT installed, NOT used in J-gates | 🟡 PENDING SETUP |
+| **Backups** | Bundle every 5 commits + `git push origin/main` | 🟢 ACTIVE |
+| **Photo Picker** | Code verified, upload logic present, E2E not browser-tested | 🟡 CODE OK, E2E PENDING |
+| **CI/CD** | Not integrated (manual push/verify currently) | ⚪ DEFERRED |
+| **Attorney Review** | ToS, privacy, payment flows | ⚪ PENDING |
+
+---
+
+## SUMMARY
+
+- **Gates clear:** 3/4 (API key ✓, GitHub ✓, Questions ✓ — walkthrough awaiting photo + founder approval)
+- **Journey live:** 4.5/9 (J0-J2a complete, J2 infrastructure ready)
+- **Infrastructure:** 6/10 items (build, tests, DB, GitHub, backups active; CodeRabbit + CI/CD pending)
+- **Known gaps:** CodeRabbit CLI not installed, photo E2E not browser-tested, attorney review deferred
+- **Next:** J3-J6 queue, full journey walkthrough #2, design pass, waitlist launch
