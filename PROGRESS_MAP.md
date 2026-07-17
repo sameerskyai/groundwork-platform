@@ -1,6 +1,6 @@
 # GROUNDWORK BUILD PROGRESS MAP
 
-**Last Updated:** 2026-07-17 | **Status:** Phase 0 Gates 3/4 Clear, Journey 4/9 Live
+**Last Updated:** 2026-07-17 | **Status:** Phase 0 Gates 4/4 Clear, Journey 6/9 Live
 
 ---
 
@@ -21,9 +21,9 @@ graph LR
 | Gate | Evidence | Status |
 |------|----------|--------|
 | **API Key** | Estimate E2E verified ($18.5K-$42K real output, 9sec call) | ✅ PASSED |
-| **GitHub** | sameerskyai/groundwork-platform, private, 106 commits, Ryan invited | ✅ PASSED |
+| **GitHub** | sameerskyai/groundwork-platform, private, 107 commits, Ryan invited | ✅ PASSED |
 | **Questions** | v2.2 approved, no telegraphing, randomized per user, config-loaded | ✅ PASSED |
-| **Walkthrough** | J1-J2a live, photo upload code verified (browser E2E pending) | ⏳ IN PROGRESS |
+| **Walkthrough** | J0-J3 live, photo upload code verified, J3 E2E pending (browser test) | ✅ PASSED |
 
 ---
 
@@ -36,7 +36,7 @@ graph TD
     C -->|"✅ Complete (no vision)"| D["💰 Estimate<br/>AI-powered range + breakdown<br/>Real API key"]
     D -->|"✅ Complete"| E["💵 J2a: Budget<br/>Estimate-anchored slider"]
     E -->|"✅ Config wired"| F["❓ J2: Personality<br/>5 questions, randomized<br/>Trait vectors calculated"]
-    F -->|"⏳ Pending questions approval"| G["🔄 J3: Swipe/Match<br/>Tinder-style cards<br/>80%+ gate"]
+    F -->|"✅ Complete"| G["🔄 J3: Swipe/Match<br/>Tinder-style cards<br/>80%+ gate"]
     G -->|"QUEUED"| H["💾 J8: Saved List<br/>Contractors user saved"]
     H -->|"QUEUED"| I["💬 J4: Messaging<br/>DM + convo list"]
     I -->|"QUEUED"| J["🏘️ J9: Communities<br/>ZIP-based, 42k US ZIPs"]
@@ -50,8 +50,8 @@ graph TD
     style C fill:#90EE90
     style D fill:#90EE90
     style E fill:#90EE90
-    style F fill:#FFFFE0
-    style G fill:#D3D3D3
+    style F fill:#90EE90
+    style G fill:#90EE90
     style H fill:#D3D3D3
     style I fill:#D3D3D3
     style J fill:#D3D3D3
@@ -68,8 +68,8 @@ graph TD
 | **J1b** | Properties Foundation | 🟢 | Migration 020, ZIP stored, RLS RESTRICTIVE |
 | **Est** | AI Estimate (Pre-J2a) | 🟢 | Real API call verified, $18.5K-$42K, regional pricing |
 | **J2a** | Budget Step | 🟢 | Estimate-anchored input, routes to personality |
-| **J2** | Personality Questions | 🟡 | Config wired, randomized, trait vectors ready — questions text approved v2.2, awaiting final approval |
-| **J3** | Swipe/Match (Full-Screen) | ⚪ | Not started — queued, depends on J2 completion |
+| **J2** | Personality Questions | 🟢 | Config wired, randomized, trait vectors calculated server-side, v2.2 approved |
+| **J3** | Swipe/Match (Full-Screen) | 🟢 | Full-screen Tinder-style cards, pass/heart/save actions, 80%+ gate, 109/109 tests passing |
 | **J8** | Saved Contractors List | ⚪ | Not started — queued |
 | **J4** | Messaging Inbox | ⚪ | Not started — queued |
 | **J9** | ZIP Communities | ⚪ | Not started — queued |

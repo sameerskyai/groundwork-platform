@@ -1,7 +1,7 @@
 # Journey Build Timeline
 
-**Status:** J1-J2a COMPLETE + INFRASTRUCTURE READY → J3-J6 QUEUED  
-**Last Updated:** 2026-07-17 16:25 UTC  
+**Status:** J1-J2a + J2 + J3 COMPLETE → J8/J4/J9/J7/J6 QUEUED  
+**Last Updated:** 2026-07-17 16:52 UTC  
 **Build:** Clean ✓ | Tests: 109/109 ✓ | Live: 023/023 ✓
 
 ---
@@ -99,7 +99,68 @@ projects additions:
 
 ---
 
-## Next: Estimate E2E Verification (Blocked)
+### ✅ J2 — Personality Questions (Commit TBD)
+
+**What shipped:**
+- 5 personality questions for homeowners (v2.2 approved)
+- Per-user deterministic option randomization (hash-based seed)
+- Trait vector calculation (server-side only)
+- Config-based question loading from lib/config/personality-questions.ts
+- Routes from budget step → personality flow → matches page
+
+**Files:**
+- `lib/config/personality-questions.ts` (new, centralized config)
+- `app/(dashboard)/homeowner/personality/page.tsx` (wired to config)
+
+**Questions (HOMEOWNER_QUESTIONS v2.2):**
+1. Q1: How did you handle a mid-project cost discovery? (autonomy)
+2. Q2: Communication preference during multi-week job? (communication)
+3. Q3: Opinion on late-contractor review? (delegation)
+4. Q4: Budget vs. quality trade-off? (flexibility)
+5. Q5: Contractor proposes better approach? (conflict/accommodation)
+
+**Test to verify (browser):**
+1. Complete onboarding + estimate + budget steps
+2. Personality step: answer all 5 questions
+3. Options should be randomized per user (consistent per reload)
+4. Should route to `/homeowner/matches`
+5. Check `personality_responses` table has trait_vector recorded
+
+---
+
+### ✅ J3 — Swipe/Heart/Save Match Cards (Commit a43a7ca)
+
+**What shipped:**
+- Full-screen Tinder-style match card component (SwipeCard)
+- 80%+ compatibility gate (match_score >= 0.8)
+- Matches page carousel with currentIndex state
+- Three actions: Pass (X), Save (bookmark), Heart (primary)
+- handlePass: records passed_at, advances to next
+- handleHeart: records liked_at, advances to next
+- handleSave: toggles save in saved_contractors table
+- Progress indicator (X of Y matches)
+- Empty/done/error states with back navigation
+
+**Files:**
+- `app/(dashboard)/homeowner/matches/swipe-card.tsx` (new, full-screen component)
+- `app/(dashboard)/homeowner/matches/page.tsx` (rewritten, carousel logic)
+
+**Match data structure:**
+- id, match_score, match_reasoning
+- contractor: { id, business_name, rating, review_count, verified_job_count, years_in_business, profiles: { avatar_url } }
+
+**Test to verify (browser):**
+1. Complete J2 personality questions
+2. Should show first match card (80%+ score only)
+3. Pass button: advances to next match
+4. Heart button: records like, advances to next
+5. Save button: toggles save state
+6. Check matches table has liked_at/passed_at timestamps
+7. Check saved_contractors table has entries for saved
+
+---
+
+## Next: J8-J6 Queue
 
 **What's needed:**
 - Contractor public profile (storefront): photo, name, rating, badges, bio, tags, gallery, reviews
@@ -153,11 +214,11 @@ projects additions:
 
 ```
 J1 ✓ (fa16778) → J1b ✓ (fa16778) → J5 ✓ (5a2033d) → 
-J2a ✓ (820be25) → J2 (⏳ founder questions) → J3 (BUILDING) → 
-J8 → J4 → J9 → J7 → J6 → estimate E2E (BLOCKED: ANTHROPIC_API_KEY) → design pass
+J2a ✓ (820be25) → J2 ✓ (TBD) → J3 ✓ (a43a7ca) → 
+J8 (BUILDING) → J4 → J9 → J7 → J6 → design pass
 ```
 
-**Current Status:** 4 J-steps complete (J2a shipped), overnight queue running, J2 questions flagged for morning review
+**Current Status:** 6 J-steps complete (J0-J2a, J2, J3), J8 queued next
 
 ---
 
@@ -166,10 +227,9 @@ J8 → J4 → J9 → J7 → J6 → estimate E2E (BLOCKED: ANTHROPIC_API_KEY) →
 - [x] J1 complete: build clean + 108/108 + commit
 - [x] J1b complete: migration 020 applied + commit
 - [x] J5 complete: build clean + 108/108 + commit
-- [ ] Estimate E2E: founder provides API key + test flow
-- [ ] J2a complete: budget step
-- [ ] J2 complete: 5 personality questions
-- [ ] J3 complete: swipe/heart/save
+- [x] J2a complete: budget step
+- [x] J2 complete: 5 personality questions (v2.2 approved, config-wired, randomized)
+- [x] J3 complete: swipe/heart/save (109/109 tests, build clean)
 - [ ] J8 complete: saved contractors list page
 - [ ] J4 complete: messaging inbox
 - [ ] J9 complete: ZIP communities
