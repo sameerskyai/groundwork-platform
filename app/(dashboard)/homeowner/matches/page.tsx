@@ -4,70 +4,66 @@ import { Suspense, useCallback, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import SwipeCard, { type Match } from './swipe-card'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/Card'
-import { LockedMatchesCTA } from '@/components/ui/LockedMatchesCTA'
-import { Badge } from '@/components/ui/Badge'
-import { ArrowLeft, Star, MapPin, MessageCircle, Loader2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
-interface Match {
-  id: string
-  status: string
-  match_score: number
-  match_reasoning: string
-  matched_at: string | null
-  contractor_profiles: {
-    id: string
-    business_name: string
-    bio: string
-    rating: number
-    review_count: number
-    years_in_business: number
-    subscription_tier: string
-    profiles: { zip_code: string }
-  }
-}
-
-
-interface ScoreResponse {
-  matches: any[]
-  matches_locked_count?: number
-  limit_reached?: boolean
-  user_tier?: string
-}
+// J3: Swipe/Heart/Save Cards (Tinder-style, 80%+ gate)
+// Only show matches with score >= 0.8 (80% compatibility)
 
 function MatchesContent() {
   const searchParams = useSearchParams()
   const projectId = searchParams.get('project')
-  const [matches, setMatches] = useState<Match[]>([])
-  const [matchesLocked, setMatchesLocked] = useState(0)
-  const [limitReached, setLimitReached] = useState(false)
-  const [userTier, setUserTier] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string>('')
-  const [running, setRunning] = useState(false)
   const router = useRouter()
+
+  const [matches, setMatches] = useState<Match[]>([])
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [acting, setActing] = useState(false)
 
   const loadMatches = useCallback(async () => {
     try {
-      setError('')
+      if (!projectId) return
+
       const supabase = createClient()
-      const { data, error: queryError } = await supabase
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      // J3 Gate: Only show matches with 80%+ compatibility
+      const { data: matchData, error: matchError } = await supabase
         .from('matches')
-        .select(`*, contractor_profiles(*, profiles(zip_code))`)
+        .select(`
+          id,
+          match_score,
+          match_reasoning,
+          contractor:contractor_id(
+            id,
+            business_name,
+            rating,
+            review_count,
+            verified_job_count,
+            years_in_business,
+            profiles(avatar_url)
+          )
+        `)
         .eq('project_id', projectId)
+        .eq('homeowner_id', user.id)
+        .gte('match_score', 0.8)
         .order('match_score', { ascending: false })
 
-      if (queryError) {
-        setError('Failed to load matches. Try refreshing.')
-        setMatches([])
-      } else {
-        setMatches(data ?? [])
-      }
+      if (matchError) throw matchError
+      setMatches((matchData || []) as unknown as Match[])
+    } catch (err: any) {
+      setError(err.message || 'Failed to load matches')
     } finally {
       setLoading(false)
     }
-  }, [projectId])
+  }, [projectId, router])
 
   useEffect(() => {
     if (!projectId) {
@@ -77,172 +73,180 @@ function MatchesContent() {
     loadMatches()
   }, [projectId, router, loadMatches])
 
-  async function runMatching() {
-    setRunning(true)
-    const res = await fetch('/api/match', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ projectId })
-    })
-    const data = await res.json()
-    setMatchesLocked(data.matches_locked_count || 0)
-    setLimitReached(data.limit_reached || false)
-    setUserTier(data.user_tier || 'free')
-    await loadMatches()
-    setRunning(false)
+  const handleHeart = async (matchId: string) => {
+    setActing(true)
+    try {
+      const supabase = createClient()
+      await supabase
+        .from('matches')
+        .update({ liked_at: new Date().toISOString() })
+        .eq('id', matchId)
+      setCurrentIndex(prev => prev + 1)
+    } catch (err: any) {
+      setError(err.message || 'Failed to like match')
+    } finally {
+      setActing(false)
+    }
   }
 
-  async function requestContractor(matchId: string) {
-    const supabase = createClient()
-    await supabase.from('matches').update({
-      homeowner_swiped_at: new Date().toISOString(),
-      status: 'contractor_review'
-    }).eq('id', matchId)
-    await loadMatches()
+  const handlePass = async (matchId: string) => {
+    setActing(true)
+    try {
+      const supabase = createClient()
+      await supabase
+        .from('matches')
+        .update({ passed_at: new Date().toISOString() })
+        .eq('id', matchId)
+      setCurrentIndex(prev => prev + 1)
+    } catch (err: any) {
+      setError(err.message || 'Failed to pass match')
+    } finally {
+      setActing(false)
+    }
   }
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-800 mb-4"></div>
-        <p style={{ color: 'var(--color-text-secondary)' }}>Loading your matches...</p>
+  const handleSave = async (matchId: string) => {
+    setActing(true)
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const match = matches.find(m => m.id === matchId)
+      if (!match) return
+
+      const { data: existing } = await supabase
+        .from('saved_contractors')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('contractor_id', match.contractor.id)
+        .single()
+
+      if (existing) {
+        await supabase
+          .from('saved_contractors')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('contractor_id', match.contractor.id)
+      } else {
+        await supabase
+          .from('saved_contractors')
+          .insert({ user_id: user.id, contractor_id: match.contractor.id })
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to save contractor')
+    } finally {
+      setActing(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-800 mb-4"></div>
+          <p style={{ color: 'var(--color-text-secondary)' }}>Loading matches...</p>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
-  if (error) return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <Card className="w-full max-w-sm text-center p-8">
-        <h2 style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--weight-bold)', marginBottom: 'var(--space-md)', color: 'var(--color-text-primary)' }}>
-          Load Failed
-        </h2>
-        <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>
-          {error}
-        </p>
-        <Button onClick={() => window.location.reload()} className="w-full">
-          Retry
-        </Button>
-      </Card>
-    </div>
-  )
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
+        <Card className="max-w-sm p-6 text-center">
+          <p style={{ color: 'var(--color-error)', marginBottom: 'var(--space-lg)' }}>{error}</p>
+          <Link href="/homeowner">
+            <Button className="w-full">Back to Dashboard</Button>
+          </Link>
+        </Card>
+      </div>
+    )
+  }
+
+  if (matches.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
+        <Card className="max-w-sm p-8 text-center">
+          <h2 style={{
+            fontSize: 'var(--text-lg)',
+            fontWeight: 'var(--weight-bold)',
+            color: 'var(--color-text-primary)',
+            marginBottom: 'var(--space-md)'
+          }}>
+            No matches yet
+          </h2>
+          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>
+            We're still finding contractors who match your needs. Check back soon!
+          </p>
+          <Link href="/homeowner">
+            <Button className="w-full">Back to Dashboard</Button>
+          </Link>
+        </Card>
+      </div>
+    )
+  }
+
+  const currentMatch = matches[currentIndex]
+
+  if (!currentMatch) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
+        <Card className="max-w-sm p-8 text-center">
+          <h2 style={{
+            fontSize: 'var(--text-lg)',
+            fontWeight: 'var(--weight-bold)',
+            color: 'var(--color-text-primary)',
+            marginBottom: 'var(--space-md)'
+          }}>
+            All caught up!
+          </h2>
+          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>
+            You've reviewed all available matches. New contractors will appear as they join!
+          </p>
+          <Link href="/homeowner">
+            <Button className="w-full">Back to Dashboard</Button>
+          </Link>
+        </Card>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
+    <div style={{ backgroundColor: 'var(--color-surface-primary)', minHeight: '100vh' }}>
       <header style={{
         backgroundColor: 'var(--color-surface-secondary)',
         borderBottom: '1px solid var(--color-border)',
         padding: '1rem 1.5rem'
       }}>
         <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <Link href="/homeowner" style={{ color: 'var(--color-text-secondary)' }} className="hover:opacity-80 transition-opacity">
+          <Link href="/homeowner" style={{ color: 'var(--color-text-secondary)' }} className="hover:opacity-80">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)' }}>
-            Your matches
+          <h1 style={{
+            fontWeight: 'var(--weight-bold)',
+            color: 'var(--color-text-primary)',
+            flex: 1
+          }}>
+            Your Matches
           </h1>
+          <span style={{
+            fontSize: 'var(--text-sm)',
+            color: 'var(--color-text-tertiary)'
+          }}>
+            {currentIndex + 1} of {matches.length}
+          </span>
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-6 py-8">
-        {!matches.length ? (
-          <Card variant="accent" className="p-12 text-center">
-            <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 'var(--weight-bold)', marginBottom: 'var(--space-sm)', color: 'var(--color-text-primary)' }}>
-              Find contractors for your project
-            </h2>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>
-              Our AI will match you with the best pros in your area.
-            </p>
-            <Button size="lg" onClick={runMatching} disabled={running}>
-              {running ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Finding matches...</> : 'Find my matches'}
-            </Button>
-          </Card>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {matches.map(m => {
-              const c = m.contractor_profiles
-              const isMatched = m.status === 'matched'
-              const isPending = m.status === 'contractor_review'
-              const isNew = m.status === 'pending'
-
-              return (
-                <Card key={m.id} variant="interactive">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span style={{ fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)' }}>
-                          {c.business_name}
-                        </span>
-                        {c.subscription_tier === 'paid_unlimited' && (
-                          <Badge variant="success">Pro</Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3 text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-                        {c.rating > 0 && (
-                          <span className="flex items-center gap-1">
-                            <Star className="w-3.5 h-3.5" style={{ fill: 'var(--color-warning)' }} />
-                            {c.rating.toFixed(1)} ({c.review_count})
-                          </span>
-                        )}
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5" />
-                          {c.profiles?.zip_code}
-                        </span>
-                        <span>{c.years_in_business}yrs exp</span>
-                      </div>
-                      {c.bio && (
-                        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', lineHeight: 'var(--leading-relaxed)' }} className="line-clamp-2">
-                          {c.bio}
-                        </p>
-                      )}
-                      {m.match_reasoning && (
-                        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-info)', marginTop: 'var(--space-md)' }}>
-                          AI: {m.match_reasoning}
-                        </p>
-                      )}
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      {Math.round(m.match_score * 100)}% match
-                    </div>
-                  </div>
-
-                  <div style={{ marginTop: 'var(--space-lg)', display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-                    {isMatched && (
-                      <Link href={`/homeowner/chat?match=${m.id}`} className="flex-1">
-                        <Button size="sm" className="w-full">
-                          <MessageCircle className="w-4 h-4 mr-1" />
-                          Message
-                        </Button>
-                      </Link>
-                    )}
-                    {isPending && (
-                      <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-medium)', color: 'var(--color-warning)' }}>
-                        Waiting for contractor...
-                      </span>
-                    )}
-                    {isNew && (
-                      <Button size="sm" variant="secondary" onClick={() => requestContractor(m.id)}>
-                        Request this contractor
-                      </Button>
-                    )}
-                    <Link href={`/contractors/${c.id}`} style={{ fontSize: 'var(--text-sm)', color: 'var(--color-brand)' }} className="hover:opacity-80 transition-opacity">
-                      View profile
-                    </Link>
-                  </div>
-                </Card>
-              )
-            })}
-            {matchesLocked > 0 && (
-              <LockedMatchesCTA
-                lockedCount={matchesLocked}
-                onUpgradeClick={() => {
-                  // Navigate to upgrade flow (TODO: implement payment)
-                  console.log('Upgrade clicked', { userTier, limitReached })
-                }}
-              />
-            )}
-          </div>
-        )}
-      </div>
+      <SwipeCard
+        match={currentMatch}
+        onHeart={handleHeart}
+        onPass={handlePass}
+        onSave={handleSave}
+        saving={acting}
+        passing={acting}
+      />
     </div>
   )
 }
