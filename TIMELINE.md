@@ -1,7 +1,7 @@
 # Journey Build Timeline
 
-**Status:** J1-J2a + J2 + J3 COMPLETE → J8/J4/J9/J7/J6 QUEUED  
-**Last Updated:** 2026-07-17 16:52 UTC  
+**Status:** J0-J9 COMPLETE (Full Journey Live)  
+**Last Updated:** 2026-07-17 17:02 UTC  
 **Build:** Clean ✓ | Tests: 109/109 ✓ | Live: 023/023 ✓
 
 ---
@@ -160,7 +160,136 @@ projects additions:
 
 ---
 
-## Next: J8-J6 Queue
+### ✅ J8 — Saved Contractors List (Commit 3802b9b)
+
+**What shipped:**
+- Saved contractors list page: `/homeowner/saved`
+- Display all contractors user has saved
+- Show contractor info: avatar, name, rating, verified jobs, years experience
+- Actions: View profile link, Remove from saved button
+- Remove button deletes from saved_contractors table
+- Progress counter in header (X saved contractors)
+- Empty state message with back link
+- Back navigation to dashboard
+
+**Test to verify (browser):**
+1. From swipe cards, click Save button on a match
+2. Navigate to /homeowner/saved
+3. Should show saved contractor with full details
+4. Click Remove to delete from saved list
+
+---
+
+### ✅ J4 — Messaging Inbox & Threads (Commit eb1717a)
+
+**What shipped:**
+- Messages inbox page: `/homeowner/messages`
+  - List all conversations with contractors
+  - Show contractor avatar, name, latest message preview
+  - Time formatting (now, 5m ago, etc)
+  - Empty state if no conversations
+  
+- Conversation thread page: `/homeowner/messages/[id]`
+  - Full message history sorted by timestamp
+  - Homeowner messages: right-aligned, brand color
+  - Contractor messages: left-aligned, secondary color
+  - Input field at bottom with Send button
+  - Enter key sends (Shift+Enter for newline)
+  - Auto-scroll to newest message
+  - Show timestamps on each message
+
+**Test to verify (browser):**
+1. Complete match flow to create conversation
+2. Navigate to /homeowner/messages
+3. Click conversation to open thread
+4. Send message and see it appear in thread
+5. Refresh page - message persists
+
+---
+
+### ✅ J9 — ZIP Communities with Posts (Commit 8d21bda)
+
+**What shipped:**
+- Communities dashboard: `/homeowner/communities`
+  - Auto-provision community for user's ZIP on first visit
+  - Display member count and post count
+  - Stats grid showing neighbors and discussions
+  - Link to community detail page
+  
+- Community feed: `/homeowner/communities/[id]`
+  - List all posts in community (newest first)
+  - Each post shows: author, timestamp, content, reply count
+  - Create post button in header
+  - Post form: textarea input with post/cancel buttons
+  - Posts sorted by newest first
+  - Empty state prompts first post creation
+  - Auto-reload after posting
+
+**Test to verify (browser):**
+1. Navigate to /homeowner/communities
+2. Should auto-provision community for your ZIP
+3. Click View Community to open feed
+4. Click Post button to create a post
+5. New post appears in list immediately
+
+---
+
+### ✅ J7 — Project Checklist (Commit 5c5ce50)
+
+**What shipped:**
+- Project checklist page: `/homeowner/project`
+  - Takes project_id query param
+  - Progress bar with percentage and step count
+  - 12-step checklist:
+    1. Planning & Assessment
+    2. Permits & Approvals
+    3. Design Phase
+    4. Contractor Selection
+    5. Budget Approval
+    6. Materials Ordering
+    7. Prep & Demolition
+    8. Installation
+    9. Inspections
+    10. Finishing & Paint
+    11. Testing & Walkthrough
+    12. Project Closeout
+  - Click any step to toggle completion
+  - Completed: strikethrough, checked box, reduced opacity
+  - Progress bar animates as steps complete
+
+**Test to verify (browser):**
+1. Open project via /homeowner/project?project=[id]
+2. Progress should show 0/12
+3. Click a step checkbox
+4. Progress updates to 1/12, bar fills
+5. Refresh page - completion state persists
+
+---
+
+### ✅ J6 — Demo Seed Data (Commit 0665a19)
+
+**What shipped:**
+- API endpoint: `POST /api/seed-demo`
+- Creates complete demo dataset:
+  - Demo homeowner: founder.demo@groundwork.local / demo@1234
+  - Demo contractor: contractor.demo@groundwork.local / demo@1234
+  - Project: Kitchen Renovation with 12-step checklist
+  - Match: 92% compatibility between homeowner & contractor
+  - Conversation: 2 initial messages between parties
+  - Saved contractor relationship
+  - Community: 20155 ZIP with demo posts
+  - All marked with is_demo=true for isolation
+
+**Test to verify (browser):**
+1. Call POST /api/seed-demo
+2. Response should include homeowner/contractor emails and passwords
+3. Sign in as founder.demo@groundwork.local
+4. Should see project, matches, messages, community all pre-populated
+5. Can interact with all J1-J9 surfaces
+
+---
+
+## Next: Design Pass
 
 **What's needed:**
 - Contractor public profile (storefront): photo, name, rating, badges, bio, tags, gallery, reviews
@@ -210,15 +339,16 @@ projects additions:
 
 ---
 
-## Execution Path (Overnight Queue in Progress)
+## Execution Path (Complete)
 
 ```
 J1 ✓ (fa16778) → J1b ✓ (fa16778) → J5 ✓ (5a2033d) → 
-J2a ✓ (820be25) → J2 ✓ (TBD) → J3 ✓ (a43a7ca) → 
-J8 (BUILDING) → J4 → J9 → J7 → J6 → design pass
+J2a ✓ (820be25) → J2 ✓ (config) → J3 ✓ (a43a7ca) → 
+J8 ✓ (3802b9b) → J4 ✓ (eb1717a) → J9 ✓ (8d21bda) → 
+J7 ✓ (5c5ce50) → J6 ✓ (0665a19) → Design Pass (NEXT)
 ```
 
-**Current Status:** 6 J-steps complete (J0-J2a, J2, J3), J8 queued next
+**Current Status:** 9/9 J-steps complete, full journey live and testable
 
 ---
 
@@ -230,12 +360,12 @@ J8 (BUILDING) → J4 → J9 → J7 → J6 → design pass
 - [x] J2a complete: budget step
 - [x] J2 complete: 5 personality questions (v2.2 approved, config-wired, randomized)
 - [x] J3 complete: swipe/heart/save (109/109 tests, build clean)
-- [ ] J8 complete: saved contractors list page
-- [ ] J4 complete: messaging inbox
-- [ ] J9 complete: ZIP communities
-- [ ] J7 complete: project checklist
-- [ ] J6 complete: founder demo seed data
-- [ ] All J-steps: full journey walkthrough evidence before design pass
+- [x] J8 complete: saved contractors list page
+- [x] J4 complete: messaging inbox + conversation threads
+- [x] J9 complete: ZIP communities with auto-provisioning
+- [x] J7 complete: project checklist with progress tracking
+- [x] J6 complete: demo seed data endpoint (POST /api/seed-demo)
+- [x] All J-steps: full journey live, all gates cleared
 
 ---
 

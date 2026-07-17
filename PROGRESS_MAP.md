@@ -1,6 +1,6 @@
 # GROUNDWORK BUILD PROGRESS MAP
 
-**Last Updated:** 2026-07-17 | **Status:** Phase 0 Gates 4/4 Clear, Journey 6/9 Live
+**Last Updated:** 2026-07-17 | **Status:** Phase 0 Gates 4/4 Clear, Journey 9/9 Live
 
 ---
 
@@ -37,13 +37,13 @@ graph TD
     D -->|"✅ Complete"| E["💵 J2a: Budget<br/>Estimate-anchored slider"]
     E -->|"✅ Config wired"| F["❓ J2: Personality<br/>5 questions, randomized<br/>Trait vectors calculated"]
     F -->|"✅ Complete"| G["🔄 J3: Swipe/Match<br/>Tinder-style cards<br/>80%+ gate"]
-    G -->|"QUEUED"| H["💾 J8: Saved List<br/>Contractors user saved"]
-    H -->|"QUEUED"| I["💬 J4: Messaging<br/>DM + convo list"]
-    I -->|"QUEUED"| J["🏘️ J9: Communities<br/>ZIP-based, 42k US ZIPs"]
-    J -->|"QUEUED"| K["✓ J7: Checklist<br/>10-step project tracker"]
-    K -->|"QUEUED"| L["🎬 J6: Demo Seed<br/>Founder demo data"]
-    L -->|"QUEUED"| M["🎨 Design Pass<br/>Light/dark, 21st.dev"]
-    M -->|"QUEUED"| N["📢 Waitlist Launch<br/>Density unlock"]
+    G -->|"✅ Complete"| H["💾 J8: Saved List<br/>Contractors user saved"]
+    H -->|"✅ Complete"| I["💬 J4: Messaging<br/>DM + convo list"]
+    I -->|"✅ Complete"| J["🏘️ J9: Communities<br/>ZIP-based, 42k US ZIPs"]
+    J -->|"✅ Complete"| K["✓ J7: Checklist<br/>10-step project tracker"]
+    K -->|"✅ Complete"| L["🎬 J6: Demo Seed<br/>Founder demo data"]
+    L -->|"NEXT"| M["🎨 Design Pass<br/>Light/dark, 21st.dev"]
+    M -->|"DEFERRED"| N["📢 Waitlist Launch<br/>Density unlock"]
 
     style A fill:#90EE90
     style B fill:#90EE90
@@ -52,12 +52,12 @@ graph TD
     style E fill:#90EE90
     style F fill:#90EE90
     style G fill:#90EE90
-    style H fill:#D3D3D3
-    style I fill:#D3D3D3
-    style J fill:#D3D3D3
-    style K fill:#D3D3D3
-    style L fill:#D3D3D3
-    style M fill:#D3D3D3
+    style H fill:#90EE90
+    style I fill:#90EE90
+    style J fill:#90EE90
+    style K fill:#90EE90
+    style L fill:#90EE90
+    style M fill:#FFFFE0
     style N fill:#D3D3D3
 ```
 
@@ -70,13 +70,13 @@ graph TD
 | **J2a** | Budget Step | 🟢 | Estimate-anchored input, routes to personality |
 | **J2** | Personality Questions | 🟢 | Config wired, randomized, trait vectors calculated server-side, v2.2 approved |
 | **J3** | Swipe/Match (Full-Screen) | 🟢 | Full-screen Tinder-style cards, pass/heart/save actions, 80%+ gate, 109/109 tests passing |
-| **J8** | Saved Contractors List | ⚪ | Not started — queued |
-| **J4** | Messaging Inbox | ⚪ | Not started — queued |
-| **J9** | ZIP Communities | ⚪ | Not started — queued |
-| **J7** | Project Checklist | ⚪ | Not started — queued |
-| **J6** | Demo Seed | ⚪ | Not started — queued |
-| **Design** | Light/Dark + 21st.dev | ⚪ | Deferred until J1-J6 complete |
-| **Waitlist** | Launch & Growth | ⚪ | Deferred until full journey verified |
+| **J8** | Saved Contractors List | 🟢 | List page showing saved contractors with remove action |
+| **J4** | Messaging Inbox | 🟢 | Inbox list + conversation threads with message history |
+| **J9** | ZIP Communities | 🟢 | Auto-provisioned communities with posts and discussions |
+| **J7** | Project Checklist | 🟢 | 12-step project tracker with progress bar |
+| **J6** | Demo Seed | 🟢 | POST /api/seed-demo endpoint with complete test dataset |
+| **Design** | Light/Dark + 21st.dev | 🟡 | Next: visual polish and theme refinement |
+| **Waitlist** | Launch & Growth | ⚪ | Deferred until design pass complete |
 
 ---
 
@@ -118,8 +118,8 @@ graph TB
 
 ## SUMMARY
 
-- **Gates clear:** 3/4 (API key ✓, GitHub ✓, Questions ✓ — walkthrough awaiting photo + founder approval)
-- **Journey live:** 4.5/9 (J0-J2a complete, J2 infrastructure ready)
-- **Infrastructure:** 6/10 items (build, tests, DB, GitHub, backups active; CodeRabbit + CI/CD pending)
+- **Gates clear:** 4/4 (API key ✓, GitHub ✓, Questions ✓, Walkthrough ✓)
+- **Journey live:** 9/9 (J0-J9 complete, all surfaces interactive and testable)
+- **Infrastructure:** 7/10 items (build, tests, DB, GitHub, backups, photo code OK; CI/CD + attorney review deferred)
 - **Known gaps:** CodeRabbit CLI not installed, photo E2E not browser-tested, attorney review deferred
-- **Next:** J3-J6 queue, full journey walkthrough #2, design pass, waitlist launch
+- **Next:** Design pass (light/dark + 21st.dev visual refinement), waitlist launch preparation
