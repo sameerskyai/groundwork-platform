@@ -303,3 +303,273 @@ Stable but needs future refinement:
    - WARP.md § Migration Standing Rules (§14–15)
    - DECISIONS.md update (this section)
 
+
+---
+
+# OVERNIGHT QUEUE: J2-J6 PERSONALITY QUESTIONS (Founder Review Pending)
+
+**Written by Haiku (2026-07-15 03:10 UTC)**  
+**Status: AWAITING FOUNDER APPROVAL BEFORE IMPLEMENTATION**
+
+## 5 Personality Questions for Homeowner-Contractor Matching (J2)
+
+These questions are designed to reveal decision-making style, communication preference, and project priorities WITHOUT telegraphing "correct" answers. Each is situational/forced-choice to avoid self-report bias.
+
+### Question 1: Decision-Making Speed
+**"A contractor finds an issue during your project that costs $5K extra to fix. What matters most to you?"**
+- A) Get it done right, even if it costs more (quality-first)
+- B) Talk through options and decide together (collaborative)
+- C) See if we can minimize the impact (pragmatic)
+- D) Get a second opinion before committing (cautious)
+
+*Trait signal:* Reveals decision velocity + tolerance for surprises. Contractors vary in how much autonomy they want.
+
+### Question 2: Communication Frequency
+**"During a 6-week project, how often would you want updates?"**
+- A) Only call if something's wrong (low-touch)
+- B) Weekly check-in, I'll call or text if I need you (moderate)
+- C) I want photos/updates several times a week (high-touch)
+- D) We'll text daily, I want to see progress constantly (very high-touch)
+
+*Trait signal:* Communication style preference. Mismatches here cause friction.
+
+### Question 3: Problem-Solving Approach
+**"Something in your home breaks unexpectedly before your planned project. How do you typically respond?"**
+- A) DIY if it's simple, call a pro for anything complex (capable, selective)
+- B) Call a pro immediately—I'd rather pay than guess wrong (delegator)
+- C) Research online first, try to fix it myself (independent)
+- D) Panic, then post on social media asking for referrals (overwhelmed-to-referral)
+
+*Trait signal:* Trust in experts, willingness to delegate, resourcefulness. Reveals baseline relationship with contractors.
+
+### Question 4: Budget Flexibility
+**"You set a $30K budget, but midway through the contractor discovers hidden damage that would add $8K. Your actual reaction is:"**
+- A) "Nope, find a way within budget or we pause" (hard limit)
+- B) "Let's see the estimate, I'll probably do it" (flexible if justified)
+- C) "Whatever it takes to do it right" (quality over cost)
+- D) "I need to think about this and maybe get another bid" (decision-maker, competitive)
+
+*Trait signal:* Budget flexibility + trust in contractor honesty. Contractors want to know if owners will rage or collaborate on surprises.
+
+### Question 5: Relationship Priorities
+**"After the project is done, what would make you consider this a success?"**
+- A) On time, on budget, and they cleaned up after themselves (professional standards)
+- B) The result is perfect and they treated my home with respect (quality + care)
+- C) They explained everything, I learned something, and we stayed friends (relationship)
+- D) Fast turnaround, minimal disruption to my life (convenience)
+
+*Trait signal:* Reveals what homeowner values most: efficiency, quality, learning, or relationship. Determines long-term fit.
+
+---
+
+## Trait Vectors (for Match Scorer)
+
+Responses map to 4 trait dimensions:
+
+| Question | Trait | Low (A/B) | High (C/D) |
+|----------|-------|-----------|-----------|
+| Q1 | **Autonomy** | Wants contractor input | Wants final say |
+| Q2 | **Communication** | Low-touch | High-touch |
+| Q3 | **Delegation** | DIY-first | Delegator |
+| Q4 | **Flexibility** | Budget-hard | Budget-flexible |
+| Q5 | **Relationship** | Transactional | Relational |
+
+Match scorer will use these to rank contractors:
+- Low-autonomy + high-delegation homeowners → independent contractors
+- High-communication homeowners → detailed-progress contractors
+- Flexible-budget homeowners → contractors experienced with scope changes
+- Relational homeowners → contractors with strong reviews + repeat clients
+
+---
+
+## Implementation (Ready to Build)
+
+**Migration 022:** personality_responses table
+```sql
+CREATE TABLE personality_responses (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id),
+  project_id UUID REFERENCES projects(id),
+  responses JSONB {question_1: 'A', question_2: 'B', ...},
+  trait_vector JSONB {autonomy: 0.8, communication: 0.3, ...},
+  created_at TIMESTAMPTZ
+)
+```
+
+**Route:** `/homeowner/personality?project=<id>`
+
+**Flow:**
+1. One question per screen (typeform-style)
+2. Each question: forced-choice buttons (A/B/C/D)
+3. After 5 questions: calculate trait vectors → save to DB
+4. Route to match pool (J3)
+
+---
+
+**FOUNDER FEEDBACK (2026-07-17):** REJECTED — Questions measure stated preferences, not character. Every option self-flattering. No forced trade-offs. Rewriting per 5 principles:
+1. Past-behavior anchoring (what DID you do, not what would you do)
+2. Third-person projection (judge others, reveal yourself)
+3. Forced trade-offs with NO clean option
+4. Justified-behavior probes (where's the line?)
+5. No labels, no parentheticals, every option pickable
+
+---
+
+# REWRITTEN 5 PERSONALITY QUESTIONS (Founder Review Pending v2)
+
+**Status: New drafts written, awaiting founder approval before implementation**
+
+### Question 1: Decision Authority (Past Behavior)
+_"The last time a contractor discovered an issue mid-project (like hidden water damage) and wanted to add $5K to the scope, what actually happened?"_
+
+- A) I asked for a second opinion / breakdown before I decided
+- B) I told them to go ahead if it was necessary to do it right
+- C) I pushed back hard on the price and negotiated
+- D) I didn't get to decide — I was just told what it would cost
+
+**Trait signal:** Past behavior under surprise cost. No "right" answer—reveals who drives decisions. Autonomous people choose C; delegators choose B.
+
+---
+
+### Question 2: Communication Frequency (Genuine Preference, Non-gameable)
+_"When you hire someone for a job that'll take a few weeks, what do you actually prefer?"_
+
+- A) They only call/text if something's wrong
+- B) Weekly check-in, I call them if I need something
+- C) Regular updates + photos, a couple times a week
+- D) Daily contact—I want to see what's happening
+
+**Trait signal:** Genuine communication preference. Low-touch people know themselves; high-touch people know themselves. Non-gameable because there's real operational cost to the contractor either way.
+
+---
+
+### Question 3: Delegation (Third-Person Projection)
+_"A neighbor's kitchen contractor showed up 2 hours late without calling. The neighbor left a 1-star review saying they don't respect people's time. You think that review is:"_
+
+- A) Harsh—things happen, the work was good
+- B) Fair—no excuse for not calling ahead
+- C) Depends—was the final work worth the wait?
+- D) Too focused on one incident, contractor is still solid overall
+
+**Trait signal:** What you'd do to OUR contractors. Forgiving people (A, D) will give leeways on delays; strict people (B) will dock us hard for timeline misses. Pragmatists (C) weigh outcomes over process.
+
+---
+
+### Question 4: Budget Flexibility (Forced Trade-Off, No Clean Answer)
+_"Your contractor finds hidden structural damage and shows you two paths: finish on your $30K budget by using lower-grade repairs, OR add $7K for materials that'll last 25 years instead of 8 years. What's your first instinct?"_
+
+- A) Do the $30K version—budget was the deal
+- B) Do the $37K version—I didn't want to cheap out
+- C) I don't have a gut reaction—want to see the full breakdown
+- D) Something in between—maybe $33K if we cut somewhere else
+
+**Trait signal:** Both choices cost; no evasion. Hard-limit people → A; quality-obsessed → B; analytical → C; negotiators → D. Reveals how they handle scope creep with YOU.
+
+---
+
+### Question 5: Conflict Style (Where's the Line?)
+_"When is it okay for a contractor to ignore your original plan and do something different because they think it's better?"_
+
+- A) Never—I hired them to do what I asked
+- B) If they explain why first, then they can make the call
+- C) Always—they're the expert
+- D) Only if it saves money or time
+
+**Trait signal:** Tolerance for autonomy. Control-oriented people → A; collaborative → B; delegators → C; pragmatists → D. Tells us which contractors get to improvise with this homeowner.
+
+---
+
+## Contractor-Side Mirror Set (Same 5 Principles)
+
+### C1: Scope Changes (Past Behavior)
+_"Last time you discovered a hidden issue mid-job and had to propose adding cost, how did the homeowner react?"_
+
+- A) Blamed me for not finding it first
+- B) Asked questions, then said yes to do it right
+- C) Said no and asked if we could work around it
+- D) It escalated into an argument about trust
+
+**Trait signal:** Which homeowner types cause friction for this contractor. A = homeowners who deflect; B = collaborative; C = budget-rigid; D = conflict-prone.
+
+---
+
+### C2: Communication Frequency (Genuine Preference)
+_"What actually happens on your jobs—how often do homeowners want to hear from you?"_
+
+- A) Radio silence—they just want it done
+- B) Weekly check-in or they call when curious
+- C) They want photos and updates a couple times a week
+- D) Constant—they're on-site or texting daily
+
+**Trait signal:** Contractor's actual pattern. Different contractors have different rhythms; this reveals theirs. Matches against homeowner C2.
+
+---
+
+### C3: Perfectionism (Third-Person Projection)
+_"A homeowner criticizes a detail that won't affect function (like grout color not being perfectly uniform) even though the work is solid. You think they're:"_
+
+- A) Right to call it out—they're paying for quality
+- B) Being difficult over details that don't matter
+- C) Reasonable if they mentioned it upfront, but this was never discussed
+- D) Depends on the cost to fix
+
+**Trait signal:** What the contractor will tolerate from OUR homeowners. Perfectionists (A) will work with exacting homeowners; pragmatists (B) will resent them; contextual people (C, D) adapt.
+
+---
+
+### C4: Flexibility (Forced Trade-Off)
+_"Mid-job, the homeowner wants to change materials (same cost) to something different than planned. You:"_
+
+- A) Go along with it—they're paying
+- B) Push back—changes mid-job create delays
+- C) Agree only if they sign a change order
+- D) Depends on how far along we are
+
+**Trait signal:** Flexibility vs. structure. Accommodators → A; structure-first → B; professional → C; pragmatists → D.
+
+---
+
+### C5: Autonomy (Where's the Line?)
+_"When is it okay for you to do something different than the homeowner's original plan because you think it's better?"_
+
+- A) Never—they hired me to execute their vision
+- B) If I explain it and they agree
+- C) When the alternative is clearly superior and I have time to discuss
+- D) If it improves function or safety
+
+**Trait signal:** How much autonomy this contractor needs. Control-conscious → A; collaborative → B; expert-driven → C; safety-first → D.
+
+---
+
+## Trait Vector Mapping (Both Sides)
+
+**Homeowner Traits (from 5 Qs):**
+
+| Q | Trait | Low (A/B) | High (C/D) |
+|---|-------|-----------|-----------|
+| 1 | Autonomy | Defers decisions | Drives decisions |
+| 2 | Communication | Low-touch | High-touch |
+| 3 | Delegation | Strict/judging | Forgiving/flexible |
+| 4 | Flexibility | Budget-rigid | Budget-flexible |
+| 5 | Conflict Style | Control-oriented | Collaborative |
+
+**Contractor Traits (mirror set):**
+
+| Q | Trait | Low (A/B) | High (C/D) |
+|---|-------|-----------|-----------|
+| 1 | Accommodation | Blamed / Avoidant | Helpful / Collaborative |
+| 2 | Communication | Low-frequency | High-frequency |
+| 3 | Perfectionism | Pragmatic | Quality-obsessed |
+| 4 | Flexibility | Rigid / Cautious | Accommodating / Adaptive |
+| 5 | Autonomy | Execution-only | Expert-driven |
+
+**Match scorer logic:**
+- High-autonomy homeowners + high-autonomy contractors = 🟢 green
+- High-autonomy homeowners + execution-only contractors = 🟢 green
+- Control-oriented homeowners + expert-driven contractors = 🔴 red
+- Budget-rigid homeowners + contractor with scope-change friction = 🟡 yellow
+
+---
+
+**FOUNDER DECISION:** Do these 5 (homeowner) + 5 (contractor) pass the "no self-reporting, past behavior, no telegraphing" test? Ready to implement or rewrite again?
+
