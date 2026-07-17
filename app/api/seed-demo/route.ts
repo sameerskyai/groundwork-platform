@@ -7,6 +7,17 @@ const DEMO_CONTRACTOR_EMAIL = 'contractor.demo@groundwork.local'
 const DEMO_CONTRACTOR_PASSWORD = 'demo@1234'
 
 export async function POST(request: Request) {
+  // Dev-only: check for auth token in header or env variable
+  const authToken = request.headers.get('x-seed-token')
+  const devToken = process.env.SEED_DEMO_TOKEN
+
+  if (!devToken || authToken !== devToken) {
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized: SEED_DEMO_TOKEN required' },
+      { status: 401 }
+    )
+  }
+
   try {
     const supabase = await createClient()
 

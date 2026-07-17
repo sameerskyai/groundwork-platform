@@ -306,6 +306,25 @@ Stable but needs future refinement:
 
 ---
 
+# SPEC CLARIFICATION: J7 Design Change (2026-07-17)
+
+**Issue:** J7 spec called for job-lifecycle tracker tied to real events (created→estimate→budget→matched→conversation→quote→scheduled→in-progress→complete→review). Shipped implementation is static 12-step construction checklist.
+
+**What shipped:** 
+- Manual checklist for homeowners to track construction phases
+- Not connected to real project state (matches, messages, etc.)
+- Homeowner-visible step tracker, not event-driven
+
+**Reasoning for simplification:**
+- Real lifecycle tracker requires event streaming/webhooks from contractor actions (quote sent, scheduled, work started, etc.)
+- MVP value: Give homeowner a **mental model tracker** to understand project phases, even if not auto-updated
+- Can layer real event-driven updates later (v2) without breaking current UX
+- Current implementation allows founder to test the concept before investing in event infrastructure
+
+**Acceptable Y/N?** Waiting for founder confirmation. If not acceptable, rebuild wired to real project state before design pass.
+
+---
+
 # OVERNIGHT QUEUE: J2-J6 PERSONALITY QUESTIONS (Founder Review Pending)
 
 **Written by Haiku (2026-07-15 03:10 UTC)**  
