@@ -3,76 +3,10 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { HOMEOWNER_QUESTIONS, getRandomizedQuestion, calculateTraitVector } from '@/lib/config/personality-questions'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/Card'
 import { ArrowLeft, ChevronRight } from 'lucide-react'
-
-// Personality questions config — load from here, not hardcoded
-const PERSONALITY_QUESTIONS = [
-  {
-    id: 'q1',
-    question: 'The last time a contractor discovered an issue mid-project (like hidden water damage) and wanted to add $5K to the scope, what actually happened?',
-    answers: [
-      { value: 'A', text: 'I asked for a second opinion / breakdown before I decided' },
-      { value: 'B', text: 'I told them to go ahead if it was necessary to do it right' },
-      { value: 'C', text: 'I pushed back hard on the price and negotiated' },
-      { value: 'D', text: 'I didn\'t get to decide — I was just told what it would cost' }
-    ],
-    trait: 'autonomy'
-  },
-  {
-    id: 'q2',
-    question: 'When you hire someone for a job that\'ll take a few weeks, what do you actually prefer?',
-    answers: [
-      { value: 'A', text: 'They only call/text if something\'s wrong' },
-      { value: 'B', text: 'Weekly check-in, I call them if I need something' },
-      { value: 'C', text: 'Regular updates + photos, a couple times a week' },
-      { value: 'D', text: 'Daily contact—I want to see what\'s happening' }
-    ],
-    trait: 'communication'
-  },
-  {
-    id: 'q3',
-    question: 'A neighbor\'s kitchen contractor showed up 2 hours late without calling. The neighbor left a 1-star review saying they don\'t respect people\'s time. You think that review is:',
-    answers: [
-      { value: 'A', text: 'Harsh—things happen, the work was good' },
-      { value: 'B', text: 'Fair—no excuse for not calling ahead' },
-      { value: 'C', text: 'Depends—was the final work worth the wait?' },
-      { value: 'D', text: 'Too focused on one incident, contractor is still solid overall' }
-    ],
-    trait: 'delegation'
-  },
-  {
-    id: 'q4',
-    question: 'Your contractor finds hidden structural damage and shows you two paths: finish on your $30K budget by using lower-grade repairs, OR add $7K for materials that\'ll last 25 years instead of 8 years. What\'s your first instinct?',
-    answers: [
-      { value: 'A', text: 'Do the $30K version—budget was the deal' },
-      { value: 'B', text: 'Do the $37K version—I didn\'t want to cheap out' },
-      { value: 'C', text: 'I don\'t have a gut reaction—want to see the full breakdown' },
-      { value: 'D', text: 'Something in between—maybe $33K if we cut somewhere else' }
-    ],
-    trait: 'flexibility'
-  },
-  {
-    id: 'q5',
-    question: 'When is it okay for a contractor to ignore your original plan and do something different because they think it\'s better?',
-    answers: [
-      { value: 'A', text: 'Never—I hired them to do what I asked' },
-      { value: 'B', text: 'If they explain why first, then they can make the call' },
-      { value: 'C', text: 'Always—they\'re the expert' },
-      { value: 'D', text: 'Only if it saves money or time' }
-    ],
-    trait: 'conflict'
-  }
-]
-
-interface PersonalityResponses {
-  q1?: string
-  q2?: string
-  q3?: string
-  q4?: string
-  q5?: string
-}
 
 function PersonalityContent() {
   const router = useRouter()
@@ -80,14 +14,31 @@ function PersonalityContent() {
   const projectId = searchParams.get('project')
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [responses, setResponses] = useState<PersonalityResponses>({})
+  const [responses, setResponses] = useState<Record<string, string>>({})
+  const [randomizedQuestions, setRandomizedQuestions] = useState(HOMEOWNER_QUESTIONS)
+  const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const currentQuestion = PERSONALITY_QUESTIONS[currentQuestionIndex]
-  const isLastQuestion = currentQuestionIndex === PERSONALITY_QUESTIONS.length - 1
-  const hasAnsweredCurrent = responses[`q${currentQuestionIndex + 1}` as keyof PersonalityResponses] !== undefined
+  // Load user ID and randomize questions once on mount
+  useEffect(() => {
+    const loadUser = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUserId(user.id)
+        // Randomize question order for this user (deterministic per user)
+        const randomized = HOMEOWNER_QUESTIONS.map(q => getRandomizedQuestion(q, user.id))
+        setRandomizedQuestions(randomized)
+      }
+    }
+    loadUser()
+  }, [])
+
+  const currentQuestion = randomizedQuestions[currentQuestionIndex]
+  const isLastQuestion = currentQuestionIndex === randomizedQuestions.length - 1
+  const hasAnsweredCurrent = responses[`q${currentQuestionIndex + 1}`] !== undefined
 
   const handleAnswer = (answer: string) => {
     setResponses(prev => ({
@@ -112,7 +63,7 @@ function PersonalityContent() {
           return
         }
 
-        // Calculate trait vector based on responses
+        // Calculate trait vector based on responses (server-side calculation)
         const traitVector = calculateTraitVector(responses)
 
         await supabase.from('personality_responses').insert({
@@ -160,7 +111,7 @@ function PersonalityContent() {
             Get to know you
           </h1>
           <span style={{ color: 'var(--color-text-tertiary)', marginLeft: 'auto' }}>
-            {currentQuestionIndex + 1} / {PERSONALITY_QUESTIONS.length}
+            {currentQuestionIndex + 1} / {randomizedQuestions.length}
           </span>
         </div>
       </header>
@@ -186,15 +137,15 @@ function PersonalityContent() {
                   key={answer.value}
                   onClick={() => handleAnswer(answer.value)}
                   style={{
-                    backgroundColor: responses[`q${currentQuestionIndex + 1}` as keyof PersonalityResponses] === answer.value
+                    backgroundColor: responses[`q${currentQuestionIndex + 1}`] === answer.value
                       ? 'var(--color-brand)'
                       : 'var(--color-surface-secondary)',
-                    color: responses[`q${currentQuestionIndex + 1}` as keyof PersonalityResponses] === answer.value
+                    color: responses[`q${currentQuestionIndex + 1}`] === answer.value
                       ? 'white'
                       : 'var(--color-text-primary)',
                     borderRadius: 'var(--radius-lg)',
                     padding: 'var(--space-md)',
-                    border: `2px solid ${responses[`q${currentQuestionIndex + 1}` as keyof PersonalityResponses] === answer.value ? 'var(--color-brand)' : 'var(--color-border)'}`,
+                    border: `2px solid ${responses[`q${currentQuestionIndex + 1}`] === answer.value ? 'var(--color-brand)' : 'var(--color-border)'}`,
                     textAlign: 'left',
                     cursor: 'pointer',
                     transition: 'all 200ms',
@@ -247,32 +198,3 @@ export default function PersonalityPage() {
   )
 }
 
-// Trait vector calculation function
-function calculateTraitVector(responses: PersonalityResponses): Record<string, number> {
-  const questionResponses = [
-    responses.q1,
-    responses.q2,
-    responses.q3,
-    responses.q4,
-    responses.q5
-  ]
-
-  // Simple scoring: A/B = low (0), C/D = high (1)
-  // In production, use more nuanced mapping per question design
-  const traits = {
-    autonomy: scoreAnswer(responses.q1),      // Q1
-    communication: scoreAnswer(responses.q2), // Q2
-    delegation: scoreAnswer(responses.q3),    // Q3
-    flexibility: scoreAnswer(responses.q4),   // Q4
-    conflict: scoreAnswer(responses.q5)       // Q5
-  }
-
-  return traits
-}
-
-function scoreAnswer(answer?: string): number {
-  if (!answer) return 0.5
-  if (answer === 'A' || answer === 'B') return 0.3
-  if (answer === 'C' || answer === 'D') return 0.7
-  return 0.5
-}
