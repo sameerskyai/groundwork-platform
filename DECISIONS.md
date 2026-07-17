@@ -406,7 +406,14 @@ CREATE TABLE personality_responses (
 
 ---
 
-**FOUNDER FEEDBACK (2026-07-17):** REJECTED — Questions measure stated preferences, not character. Every option self-flattering. No forced trade-offs. Rewriting per 5 principles:
+**FOUNDER FEEDBACK (2026-07-17):** REJECTED — Questions measure stated preferences, not character. Every option self-flattering. No forced trade-offs. Rewriting per 5 principles.
+
+**FOUNDER APPROVAL (2026-07-17 - retrospective):**
+- ✅ **Pricing delta:** $99/year + $49/year-for-life referral at 10 referrals **APPROVED** 
+- ✅ **Oracle language (statistical framing):** "homes like yours typically...", ranges not verdicts **APPROVED**
+- ⏳ **Personality questions v2:** Rewritten to remove telegraphing. Q1, Q5, C1, C5 revised. **AWAITING RE-APPROVAL**
+
+**Process note:** Pricing and Oracle language were written into WAR_PLAN.md and estimate-agent.ts before explicit founder approval. Going forward: items marked "awaiting approval" will NOT be merged into canon until founder explicitly says yes in this chat.
 1. Past-behavior anchoring (what DID you do, not what would you do)
 2. Third-person projection (judge others, reveal yourself)
 3. Forced trade-offs with NO clean option
@@ -420,14 +427,14 @@ CREATE TABLE personality_responses (
 **Status: New drafts written, awaiting founder approval before implementation**
 
 ### Question 1: Decision Authority (Past Behavior)
-_"The last time a contractor discovered an issue mid-project (like hidden water damage) and wanted to add $5K to the scope, what actually happened?"_
+_"The last time a contractor discovered an issue mid-project and proposed adding cost to fix it, how did you actually handle it?"_
 
-- A) I asked for a second opinion / breakdown before I decided
-- B) I told them to go ahead if it was necessary to do it right
-- C) I pushed back hard on the price and negotiated
-- D) I didn't get to decide — I was just told what it would cost
+- A) I asked for an explanation and got more bids before deciding
+- B) I trusted their judgment and told them to do it if it was necessary
+- C) I negotiated the price or asked if we could scope it differently
+- D) I told them to proceed but had them document the extra cost
 
-**Trait signal:** Past behavior under surprise cost. No "right" answer—reveals who drives decisions. Autonomous people choose C; delegators choose B.
+**Trait signal:** Past behavior under surprise cost. All four are defensible decisions (no "weak" option). Autonomy reveals in WHO made the call and HOW they owned it.
 
 ---
 
@@ -467,29 +474,29 @@ _"Your contractor finds hidden structural damage and shows you two paths: finish
 
 ---
 
-### Question 5: Conflict Style (Where's the Line?)
-_"When is it okay for a contractor to ignore your original plan and do something different because they think it's better?"_
+### Question 5: Contractor Autonomy (Where's the Line?)
+_"During a project, your contractor spots a better way to do something than what you originally planned. How do you actually want them to handle it?"_
 
-- A) Never—I hired them to do what I asked
-- B) If they explain why first, then they can make the call
-- C) Always—they're the expert
-- D) Only if it saves money or time
+- A) They should stop and ask me first—I want to understand the change before it happens
+- B) They should do it if it makes the project better, but tell me about it afterward
+- C) They should do what they think is right—I hired them for their expertise
+- D) It depends on what kind of change it is—some things I want control over, others I don't
 
-**Trait signal:** Tolerance for autonomy. Control-oriented people → A; collaborative → B; delegators → C; pragmatists → D. Tells us which contractors get to improvise with this homeowner.
+**Trait signal:** Autonomy expectations. All four reveal real preferences without sounding obviously "controlling" or "delegating." Shows whose judgment matters and when.
 
 ---
 
 ## Contractor-Side Mirror Set (Same 5 Principles)
 
 ### C1: Scope Changes (Past Behavior)
-_"Last time you discovered a hidden issue mid-job and had to propose adding cost, how did the homeowner react?"_
+_"Last time you discovered a hidden issue mid-job and proposed adding cost, how did the homeowner actually react?"_
 
-- A) Blamed me for not finding it first
-- B) Asked questions, then said yes to do it right
-- C) Said no and asked if we could work around it
-- D) It escalated into an argument about trust
+- A) They asked for a breakdown and time to think about it
+- B) They trusted my judgment and approved it quickly
+- C) They negotiated or asked if there was a workaround
+- D) They approved but wanted detailed documentation of the change
 
-**Trait signal:** Which homeowner types cause friction for this contractor. A = homeowners who deflect; B = collaborative; C = budget-rigid; D = conflict-prone.
+**Trait signal:** How homeowners handle cost surprises. All four are normal—reveals which require more hand-holding, which trust quickly, which want control.
 
 ---
 
@@ -529,15 +536,15 @@ _"Mid-job, the homeowner wants to change materials (same cost) to something diff
 
 ---
 
-### C5: Autonomy (Where's the Line?)
-_"When is it okay for you to do something different than the homeowner's original plan because you think it's better?"_
+### C5: Contractor Decision-Making (Where's the Line?)
+_"During a project, you spot a better way to do something than the original plan. How do you actually handle it?"_
 
-- A) Never—they hired me to execute their vision
-- B) If I explain it and they agree
-- C) When the alternative is clearly superior and I have time to discuss
-- D) If it improves function or safety
+- A) I ask the homeowner first—I want their buy-in before I change anything
+- B) I do it and explain the change to them after, so they understand the improvement
+- C) I do what I think is right based on my expertise and experience
+- D) It depends on the type of change—some things I discuss first, others I just execute
 
-**Trait signal:** How much autonomy this contractor needs. Control-conscious → A; collaborative → B; expert-driven → C; safety-first → D.
+**Trait signal:** Contractor's decision-making style. All four are defensible approaches—shows which contractors need approval loops, which are self-directed, which adapt per situation.
 
 ---
 
