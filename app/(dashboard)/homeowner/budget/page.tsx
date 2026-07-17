@@ -80,7 +80,7 @@ function BudgetContent() {
         .eq('id', projectId)
 
       // Next: personality questions (J2)
-      router.push(`/homeowner/personality?project=${projectId}`)
+      router.push(`/homeowner/personality?project=${projectId}`) // Route to 5-question flow
     } catch (err: any) {
       setError(err.message || 'Failed to save budget')
       setSaving(false)
