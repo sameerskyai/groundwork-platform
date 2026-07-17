@@ -1,7 +1,8 @@
 # WARP — Groundwork Engineering Rules
 
-**Last Updated:** 2026-07-14  
-**Enforced Since:** Phase 0 Rebuild (Post-Audit)
+**Last Updated:** 2026-07-17 (GitHub Migration)  
+**Enforced Since:** Phase 0 Rebuild (Post-Audit)  
+**GitHub:** https://github.com/sameerskyai/groundwork-platform (Private)
 
 These rules are non-negotiable and apply to all work on this codebase.
 
@@ -230,10 +231,43 @@ Deferred:
 
 ---
 
+## VERSION CONTROL & BACKUP RULES (GitHub Era)
+
+### 16. GitHub is the Single Source of Truth
+
+- **One repo:** https://github.com/sameerskyai/groundwork-platform (Private)
+- **One main branch:** All work branches from main, merged via PR once PR workflow starts
+- **No dark work:** All code exists in GitHub. Local-only work is invisible and unauditable.
+- **Backup routine (effective 2026-07-17):**
+  1. After every task completion: `git push origin main` (GitHub is primary backup)
+  2. Every 5 commits: `git bundle create ~/groundwork-backup-$(date +%s).bundle main` (local insurance policy)
+  3. Safety bundle pre-migration: `~/groundwork-backup-pre-github.bundle` (preserved as archive)
+
+### 17. Branch Discipline (Future, When PR Workflow Activates)
+
+- **Feature branches:** `feature/<issue-number>-<slug>` (e.g., `feature/J3-swipe-cards`)
+- **Bugfix branches:** `bugfix/<issue-number>-<slug>`
+- **Hotfix branches:** `hotfix/<issue-number>-<slug>` (emergency only, must be approved before merge)
+- All PRs require:
+  - Evidence: commit hashes, test output, migration applied confirmations
+  - Code review approval (peer or founder)
+  - All checks green (build, tests, type checking)
+  - Squash-and-merge into main (maintains clean history)
+
+### 18. Collaborators & Access Control
+
+- **GitHub repo:** Private, only collaborators can access
+- **Collaborators:** Sameer (owner), Ryan (TBD — awaiting username), Armin (TBD — awaiting invite)
+- **CI/CD:** Not yet wired; manual push/verify until automated
+- **Secrets:** .env files NEVER tracked; CREDENTIALS.md is reference only
+
+---
+
 ## REFERENCE
 
+- **GitHub:** https://github.com/sameerskyai/groundwork-platform (Private)
 - **Database:** Supabase PostgreSQL (RLS-enabled)
 - **Auth:** Supabase Auth (with metadata flags for demo/fixture isolation)
 - **API:** Next.js App Router (server-side threshold enforcement)
 - **Testing:** Vitest (with pagination-aware fixture cleanup)
-- **Version Control:** Git (commit hash is proof)
+- **Version Control:** Git + GitHub (commit hash and PR link are proof)
