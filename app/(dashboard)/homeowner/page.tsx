@@ -114,12 +114,12 @@ export default function HomeownerDashboard() {
 
         const [{ data: est }, { data: matchRows }, { data: matchedRow }] = await Promise.all([
           supabase.from('estimates').select('range_low, range_high').eq('project_id', proj.id).maybeSingle(),
-          supabase.from('matches').select('id').eq('project_id', proj.id).eq('status', 'matched'),
+          supabase.from('matches').select('id').eq('project_id', proj.id).eq('status', 'pending'),
           supabase
             .from('matches')
             .select('contractor_profiles(business_name, trust_score, trust_accuracy, trust_on_time, trust_dispute_free, verified_job_count)')
             .eq('project_id', proj.id)
-            .eq('status', 'matched')
+            .eq('status', 'pending')
             .order('matched_at', { ascending: false })
             .limit(1)
             .maybeSingle()
@@ -245,7 +245,7 @@ export default function HomeownerDashboard() {
           {[
             { label: 'Dashboard', href: '/homeowner', active: true },
             { label: 'Matches', href: '/homeowner/matches' },
-            { label: 'Messages', href: '/homeowner/chat' },
+            { label: 'Messages', href: '/homeowner/messages' },
             { label: 'Neighborhood', href: project?.zip_code ? `/feed/${project.zip_code}` : '/homeowner' }
           ].map(t => (
             <Link key={t.label} href={t.href} style={{
