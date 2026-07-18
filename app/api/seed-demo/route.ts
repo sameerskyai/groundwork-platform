@@ -10,6 +10,7 @@ import { NextResponse } from 'next/server'
  * This endpoint was never functional (anon key cannot INSERT to profiles with RLS).
  * Removed 2026-07-17 to avoid data confusion.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(request: Request) {
   return NextResponse.json(
     {
@@ -33,7 +34,8 @@ export async function POST(request: Request) {
  * 5. Duplicates functionality of proven canonical seed system
  *
  * Replaced with 410 Gone response pointing to canonical seed.
-export async function POST_REMOVED(request: Request) {
+ *
+ * export async function POST_REMOVED(request: Request) {
   // Dev-only: check for auth token in header or env variable
   const authToken = request.headers.get('x-seed-token')
   const devToken = process.env.SEED_DEMO_TOKEN
@@ -264,3 +266,4 @@ export async function POST_REMOVED(request: Request) {
     }, { status: 500 })
   }
 }
+ */
