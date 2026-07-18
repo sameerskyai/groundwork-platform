@@ -10,8 +10,7 @@ import { NextResponse } from 'next/server'
  * This endpoint was never functional (anon key cannot INSERT to profiles with RLS).
  * Removed 2026-07-17 to avoid data confusion.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
   return NextResponse.json(
     {
       error: 'Gone',
