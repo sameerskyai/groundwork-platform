@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS user_monthly_api_usage (
 -- Cost limits by tier
 CREATE TABLE IF NOT EXISTS cost_limits (
   tier TEXT PRIMARY KEY,
-  monthly_estimate_calls_limit INT NOT NULL,
-  monthly_cost_limit_cents INT NOT NULL,
+  monthly_estimate_calls_limit INT,
+  monthly_cost_limit_cents INT,
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 

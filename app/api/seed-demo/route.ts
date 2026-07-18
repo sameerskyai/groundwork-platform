@@ -1,12 +1,39 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
-const DEMO_HOMEOWNER_EMAIL = 'founder.demo@groundwork.local'
-const DEMO_HOMEOWNER_PASSWORD = 'demo@1234'
-const DEMO_CONTRACTOR_EMAIL = 'contractor.demo@groundwork.local'
-const DEMO_CONTRACTOR_PASSWORD = 'demo@1234'
-
+/**
+ * DEPRECATED: /api/seed-demo endpoint
+ *
+ * Use supabase/seed/01-marketplace-demo.ts instead (canonical seed system).
+ * The canonical seed uses service role auth (correct), is idempotent,
+ * and creates a full 40+25 marketplace with all required demo data.
+ *
+ * This endpoint was never functional (anon key cannot INSERT to profiles with RLS).
+ * Removed 2026-07-17 to avoid data confusion.
+ */
 export async function POST(request: Request) {
+  return NextResponse.json(
+    {
+      error: 'Gone',
+      message: 'This endpoint is deprecated. Use: npx tsx supabase/seed/01-marketplace-demo.ts',
+      seed_account: 'founder.demo@example.com / FounderDemo123!',
+      canonical_seed: 'supabase/seed/01-marketplace-demo.ts'
+    },
+    { status: 410 }
+  )
+}
+
+/**
+ * OLD IMPLEMENTATION (REMOVED)
+ *
+ * The following code was removed because it:
+ * 1. Uses anon-level Supabase client for admin operations (wrong)
+ * 2. Profile INSERTs fail against RLS policies
+ * 3. Error handling masks real errors as "User already registered"
+ * 4. Never successfully created demo data
+ * 5. Duplicates functionality of proven canonical seed system
+ *
+ * Replaced with 410 Gone response pointing to canonical seed.
+export async function POST_REMOVED(request: Request) {
   // Dev-only: check for auth token in header or env variable
   const authToken = request.headers.get('x-seed-token')
   const devToken = process.env.SEED_DEMO_TOKEN
@@ -22,28 +49,43 @@ export async function POST(request: Request) {
     const supabase = await createClient()
 
     // Check if demo data already exists
-    const { data: existingHomeowner } = await supabase
+    const { data: existingHomeowner, error: profileError } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', DEMO_HOMEOWNER_EMAIL)
-      .single()
+      .maybeSingle()
 
-    if (existingHomeowner) {
+    if (existingHomeowner && !profileError) {
       return NextResponse.json({
         success: true,
         message: 'Demo data already seeded'
       })
     }
 
-    // Sign up demo homeowner
+    // Sign up demo homeowner (or get existing account)
     const { data: homeownerSignup, error: homeownerSignupError } = await supabase.auth.signUp({
       email: DEMO_HOMEOWNER_EMAIL,
       password: DEMO_HOMEOWNER_PASSWORD
     })
 
-    if (homeownerSignupError) throw homeownerSignupError
+    let homeownerId: string
 
-    const homeownerId = homeownerSignup.user!.id
+    if (homeownerSignupError) {
+      // Account might already exist; try signing in
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: DEMO_HOMEOWNER_EMAIL,
+        password: DEMO_HOMEOWNER_PASSWORD
+      })
+      if (signInError) {
+        console.error('Homeowner signup AND signin failed:', homeownerSignupError, signInError)
+        throw signInError
+      }
+      homeownerId = signInData.user?.id || ''
+      if (!homeownerId) throw new Error('Failed to get homeowner ID from signin')
+    } else {
+      homeownerId = homeownerSignup.user?.id || ''
+      if (!homeownerId) throw new Error('Failed to get homeowner ID from signup')
+    }
 
     // Create homeowner profile
     await supabase.from('profiles').update({
@@ -104,15 +146,30 @@ export async function POST(request: Request) {
       })
     }
 
-    // Sign up demo contractor
+    // Sign up demo contractor (or get existing account)
     const { data: contractorSignup, error: contractorSignupError } = await supabase.auth.signUp({
       email: DEMO_CONTRACTOR_EMAIL,
       password: DEMO_CONTRACTOR_PASSWORD
     })
 
-    if (contractorSignupError) throw contractorSignupError
+    let contractorId: string
 
-    const contractorId = contractorSignup.user!.id
+    if (contractorSignupError) {
+      // Account might already exist; try signing in
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: DEMO_CONTRACTOR_EMAIL,
+        password: DEMO_CONTRACTOR_PASSWORD
+      })
+      if (signInError) {
+        console.error('Contractor signup AND signin failed:', contractorSignupError, signInError)
+        throw signInError
+      }
+      contractorId = signInData.user?.id || ''
+      if (!contractorId) throw new Error('Failed to get contractor ID from signin')
+    } else {
+      contractorId = contractorSignup.user?.id || ''
+      if (!contractorId) throw new Error('Failed to get contractor ID from signup')
+    }
 
     // Create contractor profile
     await supabase.from('contractor_profiles').insert({
