@@ -272,6 +272,60 @@ Deferred:
 
 ---
 
+## 19. MANDATORY CODE REVIEW WORKFLOW (As of 2026-07-18)
+
+**This is the new standing rule.** Every task from this point forward follows this workflow:
+
+### The Workflow
+1. **Branch**: Create feature branch (`feature/<slug>`)
+2. **Code**: Write code, commit locally
+3. **Push**: Push branch to GitHub
+4. **PR**: Create PR to main
+5. **CodeRabbit**: Wait for automated review (CodeRabbit reviews automatically)
+6. **Address Findings**: Fix any issues CodeRabbit raises
+7. **Merge**: Merge to main only after CodeRabbit passes and findings are addressed
+8. **Report**: Report to founder AFTER merged to main with evidence
+
+### CodeRabbit Wait Time
+- **Normal case**: CodeRabbit completes within 2-5 minutes
+- **If delayed past 10 minutes**: Check PR status via `gh pr view <number> --json statusCheckRollup`
+- **If CodeRabbit stalls beyond 15 minutes**: Proceed with merge anyway (log in DECISIONS.md: "CodeRabbit delayed, merged without findings")
+- **Never commit directly to main.** All work goes through PR + review.
+
+### What If I Disagree with CodeRabbit Findings?
+- **Do NOT ignore findings silently**
+- **Log disagreement in DECISIONS.md**:
+  ```
+  ## CodeRabbit Finding Disagreement (Date)
+  **Issue**: [CodeRabbit's finding]
+  **My assessment**: [Why I disagree]
+  **Action**: [Fix / ignore / defer]
+  **Reasoning**: [Why this decision]
+  ```
+- **Then decide**: Fix it, or document the disagreement and proceed
+- **Never merge with unlogged disagreements**
+
+### Workflow Summary (Every Task)
+```
+feature branch
+  ↓
+code + commit
+  ↓
+git push -u origin feature/<slug>
+  ↓
+gh pr create --title "..." --body "..."
+  ↓
+wait for CodeRabbit (2-5 min)
+  ↓
+address findings / log disagreements
+  ↓
+gh pr merge <number> --squash
+  ↓
+report to founder (with PR link + CodeRabbit findings in response)
+```
+
+---
+
 ## REFERENCE
 
 - **GitHub:** https://github.com/sameerskyai/groundwork-platform (Private)
