@@ -34,6 +34,18 @@ function MatchesContent() {
         return
       }
 
+      // Verify project ownership first
+      const { data: project, error: projectError } = await supabase
+        .from('projects')
+        .select('user_id')
+        .eq('id', projectId)
+        .single()
+
+      if (projectError || !project || project.user_id !== user.id) {
+        setError('Project not found or not authorized')
+        return
+      }
+
       // J3 Gate: Only show matches with 80%+ compatibility
       const { data: matchData, error: matchError } = await supabase
         .from('matches')
@@ -52,7 +64,6 @@ function MatchesContent() {
           )
         `)
         .eq('project_id', projectId)
-        .eq('homeowner_id', user.id)
         .gte('match_score', 0.8)
         .order('match_score', { ascending: false })
 
