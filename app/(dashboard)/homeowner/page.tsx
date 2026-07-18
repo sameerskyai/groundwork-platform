@@ -102,7 +102,7 @@ export default function HomeownerDashboard() {
       // Most recent active project
       const { data: proj } = await supabase
         .from('projects')
-        .select('id, description, ai_project_type, zip_code')
+        .select('id, description, ai_project_type, zip_code, budget_min, budget_max')
         .eq('user_id', user.id)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
@@ -113,13 +113,13 @@ export default function HomeownerDashboard() {
         setProject(proj)
 
         const [{ data: est }, { data: matchRows }, { data: matchedRow }] = await Promise.all([
-          supabase.from('estimates').select('range_low, range_high').eq('project_id', proj.id).maybeSingle(),
-          supabase.from('matches').select('id').eq('project_id', proj.id).eq('status', 'matched'),
+          Promise.resolve({ data: { range_low: proj.budget_min, range_high: proj.budget_max } }),
+          supabase.from('matches').select('id').eq('project_id', proj.id).eq('status', 'pending'),
           supabase
             .from('matches')
             .select('contractor_profiles(business_name, trust_score, trust_accuracy, trust_on_time, trust_dispute_free, verified_job_count)')
             .eq('project_id', proj.id)
-            .eq('status', 'matched')
+            .eq('status', 'pending')
             .order('matched_at', { ascending: false })
             .limit(1)
             .maybeSingle()
