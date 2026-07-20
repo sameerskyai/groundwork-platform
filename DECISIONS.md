@@ -1093,3 +1093,23 @@ npx tsx supabase/seed/02-founder-walkthrough-dataset.ts
 ```
 
 **When Done**: Phase 1 will be complete (estimate will render on dashboard)
+
+---
+
+## FOUNDER/RYAN ACTION: Apply Migration 031 + Seed 02 (2026-07-20)
+
+**What**: Apply migration 031 (waitlist table) + re-run seed 02 with estimate creation
+
+**Why**: Phase 1 close-out requires estimate data in database so dashboard renders $18,500–$42,000 range
+
+**How**: With proper Supabase credentials:
+```bash
+export SUPABASE_URL=<your-url>
+export SUPABASE_SERVICE_ROLE_KEY=<your-key>
+npx supabase migration up --linked
+npx tsx supabase/seed/02-founder-walkthrough-dataset.ts
+```
+
+**Then**: Message Claude Code to re-run Playwright and verify Phase 1 complete
+
+**Timeline**: Before Phase 2 starts (will block on this)

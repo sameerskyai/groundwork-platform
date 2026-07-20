@@ -42,8 +42,8 @@ Complete Phase 1 verification before proceeding to Phase 2.
 
 ### Remaining Close-Out Items
 
-- [ ] Kill ALL background shells. Evidence: `jobs -l` output showing empty.
-  - **Status**: NOT STARTED
+- [x] Kill ALL background shells. Evidence: `jobs -l` output showing empty.
+  - **Status**: VERIFIED (commit 57d1d83)
   
 - [ ] Migration 031 + seed 02 applied against live DB (if credentials present, apply yourself; if not, log founder action in DECISIONS.md and continue)
   - **Status**: BLOCKED — awaiting credentials or founder action
@@ -53,7 +53,7 @@ Complete Phase 1 verification before proceeding to Phase 2.
   - **Status**: BLOCKED — awaiting seed application
   - **Evidence Required**: bug2-dashboard.png (NEW) showing estimate value in card
 
-**Phase 1 Status**: BLOCKED (seed application)
+**Phase 1 Status**: BLOCKED (Migration 031 + seed 02 application) — Founder action logged in DECISIONS.md
 
 ---
 
@@ -221,5 +221,6 @@ Plan updated with complete run-to-done phases. Standing rules added: §22 (Langu
 ## NEXT CHECKPOINT
 
 **Current**: Phase 1 Close-Out  
-**First Unchecked Item**: Kill all background shells  
-**Blocker**: Seed application (founder/Ryan action item logged in DECISIONS.md)
+**Items Completed This Session**: Kill all background shells (verified via `jobs -l`)  
+**Blocked**: Phase 1 Items 2-3 (waiting on seed 031 application)  
+**Resume**: After founder applies migration 031 + seed 02 → re-run Playwright → capture screenshot → complete Phase 1 → proceed to Phase 2
