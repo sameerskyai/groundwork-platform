@@ -326,6 +326,42 @@ report to founder (with PR link + CodeRabbit findings in response)
 
 ---
 
+## 20. EXECUTION.MD — DURABLE WORK PLAN (As of 2026-07-20)
+
+The problem: big directives live in chat, chat compacts, the plan fragments, the founder re-routes every tiny bug.
+
+Solution: EXECUTION.md is the only source of truth for multi-phase work. It lives in the repo root and is never replaced, only updated.
+
+### Discipline
+
+1. **Session Start**: Read EXECUTION.md from top. Find first unchecked item. Resume from there.
+2. **During Work**: 
+   - Work on current unchecked item only
+   - If a decision blocker appears: log it specifically in DECISIONS.md, skip that item, keep going. Do not pause.
+   - Commit progress when items complete
+3. **Session End**: 
+   - Check off completed items with commit hashes
+   - Note which phase/item you stopped at
+   - Push to main
+   - Update "Last Updated" at top of EXECUTION.md
+
+### Evidence Standard (§20 applies here too)
+
+No claim is complete without:
+- Commit hash (from `git log --oneline`)
+- Real command output or Playwright screenshot
+- Applies to EVERY phase, including waitlist (not hand-waved)
+
+### Interrupts
+
+Real fires pause the file but never replace it. Return to first unchecked item after fire is out.
+
+### Founder Review
+
+The founder reviews ONCE: when EXECUTION.md is 100% checked. Not before, not during.
+
+---
+
 ## REFERENCE
 
 - **GitHub:** https://github.com/sameerskyai/groundwork-platform (Private)
