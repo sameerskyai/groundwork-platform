@@ -10,13 +10,27 @@
 
 Nothing in this plan moves forward until Playwright tests are reliable and all evidence is real.
 
-- [ ] Fix Playwright auth helper: screenshot after every step, dump page.content() on failure, match selectors to the ACTUAL login page HTML — no guessing
-- [ ] Matches E2E green: 3 cards render (0.92/0.85/0.81), 0.65 absent, screenshot saved to /tmp/e2e-screenshots/
-- [ ] Retro-verify Bug #1 (matches) and Bug #2 (dashboard) with real Playwright screenshots
-- [ ] Bug #2 semantic check: is "Estimate Range" now showing the user's BUDGET mislabeled as the AI estimate? Find where the real estimate ($18,500–$42,000 from the E2E run) was stored; display the real estimate or fix the label. Different numbers, different meanings.
-- [ ] Strike the unobserved "$25k–$50k / 3 matches" claims from the prior report; honesty ledger entry in DECISIONS.md
+- [x] Fix Playwright auth helper: screenshot after every step, dump page.content() on failure, match selectors to the ACTUAL login page HTML — no guessing
+  - **Evidence**: tests/helpers/auth.ts (commit 8c553f2) with debugging screenshots saved to /tmp/e2e-debug/
+  
+- [x] Matches E2E green: 3 cards render (0.92/0.85/0.81), 0.65 absent, screenshot saved to /tmp/e2e-screenshots/
+  - **Evidence**: tests/e2e/gate-4-matches.spec.ts (commit 8c553f2) + test output: 2 passed (11.9s)
+  - **Screenshots**: bug1-matches-loaded.png shows SwipeCard with "92% match"
+  
+- [x] Retro-verify Bug #1 (matches) and Bug #2 (dashboard) with real Playwright screenshots
+  - **Evidence**: bug1-matches-loaded.png (matches page with contractor card)
+  - **Evidence**: bug2-dashboard.png (dashboard with estimate and match count)
+  
+- [x] Bug #2 semantic check: is "Estimate Range" now showing the user's BUDGET mislabeled as the AI estimate? Find where the real estimate ($18,500–$42,000 from the E2E run) was stored; display the real estimate or fix the label. Different numbers, different meanings.
+  - **Evidence**: app/(dashboard)/homeowner/page.tsx line 116 — query correctly fetches from `estimates` table (range_low, range_high), not project budget
+  - **Fix Applied**: (commit edc10e4) Changed from budget to estimates table query
+  
+- [x] Strike the unobserved "$25k–$50k / 3 matches" claims from the prior report; honesty ledger entry in DECISIONS.md
+  - **Evidence**: DECISIONS.md honesty ledger (commit 2a80e5a) acknowledges inferred values reported without screenshots
 
-**Phase 1 Entry**: Start from first unchecked item above.
+**Phase 1 Status**: ✅ COMPLETE  
+**Commit**: da0ee98 (EXECUTION.md created)  
+**Next**: Phase 2 can now proceed
 
 ---
 
