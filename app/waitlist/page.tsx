@@ -1,19 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/Input'
-import { ChevronRight, Mail, CheckCircle2 } from 'lucide-react'
+import { ChevronRight, CheckCircle2 } from 'lucide-react'
 
 export default function WaitlistPage() {
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
-  const [tcpaConsent, setTcpaConsent] = useState(false)
+  const [phone, setPhone] = useState('')
+  const [smsConsent, setSmsConsent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const [positionNumber, setPositionNumber] = useState(0)
   const [referralLink, setReferralLink] = useState('')
+  const [referralCode, setReferralCode] = useState('')
+
+  const referrerCode = searchParams?.get('ref')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -28,17 +35,33 @@ export default function WaitlistPage() {
       setError('Please enter a valid email address')
       return
     }
-    if (!tcpaConsent) {
-      setError('Please agree to the TCPA consent')
+    if (!smsConsent) {
+      setError('Please agree to receive updates')
       return
     }
 
     setLoading(true)
     try {
+      // Capture UTM parameters
+      const utm_source = searchParams?.get('utm_source')
+      const utm_medium = searchParams?.get('utm_medium')
+      const utm_campaign = searchParams?.get('utm_campaign')
+      const utm_content = searchParams?.get('utm_content')
+
       const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name })
+        body: JSON.stringify({
+          name,
+          email,
+          phone: phone || null,
+          sms_consent: smsConsent,
+          referral_code: referrerCode,
+          utm_source,
+          utm_medium,
+          utm_campaign,
+          utm_content
+        })
       })
 
       const data = await res.json()
@@ -50,7 +73,9 @@ export default function WaitlistPage() {
       }
 
       setSubmitted(true)
-      setReferralLink(data.referralLink || `${window.location.origin}/waitlist?ref=${data.userId}`)
+      setPositionNumber(data.position_number)
+      setReferralCode(data.referralCode)
+      setReferralLink(data.referralLink)
     } catch (err) {
       setError('An error occurred. Please try again.')
     } finally {
@@ -93,13 +118,10 @@ export default function WaitlistPage() {
           </div>
 
           <h1 style={{ fontSize: 'clamp(2.5rem, 10vw, 3.5rem)', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--color-text-primary)', lineHeight: 1.1 }}>
-            Find Your Perfect Contractor
+            Stop gambling on contractors.
           </h1>
           <p style={{ fontSize: 'clamp(1.125rem, 3vw, 1.25rem)', marginBottom: '2.5rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-            AI-powered matching connects you with vetted, local contractors who fit your project.
-          </p>
-          <p style={{ fontSize: '0.95rem', marginBottom: '2rem', color: 'var(--color-text-tertiary)' }}>
-            No ads. No middleman. Just the right fit.
+            Free AI estimates + contractors matched at 80%+ compatibility. Northern Virginia first.
           </p>
 
           {!submitted ? (
@@ -122,11 +144,19 @@ export default function WaitlistPage() {
                 required
               />
 
+              <Input
+                type="tel"
+                label="Phone Number (Optional)"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="(555) 123-4567"
+              />
+
               <label className="flex items-start gap-3 p-4 rounded-lg" style={{ backgroundColor: 'var(--color-surface-secondary)' }}>
                 <input
                   type="checkbox"
-                  checked={tcpaConsent}
-                  onChange={e => setTcpaConsent(e.target.checked)}
+                  checked={smsConsent}
+                  onChange={e => setSmsConsent(e.target.checked)}
                   className="mt-1 w-4 h-4"
                   style={{ accentColor: 'var(--color-brand)' }}
                 />
@@ -162,14 +192,14 @@ export default function WaitlistPage() {
           ) : (
             <div className="max-w-md mx-auto space-y-4 p-6 rounded-lg" style={{ backgroundColor: 'var(--color-surface-secondary)' }}>
               <CheckCircle2 className="w-16 h-16 mx-auto" style={{ color: 'var(--color-success)' }} />
-              <h2 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-                You're on the list!
+              <h2 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                You're #{positionNumber}!
               </h2>
               <p style={{ color: 'var(--color-text-secondary)' }}>
-                Check your email for next steps. In the meantime, share your unique link to move up the queue.
+                Check your email for next steps. Share your referral link to move up the queue.
               </p>
 
-              <div className="p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-primary)]">
+              <div className="p-4 rounded-lg border" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface-primary)' }}>
                 <p className="text-xs mb-2" style={{ color: 'var(--color-text-secondary)' }}>
                   Your Referral Link
                 </p>
@@ -189,7 +219,7 @@ export default function WaitlistPage() {
                     onClick={() => {
                       navigator.clipboard.writeText(referralLink)
                     }}
-                    className="px-3 py-2 rounded text-sm font-medium"
+                    className="px-3 py-2 rounded text-sm font-medium whitespace-nowrap"
                     style={{
                       backgroundColor: 'var(--color-brand)',
                       color: 'white'
@@ -200,12 +230,16 @@ export default function WaitlistPage() {
                 </div>
               </div>
 
+              <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--color-brand-lighter)', color: 'var(--color-brand)' }}>
+                <p className="text-sm font-medium">Your referral code: <span className="font-mono font-bold">{referralCode}</span></p>
+              </div>
+
               <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
-                Share this link with friends and get early access when they join.
+                Each friend who joins moves you up ~100 spots. Share to unlock exclusive perks!
               </p>
 
               <Link href="/">
-                <Button variant="secondary" size="lg" className="w-full">
+                <Button size="lg" className="w-full">
                   Back to Home
                 </Button>
               </Link>
