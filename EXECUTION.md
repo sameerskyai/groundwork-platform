@@ -103,7 +103,7 @@ Top priority. Blocks entire marketing campaign. 21st.dev components, Warm Copper
 - [ ] Deploy-ready: document exact deploy steps + env vars needed in README
   - **Status**: NOT STARTED
 
-**Phase 2 Status**: IN PROGRESS (DB live, building now)
+**Phase 2 Status**: IN PROGRESS (table + API + UI + admin dashboard built, E2E testing in progress)
 
 ---
 
