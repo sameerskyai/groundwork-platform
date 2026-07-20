@@ -362,6 +362,42 @@ The founder reviews ONCE: when EXECUTION.md is 100% checked. Not before, not dur
 
 ---
 
+---
+
+## 22. STATUS LANGUAGE (As of 2026-07-20)
+
+Status is one of four states only:
+- **VERIFIED**: Feature works, screenshot + test evidence exists
+- **IN PROGRESS**: Active work, next task identified
+- **BLOCKED**: Named blocker, workaround documented or founder action logged
+- **NOT STARTED**: Waiting for prerequisite
+
+No percentages ("99% ready"), no adjectives ("almost there"), no ETA speculation. Status is fact, not feeling.
+
+---
+
+## 23. PULL REQUEST WORKFLOW — ALL CODE THROUGH REVIEW (As of 2026-07-20)
+
+**Rule**: Every code change ships through PR → CodeRabbit review → address findings → merge. No direct commits to main for code.
+
+**Exception**: Docs-only commits (EXECUTION.md, DECISIONS.md, README updates, no code changes) may commit directly to main.
+
+**Batching**: Group related fixes by phase. One PR per phase completion.
+
+**Process**:
+1. Feature branch: `feature/<phase>-<slug>`
+2. Write code, commit locally
+3. Push branch with `-u flag`
+4. Create PR with detailed body + test plan
+5. Wait for CodeRabbit (2-5 min typical)
+6. Address findings (log disagreements in DECISIONS.md)
+7. Merge via `gh pr merge --squash`
+8. Report: PR link + CodeRabbit findings + evidence
+
+**If CodeRabbit stalls beyond 15 min**: Log in DECISIONS.md ("CodeRabbit delayed, merged"), proceed.
+
+---
+
 ## REFERENCE
 
 - **GitHub:** https://github.com/sameerskyai/groundwork-platform (Private)

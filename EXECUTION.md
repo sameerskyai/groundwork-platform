@@ -1,107 +1,175 @@
 # EXECUTION.md — Durable Work Plan
 
-**Status**: Active  
+**Status**: IN PROGRESS  
 **Last Updated**: 2026-07-20  
-**Current Session**: Phase 1 (Verification Engine)
+**Current Phase**: Phase 1 Close-Out
 
 ---
 
-## PHASE 1 — VERIFICATION ENGINE (nothing else until this works)
+## STANDING RULES
 
-Nothing in this plan moves forward until Playwright tests are reliable and all evidence is real.
+- **§20 Evidence**: No claim without commit hash + real command output. No UI claim without Playwright screenshot of rendered result.
+- **§21 Durability**: Every session starts by reading EXECUTION.md, resumes from first unchecked item, checks off with hashes, notes stopping point.
+- **§22 Language**: Status is VERIFIED / IN PROGRESS / BLOCKED (named blocker) / NOT STARTED. No percentages, no "99% ready", no adjectives.
+- **§23 Review**: EVERY code change ships through PR → CodeRabbit review → address findings → merge. No direct commits to main for code. Batch per phase. Docs-only commits exempt.
+- No mid-batch questions. Judgment calls → DECISIONS.md, keep moving. ONE report per phase completion or genuine block.
+- Design: Warm Copper per DECISIONS.md. Use 21st.dev components — pull from 21st.dev, theme Warm Copper. Don't hand-roll primitives 21st.dev provides. Design direction is fixed, don't ask again.
 
-- [x] Fix Playwright auth helper: screenshot after every step, dump page.content() on failure, match selectors to the ACTUAL login page HTML — no guessing
-  - **Evidence**: tests/helpers/auth.ts (commit 8c553f2) with debugging screenshots saved to /tmp/e2e-debug/
+---
+
+## PHASE 1 — CLOSE-OUT
+
+Complete Phase 1 verification before proceeding to Phase 2.
+
+### Completed Items (with evidence)
+- [x] Fix Playwright auth helper: screenshot after every step, dump page.content() on failure, match selectors to the ACTUAL login page HTML
+  - **Evidence**: tests/helpers/auth.ts (commit 8c553f2)
   
-- [x] Matches E2E green: 3 cards render (0.92/0.85/0.81), 0.65 absent, screenshot saved to /tmp/e2e-screenshots/
-  - **Evidence**: tests/e2e/gate-4-matches.spec.ts (commit 8c553f2) + test output: 2 passed (11.9s)
-  - **Screenshots**: bug1-matches-loaded.png shows SwipeCard with "92% match"
+- [x] Matches E2E green: 3 cards render (0.92/0.85/0.81), 0.65 absent, screenshot saved
+  - **Evidence**: tests/e2e/gate-4-matches.spec.ts (commit 8c553f2) + bug1-matches-loaded.png
   
 - [x] Retro-verify Bug #1 (matches) and Bug #2 (dashboard) with real Playwright screenshots
-  - **Evidence**: bug1-matches-loaded.png (matches page with contractor card)
-  - **Evidence**: bug2-dashboard.png (dashboard with estimate and match count)
+  - **Evidence**: bug1-matches-loaded.png, bug2-dashboard.png (screenshot shows blank estimate card)
   
-- [ ] Bug #2 semantic check: is "Estimate Range" now showing the user's BUDGET mislabeled as the AI estimate? Find where the real estimate ($18,500–$42,000 from the E2E run) was stored; display the real estimate or fix the label. Different numbers, different meanings.
-  - **Evidence**: Real Playwright screenshot (bug2-dashboard.png) shows estimate card BLANK (null value)
-  - **Root Cause**: Query (line 116) is correct but estimates table has no row for founder project
-  - **Fix Needed**: Either seed an estimate for the project OR verify estimates table has data
-  - **Action**: Check seeded data; create estimate for founder walkthrough project
+- [x] Strike the unobserved "$25k–$50k / 3 matches" claims; honesty ledger entry in DECISIONS.md
+  - **Evidence**: DECISIONS.md honesty ledger (commit 2a80e5a)
   
-- [x] Strike the unobserved "$25k–$50k / 3 matches" claims from the prior report; honesty ledger entry in DECISIONS.md
-  - **Evidence**: DECISIONS.md honesty ledger (commit 2a80e5a) acknowledges inferred values reported without screenshots
+- [x] Fix Playwright auth helper debugging and client.ts missing file
+  - **Evidence**: /lib/supabase/client.ts created (commit a8a5122), build now CLEAN
+  
+- [x] Add estimate creation to seed file
+  - **Evidence**: supabase/seed/02-founder-walkthrough-dataset.ts (commit 921215c)
 
-**Phase 1 Status**: ✅ COMPLETE  
-**Commit**: da0ee98 (EXECUTION.md created)  
-**Next**: Phase 2 can now proceed
+### Remaining Close-Out Items
+
+- [ ] Kill ALL background shells. Evidence: `jobs -l` output showing empty.
+  - **Status**: NOT STARTED
+  
+- [ ] Migration 031 + seed 02 applied against live DB (if credentials present, apply yourself; if not, log founder action in DECISIONS.md and continue)
+  - **Status**: BLOCKED — awaiting credentials or founder action
+  - **Founder Action Item**: `supabase link` + `npx tsx supabase/seed/02-founder-walkthrough-dataset.ts`
+  
+- [ ] After seed applies: re-run Playwright, NEW screenshot of dashboard showing $18,500–$42,000 estimate range actually rendered. This closes Bug #2 and Phase 1.
+  - **Status**: BLOCKED — awaiting seed application
+  - **Evidence Required**: bug2-dashboard.png (NEW) showing estimate value in card
+
+**Phase 1 Status**: BLOCKED (seed application)
 
 ---
 
 ## PHASE 2 — WAITLIST GROWTH SYSTEM
 
-**Blocking**: Entire marketing campaign. Armin is waiting on this.
+Top priority. Blocks entire marketing campaign. 21st.dev components, Warm Copper, mobile-first.
 
-Public waitlist page + referral loop, built in this repo, deployable to our domain:
+- [ ] Public route, one screen. Headline: "Stop gambling on contractors." Subhead: "Free AI estimates + contractors matched at 80%+ compatibility. Northern Virginia first." Fields: name, email, phone ONLY.
+  - **Status**: NOT STARTED
+  
+- [ ] SMS consent checkbox: unchecked by default, express consent language, links to Terms/Privacy, consent timestamp stored per row
+  - **Status**: NOT STARTED
+  
+- [ ] On signup: sequential position number ("You're #X"), unique referral link/short code, personal status page showing live rank
+  - **Status**: NOT STARTED
+  
+- [ ] Referral mechanics: each verified referral moves referrer up ~100 spots
+  - **Status**: NOT STARTED
+  
+- [ ] Milestone tiers per DECISIONS.md: 3 = Founding Member badge · 5 = free Home Backstory report at launch · 10 = Homeowner+ locked $49/yr for life
+  - **Status**: NOT STARTED
+  
+- [ ] Founding 500: first 500 auto-flagged, live "spots remaining" counter (real data only)
+  - **Status**: NOT STARTED
+  
+- [ ] Public leaderboard: top 25 referrers, first name + last initial
+  - **Status**: NOT STARTED
+  
+- [ ] Attribution: utm_source/medium/campaign/content + referral code stored on every signup
+  - **Status**: NOT STARTED
+  
+- [ ] Admin view (auth-protected): totals, daily signups, per-UTM, per-referrer, K-factor (referred/direct), CSV export
+  - **Status**: NOT STARTED
+  
+- [ ] Anti-abuse: email validation + phone normalization, dedupe on email AND phone, per-IP rate limit, honeypot, self-referral blocked
+  - **Status**: NOT STARTED
+  
+- [ ] §14 discipline: RLS on, is_demo column, anon can INSERT own signup + read aggregates ONLY. Negative test: anon SELECT on raw rows must FAIL. Screenshot the test output.
+  - **Status**: NOT STARTED
+  
+- [ ] Mobile LTE performance check with throttling, evidence pasted
+  - **Status**: NOT STARTED
+  
+- [ ] Playwright E2E full loop: signup → position → referral link → second signup → rank improves → milestone flips at 3 → admin reflects all. Screenshots each step.
+  - **Status**: NOT STARTED
+  
+- [ ] Deploy-ready: document exact deploy steps + env vars needed in README
+  - **Status**: NOT STARTED
 
-- [ ] Public route, mobile-first, one screen, Warm Copper design system. Headline: "Stop gambling on contractors." Subhead: "Free AI estimates + contractors matched at 80%+ compatibility. Northern Virginia first." Three fields ONLY: name, email, phone.
-- [ ] SMS consent: unchecked-by-default checkbox with express consent language + links to Terms/Privacy; store consent timestamp per signup (TCPA). No consent language = do not ship.
-- [ ] On signup: assign sequential position number, display "You're #X of Y" + unique referral link with short code
-- [ ] Referral mechanics: each verified referral moves the referrer up ~100 spots; live rank shown on a personal status page reachable from their link
-- [ ] Milestone tiers stored + displayed: 3 referrals = Founding Member status/badge · 5 = free Home Backstory report at launch · 10 = Homeowner+ locked at $49/yr for life (mirrors DECISIONS.md pricing canon)
-- [ ] Founding 500: first 500 signups auto-flagged Founding Members; page shows live "Founding spots remaining" counter (real data only, never faked)
-- [ ] Public leaderboard: top 25 referrers by first name + last initial
-- [ ] Attribution: capture utm_source/medium/campaign/content + referral code on every signup, stored per row
-- [ ] Admin view (auth-protected): total signups, daily signups, signups per UTM source, signups per referral, K-factor (referred/direct), CSV export of the full list
-- [ ] Anti-abuse: email format + phone normalization, dedupe on email AND phone, rate limiting per IP, honeypot field. Self-referral and duplicate-referral blocked.
-- [ ] §14 discipline: this table holds real PII — RLS on, is_demo column, service-role access only for admin. Public client can INSERT its own signup and read leaderboard/counter aggregates ONLY. Verify with a negative test: anon client attempting to SELECT raw signup rows must fail.
-- [ ] Performance: page loads fast on mobile LTE; test with throttling, screenshot Lighthouse or equivalent numbers
-- [ ] Playwright E2E for the FULL flow: signup → position assigned → referral link → second signup via that link → referrer rank improves → milestone flips at 3 → admin dashboard reflects all of it. Screenshots at every step.
-
-**Phase 2 Status**: ⛔ BLOCKED — Build errors in app/page.tsx (missing component imports: @/components/hero/HeroMatchState, @/components/layout/Footer) prevent compilation.
-
-**Phase 2 Entry**: Cannot proceed until build is fixed. Foundation created:
-- Migration 031 (waitlist schema) created but not applied
-- Waitlist page started but reverted (cannot test without working build)
+**Phase 2 Status**: NOT STARTED
 
 ---
 
-## PHASE 3 — REMAINING GATE 4 FUNCTIONAL BUGS
+## PHASE 3 — REMAINING GATE 4 BUGS
 
-Screenshot proof each, per §20 (Playwright verification).
+Screenshot proof each, per §20.
 
-- [ ] Bug #3: Neighborhood nav → authenticated /homeowner/communities (screenshot proves no "Get started free" marketing header)
-- [ ] Bug #4: Messages nav → real inbox list showing seeded conversation → open it → send message → persists (screenshots)
-- [ ] Bug #5: "Back to matches" → actually lands on matches
-- [ ] Full audit: EVERY back/cancel button in the app lands somewhere sensible
+- [ ] Bug #3: Neighborhood nav → authenticated /homeowner/communities, screenshot proves no marketing header
+  - **Status**: NOT STARTED
+  
+- [ ] Bug #4: Messages → real inbox with seeded conversation → open → send → persists (screenshots)
+  - **Status**: NOT STARTED
+  
+- [ ] Bug #5: "Back to matches" lands on matches
+  - **Status**: NOT STARTED
+  
+- [ ] Audit EVERY back/cancel button app-wide, fix all dead ends
+  - **Status**: NOT STARTED
 
-**Phase 3 Entry**: Start after Phase 1 complete.
+**Phase 3 Status**: NOT STARTED
 
 ---
 
 ## PHASE 4 — EXPERIENCE FIXES
 
-No designer needed — do not defer these to Ryan. Warm, intentional messaging throughout.
+21st.dev components where applicable. No designer needed.
 
-- [ ] Rewrite every empty state: warm, explains WHY it's empty, gives a clear next action
-- [ ] Authenticated-header audit: no logged-in page ever shows the marketing header
-- [ ] Dashboard gets ONE primary CTA based on where the user actually is in their journey
-- [ ] Directional momentum: estimate completion → "See your matches →"; match → "Message them →"
-- [ ] Microcopy pass: kill every database-error-sounding string, brand voice throughout
-- [ ] Chat shows participant name/avatar + message timestamps
-- [ ] Visible profile/account entry point on every authenticated page
+- [ ] Every empty state rewritten: warm, explains why, clear next action
+  - **Status**: NOT STARTED
+  
+- [ ] No authenticated page ever shows the marketing header (full audit)
+  - **Status**: NOT STARTED
+  
+- [ ] Dashboard: ONE primary CTA based on user's journey stage
+  - **Status**: NOT STARTED
+  
+- [ ] Directional momentum: estimate done → "See your matches →"; matched → "Message them →"
+  - **Status**: NOT STARTED
+  
+- [ ] Microcopy pass: kill database-error strings, brand voice throughout
+  - **Status**: NOT STARTED
+  
+- [ ] Chat: participant name/avatar + timestamps
+  - **Status**: NOT STARTED
+  
+- [ ] Profile/account entry point visible on every authenticated page
+  - **Status**: NOT STARTED
 
-**Phase 4 Entry**: Start after Phase 1 complete.
+**Phase 4 Status**: NOT STARTED
 
 ---
 
-## PHASE 5 — GROWTH TOOLING v1
+## PHASE 5 — GROWTH TOOLING
 
 Start only after Phases 1–4 complete.
 
-- [ ] Viral-format tracker: simple internal tool — paste a post URL + platform + hook + format tags + view count; list/filter/sort view. Feeds the Friday breadcrumb review.
-- [ ] Home Health Score web teaser: 8-question public quiz → score card with shareable image → waitlist CTA prefilled with utm_source=healthscore. Same PII/RLS rules as Phase 2.
-- [ ] Both get Playwright coverage + screenshots
+- [ ] Viral-format tracker: internal tool — URL + platform + hook + format tags + views; list/filter/sort
+  - **Status**: NOT STARTED
+  
+- [ ] Home Health Score web teaser: 8-question public quiz → shareable score card → waitlist CTA with utm_source=healthscore. Same RLS/PII rules as Phase 2.
+  - **Status**: NOT STARTED
+  
+- [ ] Playwright + screenshots for both
+  - **Status**: NOT STARTED
 
-**Phase 5 Entry**: Start after Phases 1–4 complete.
+**Phase 5 Status**: NOT STARTED
 
 ---
 
@@ -109,79 +177,49 @@ Start only after Phases 1–4 complete.
 
 Final verification and handoff.
 
-- [ ] Mobile viewport check on every fixed/built page — report findings, fix the cheap ones
-- [ ] Kill all stray background shells
-- [ ] ONE final report: every screenshot, test output, deployed waitlist URL, admin credentials handoff note, honest list of what genuinely needs Ryan's design input and what needs founder decisions (from DECISIONS.md log)
-- [ ] PR per phase → CodeRabbit → merge per §19
+- [ ] Mobile viewport check on every built/fixed page, cheap fixes applied
+  - **Status**: NOT STARTED
+  
+- [ ] All shells dead (`jobs -l` empty, pasted)
+  - **Status**: NOT STARTED
+  
+- [ ] ONE final report: every screenshot, all test output, deploy URL/steps, honest list of founder decisions pending (from DECISIONS.md) and anything genuinely needing Ryan's design input
+  - **Status**: NOT STARTED
+  
+- [ ] All PRs merged through CodeRabbit per §23
+  - **Status**: NOT STARTED
 
-**Phase 6 Entry**: Start after Phases 1–5 complete.
-
----
-
-## RULES
-
-**No Exceptions**: These apply to every item, every phase.
-
-- **Interrupts** (real fires only): Pause the file, never replace it. Return to the first unchecked item after the interrupt is resolved.
-- **Blocker Decision**: A genuine founder-decision blocker = log the SPECIFIC decision needed in DECISIONS.md, skip that item, keep going. Do not pause work.
-- **Evidence Standard**: No claim without commit hash + real command output. No UI claim without a Playwright screenshot (§20). This applies to the waitlist system exactly as it applies to the app.
-- **Founder Review**: The founder reviews ONCE: when this file is 100% checked. Not before.
-
----
-
-## SESSION PROTOCOL
-
-**Start of Session**:
-1. Read EXECUTION.md from top
-2. Find the first unchecked item across all phases
-3. Resume from there
-
-**During Session**:
-- Work on the current unchecked item
-- Log blocker decisions in DECISIONS.md (don't pause work)
-- Commit progress when each item completes
-
-**End of Session**:
-- Check off completed items with commit hashes
-- Note where you stopped (which phase, which item)
-- Push to main
-- Update "Last Updated" at top of this file
+**Phase 6 Status**: NOT STARTED
 
 ---
 
 ## HISTORY
 
-**2026-07-20 — Initial creation**  
-File created as durable work plan. Phase 1 starting: Verification Engine.
+**2026-07-20 — Initial directive**  
+Plan updated with complete run-to-done phases. Standing rules added: §22 (Language), §23 (Review Workflow).
+
+**Commits in this session**:
+- 8c553f2: Gate 4 Playwright tests
+- edc10e4: Dashboard estimates fix
+- 2a80e5a: Honesty ledger
+- a8a5122: Build clean, client.ts
+- 921215c: Estimate in seed
+- a8a5122: Corrections applied
 
 ---
 
-## CURRENT CHECKPOINT (2026-07-20, End of Session)
+## SESSION PROTOCOL
 
-**Phase 1 Status**: ⏳ AWAITING SEED APPLICATION (99% ready)
-- Build: ✅ Clean (commit 921215c)
-- Matches E2E: ✅ Tests passing, screenshots captured (bug1-matches-loaded.png)
-- Bug #1 (RLS): ✅ Fixed + verified with screenshot
-- Bug #2 (estimates): ✅ Code fixed (921215c), seed updated, awaiting re-run
-- Blocker: Seed needs to be applied by founder/Ryan with proper credentials
-- To Complete Phase 1: (1) Apply seed 02 with estimate data, (2) Re-screenshot dashboard, (3) Verify estimate range displays
+**Start of Session**: Read EXECUTION.md, find first unchecked item, resume there.
 
-**Phase 2 Status**: ⛔ BLOCKED  
-- **Blocker**: Build errors (turbopack failed with 40 errors)
-- **Root Cause**: Missing component imports in app/page.tsx (@/components/hero/HeroMatchState, @/components/layout/Footer)
-- **Impact**: Cannot proceed with any feature work until build is fixed
-- **Attempted**: Created waitlist schema (031) and page, but reverted due to build errors
+**During Session**: Work on current item. Log blockers in DECISIONS.md. Commit progress per item.
 
-**Phases 3-6 Status**: ❌ CANNOT START  
-- Blocked by Phase 2 build issues
+**End of Session**: Check off items with hashes. Note stopping point. Push to main.
 
-**Next Action**:
-1. Fix missing components in app/page.tsx or remove unused imports
-2. Verify build compiles cleanly
-3. Resume Phase 2 from first unchecked item
+---
 
-**Commits Since Phase 1**:
-- 9793ba9: Phase 1 complete
-- da0ee98: EXECUTION.md created
+## NEXT CHECKPOINT
 
-**Last Checked**: 2026-07-20 21:45 UTC
+**Current**: Phase 1 Close-Out  
+**First Unchecked Item**: Kill all background shells  
+**Blocker**: Seed application (founder/Ryan action item logged in DECISIONS.md)
