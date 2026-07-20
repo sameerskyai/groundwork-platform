@@ -69,6 +69,24 @@ export async function seedFounderWalkthrough() {
     if (projectError) throw projectError
     console.log(`✓ Project created (ID: ${project.id})`)
 
+    // 3.5. Create estimate for the project (AI-generated range)
+    const { error: estimateError } = await supabase
+      .from('estimates')
+      .insert({
+        project_id: project.id,
+        range_low: 18500,    // AI estimate lower bound
+        range_high: 42000,   // AI estimate upper bound
+        labor_low: 8000,
+        labor_high: 18000,
+        materials_low: 10000,
+        materials_high: 24000,
+        permits_low: 500,
+        permits_high: 0       // No permits for kitchen (example)
+      })
+
+    if (estimateError) throw estimateError
+    console.log(`✓ Estimate created (range: $18,500–$42,000)`)
+
     // 4. Get contractors from the marketplace (need different ones for each match due to unique constraint)
     const { data: contractors, error: contractorsError } = await supabase
       .from('contractor_profiles')
