@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/Input'
 import { ChevronRight, CheckCircle2 } from 'lucide-react'
 
-export default function WaitlistPage() {
+function WaitlistContent() {
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
@@ -263,5 +263,13 @@ export default function WaitlistPage() {
         </div>
       </footer>
     </div>
+  )
+}
+
+export default function WaitlistPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <WaitlistContent />
+    </Suspense>
   )
 }
