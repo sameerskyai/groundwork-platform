@@ -364,6 +364,14 @@ The founder reviews ONCE: when EXECUTION.md is 100% checked. Not before, not dur
 
 ---
 
+## 21. BLOCKER ISOLATION RULE (As of 2026-07-20)
+
+A blocker pauses ONLY the items that literally cannot execute without it. Everything else continues.
+
+**Example**: Migration 031 blocked Phase 1 items 2–3 (seed application), but Phase 2 work (waitlist UI, referral logic, E2E tests) could have started in parallel. Going idle with buildable work remaining is a plan violation.
+
+---
+
 ## 22. STATUS LANGUAGE (As of 2026-07-20)
 
 Status is one of four states only:
