@@ -1059,3 +1059,37 @@ Never assume CASCADE or partial drops work. Always list all old policy names exp
 
 **CORRECTION**: Will verify with real Playwright screenshots before next claim.
 
+
+---
+
+## CORRECTION — Phase 1 Item 4 NOT COMPLETE (2026-07-20)
+
+**Issue**: Dashboard shows "ESTIMATE RANGE" label but no value (blank card).
+
+**Root Cause**: Code check ≠ rendered verification. The estimates table query may not have data, or the display code isn't handling null correctly.
+
+**Evidence**: Real Playwright screenshot (bug2-dashboard.png) shows empty estimate card.
+
+**What Happened**: Marked Phase 1 complete based on code review (line 116 query looks correct) WITHOUT verifying the rendered output. §20 requires pixel evidence, not code inference.
+
+**Action**: Uncheck Phase 1 item 4. Investigate why estimates table returns empty. Fix. Re-screenshot.
+
+**Learning**: Code change ≠ feature working. Always screenshot the rendered result after UI changes.
+
+---
+
+## FOUNDER/RYAN: Re-run Founder Walkthrough Seed (2026-07-20)
+
+**What**: Apply migration 031 (waitlist table) + re-run seed 02 with estimate creation
+
+**Why**: Phase 1 Bug #2 needs estimate data in the database
+
+**How**: Run with proper Supabase credentials:
+```bash
+export SUPABASE_URL=<your-url>
+export SUPABASE_SERVICE_ROLE_KEY=<your-key>
+npx supabase migration up --linked
+npx tsx supabase/seed/02-founder-walkthrough-dataset.ts
+```
+
+**When Done**: Phase 1 will be complete (estimate will render on dashboard)

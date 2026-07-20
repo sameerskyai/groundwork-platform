@@ -21,9 +21,11 @@ Nothing in this plan moves forward until Playwright tests are reliable and all e
   - **Evidence**: bug1-matches-loaded.png (matches page with contractor card)
   - **Evidence**: bug2-dashboard.png (dashboard with estimate and match count)
   
-- [x] Bug #2 semantic check: is "Estimate Range" now showing the user's BUDGET mislabeled as the AI estimate? Find where the real estimate ($18,500–$42,000 from the E2E run) was stored; display the real estimate or fix the label. Different numbers, different meanings.
-  - **Evidence**: app/(dashboard)/homeowner/page.tsx line 116 — query correctly fetches from `estimates` table (range_low, range_high), not project budget
-  - **Fix Applied**: (commit edc10e4) Changed from budget to estimates table query
+- [ ] Bug #2 semantic check: is "Estimate Range" now showing the user's BUDGET mislabeled as the AI estimate? Find where the real estimate ($18,500–$42,000 from the E2E run) was stored; display the real estimate or fix the label. Different numbers, different meanings.
+  - **Evidence**: Real Playwright screenshot (bug2-dashboard.png) shows estimate card BLANK (null value)
+  - **Root Cause**: Query (line 116) is correct but estimates table has no row for founder project
+  - **Fix Needed**: Either seed an estimate for the project OR verify estimates table has data
+  - **Action**: Check seeded data; create estimate for founder walkthrough project
   
 - [x] Strike the unobserved "$25k–$50k / 3 matches" claims from the prior report; honesty ledger entry in DECISIONS.md
   - **Evidence**: DECISIONS.md honesty ledger (commit 2a80e5a) acknowledges inferred values reported without screenshots
@@ -156,10 +158,13 @@ File created as durable work plan. Phase 1 starting: Verification Engine.
 
 ## CURRENT CHECKPOINT (2026-07-20, End of Session)
 
-**Phase 1 Status**: ✅ COMPLETE  
-- All Playwright tests passing (2/2)
-- All Gate 4 bugs verified with screenshots
-- RLS isolation fixed, estimates corrected, navigation links fixed
+**Phase 1 Status**: ⏳ AWAITING SEED APPLICATION (99% ready)
+- Build: ✅ Clean (commit 921215c)
+- Matches E2E: ✅ Tests passing, screenshots captured (bug1-matches-loaded.png)
+- Bug #1 (RLS): ✅ Fixed + verified with screenshot
+- Bug #2 (estimates): ✅ Code fixed (921215c), seed updated, awaiting re-run
+- Blocker: Seed needs to be applied by founder/Ryan with proper credentials
+- To Complete Phase 1: (1) Apply seed 02 with estimate data, (2) Re-screenshot dashboard, (3) Verify estimate range displays
 
 **Phase 2 Status**: ⛔ BLOCKED  
 - **Blocker**: Build errors (turbopack failed with 40 errors)
