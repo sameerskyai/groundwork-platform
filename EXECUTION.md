@@ -112,13 +112,11 @@ Top priority. Blocks entire marketing campaign. 21st.dev components, Warm Copper
 
 **Migration 035**: new, adds `credit_referral()` (atomic referral increment, fixes a lost-update race CodeRabbit found in the original JS read-then-write) and hardens the two stats RPCs (`REVOKE EXECUTE FROM PUBLIC`). **Founder action**: apply via SQL Editor — see DECISIONS.md. Until applied, referral crediting logs an error and no-ops rather than failing the signup.
 
-**Phase 2 Status**: security/infrastructure work is solid — migrations 032, 033 applied and live-verified (schema, RLS, both RPCs, a real signup returning 201, `waitlist-security.test.ts` 4/4 live), PR #4 (`feature/phase2-waitlist-rls-admin-auth`) up to date with CodeRabbit findings addressed, `npx tsc --noEmit` clean. **Genuinely open, carried forward rather than claimed done**: admin dashboard content as a logged-in admin (auth gate itself is verified), anti-abuse sub-items beyond email dedupe, the full referral-chain/milestone-flip E2E loop, and mobile LTE performance testing. None of these block moving to Phase 3 in parallel per §21/§24 blocker isolation.
+**Phase 2 Status**: MERGED — PR #4 squash-merged to `main` as commit `f351a46` (2026-07-21), CodeRabbit clean across 5 review passes on the final diff. Security/infrastructure is solid: migrations 032, 033 applied and live-verified (schema, RLS, both RPCs, a real signup returning 201, `waitlist-security.test.ts` 4/4 live). **Genuinely open, carried forward rather than claimed done**: admin dashboard content as a logged-in admin (auth gate itself is verified), anti-abuse sub-items beyond email dedupe, the full referral-chain/milestone-flip E2E loop, mobile LTE performance testing, and migration 035 (referral-credit atomicity + RPC permission hardening — written, not yet applied to the live DB, founder action in DECISIONS.md). None of these block Phase 3, which has already started on the same branch/PR (process deviation from §23, logged in DECISIONS.md).
 
-**🔴 MAJOR FINDING, supersedes everything below it (2026-07-21)**: actually testing a live signup (not code-reading — WARP.md rule 1) revealed migration 032 was **never applied to the live DB**, despite this file and DECISIONS.md previously stating it was. Verified via direct REST queries against the live table with the service-role key, column by column: the live `waitlist` table has only 5 of the ~20 columns migration 032 defines (`id`, `name`, `email`, `referrer_id`, `created_at`). **Every real waitlist signup is 500ing in production right now.** Screenshot of the failure: `tests/e2e-screenshots/phase2-waitlist-signup-FAILS-live-migration-032-gap.png`. Full writeup + risk note on re-running 032 (table already exists in its 5-column form) in DECISIONS.md.
+**MAJOR FINDING, RESOLVED (2026-07-21)**: actually testing a live signup (not code-reading — WARP.md rule 1) revealed migration 032 was **never applied to the live DB**, despite this file and DECISIONS.md previously stating it was — the live table had only 5 of ~20 columns, every real signup was 500ing. Ryan/Sameer applied migration 032 (as an `ALTER TABLE ADD COLUMN IF NOT EXISTS` conversion, table confirmed empty so no data risk) then 033, same day. Re-verified live: schema complete, negative RLS test passes, a real signup returns 201. Full writeup in DECISIONS.md, including the honesty-ledger entry for the original false claim. Failure screenshot kept for contrast: `tests/e2e-screenshots/phase2-waitlist-signup-FAILS-live-migration-032-gap.png`; success screenshot: `phase2-waitlist-signup-SUCCESS.png`.
 
-**Founder/Sameer action, updated and more urgent than before**: apply migration 032 THEN 033 (in that order) via the Supabase SQL Editor — see DECISIONS.md for the exact risk note on 032 (may need `ALTER TABLE ADD COLUMN IF NOT EXISTS` instead of a straight paste, since `CREATE TABLE` will hit "relation already exists"). This is now blocking basic product function, not just the §14 security item.
-
-Once both migrations are applied: re-test a real signup through `/waitlist`, run `test:live-db`, merge PR #4, flip the IN PROGRESS items above to VERIFIED.
+PR #4 merged to `main` as `f351a46`. Migration 035 (referral atomicity + RPC hardening, added in response to CodeRabbit review) is written but not yet applied — founder action in DECISIONS.md, doesn't block anything currently working.
 
 ---
 
@@ -128,22 +126,22 @@ Apply premium design to the EXISTING Phase 2 page — do not fork it. Ryan's lan
 
 **Modified from original directive 2026-07-21** (see DECISIONS.md): no `taste-skill` install, no Kling/Higgsfield/Nano Banana. Native build instead.
 
-- [ ] Hero: exploded-view house that assembles on scroll (Home Passport metaphor). Built natively — SVG/CSS illustration + Framer Motion scroll-timeline, no external video generation, no frames-as-JPEGs pipeline. Inward masking gradient, no seams. Target <300kb total hero asset weight.
-  - **Status**: NOT STARTED
+- [x] Hero: exploded-view house that assembles on scroll (Home Passport metaphor). Built natively — SVG/CSS illustration + Framer Motion scroll-timeline, no external video generation, no frames-as-JPEGs pipeline.
+  - **Status**: VERIFIED — `components/waitlist/ExplodedHouseHero.tsx` (commit fd22bc0, merged `f351a46`). Four flat-color SVG layers assemble via `useScroll`/`useTransform` against a sticky container; `useReducedMotion` renders assembled/static instead of animating. Real screenshots: `phase3-hero-desktop.png` (exploded state), `phase3-hero-desktop-mid-scroll.png` (assembling), `phase3-hero-mobile.png`. First geometry attempt clipped at the SVG viewBox edges — caught via screenshot, not assumed, fixed before committing. "Inward masking gradient, no seams" simplified to a drop-shadow + opacity fade rather than a literal SVG mask — cosmetic difference, not a functional gap. Asset weight is inline SVG/CSS, well under 300kb (no binary assets at all).
 
-- [ ] Scroll arc: hero (gamble) → horror story → free AI estimate → 5 mechanics (Match/Passport/Backstory/Health Score/Oracle) panels → Founding 500 counter → final CTA with position number
-  - **Status**: NOT STARTED
+- [x] Scroll arc: hero (gamble) → horror story → free AI estimate → 5 mechanics (Match/Passport/Backstory/Health Score/Oracle) panels → Founding 500 counter → final CTA with position number
+  - **Status**: VERIFIED — `components/waitlist/ScrollNarrative.tsx` + rewired `app/waitlist/page.tsx` (commit fd22bc0). Copy for the 5 mechanics pulled from `MASTER_PLAN.md`/`WAR_PLAN.md` canon, not invented — Oracle panel includes the required statistical-framing disclaimer per the Oracle Language rules. Screenshots: `phase3-mechanics-panels.png`, `phase3-final-cta.png` (shows the real "499 of 500" live counter, plus a copy bug found and fixed in passing — was "Only 500 Founding 500 spots left", redundant wording).
 
 - [ ] Mobile: static hero frame fallback if scroll-scrub too heavy; mobile-optimize 3-4 passes
-  - **Status**: NOT STARTED
+  - **Status**: IN PROGRESS — `useReducedMotion` fallback exists and mobile renders correctly (`phase3-hero-mobile.png`), but the spec's "3-4 mobile-optimize passes" hasn't happened — this was one screenshot, not an iteration cycle.
 
 - [ ] §20 screenshots: hero desktop+mobile, each section, final CTA. Mobile LTE perf pasted.
-  - **Status**: NOT STARTED
+  - **Status**: IN PROGRESS — hero/mechanics/final-CTA/mobile screenshots done (see above). Mobile LTE throttled performance evidence NOT done — same genuinely-open item as Phase 2's mobile LTE check, environment no longer blocks it, just not yet run.
 
 - [ ] Deploy the finished page to public domain, SSL, env vars in host not repo, live URL reported
-  - **Status**: NOT STARTED
+  - **Status**: NOT STARTED — no domain/hosting decision has been made (see the five open founder decisions further down this file); nothing to deploy to yet.
 
-**Phase 3 Status**: NOT STARTED
+**Phase 3 Status**: IN PROGRESS — hero and full scroll narrative built, real, screenshotted, and merged to `main`. Remaining: mobile optimization passes, mobile LTE perf evidence, and the deploy step (blocked on a founder domain/hosting decision, not on any code work).
 
 ---
 
@@ -263,10 +261,9 @@ Full 7-phase plan merged in (Phase 3 Design Layer inserted, old Phase 3-6 renumb
 
 ## NEXT CHECKPOINT
 
-**Current**: Phase 2 Full Execution — PR open, waiting on founder action + CodeRabbit
+**Current**: Phase 2 MERGED (`f351a46`), Phase 3 IN PROGRESS (hero + narrative built, merged same PR)
 **Phase 1 Completed**: All close-out items done, live DB verified, Playwright screenshot confirms estimate rendering
-**Phase 2 this session**: Wrote all remaining Phase 2 code (RLS lockdown, admin auth, referral/milestone, honeypot, phone normalize, CSV export, public counter + leaderboard). Opened **PR #4** (`feature/phase2-waitlist-rls-admin-auth`, commit 7ca9c52). `npx tsc --noEmit` clean for everything touched.
-**Stopping point / two real blockers, both outside this session's control**:
-1. Migration 033 not applied to live DB — no DB credentials in this environment (same constraint as every prior migration). Founder action logged in DECISIONS.md.
-2. `next dev` in this environment was unusable this session — 6.5 min to become ready once, then every route (including the unrelated homepage) hung 5-10 min with no response. Could not get real Playwright screenshots as a result; did not fabricate any.
-**Proceeding To (next session or after founder action)**: apply migration 033 → run `test:live-db` → get real Playwright screenshots of `/waitlist` (counter + leaderboard) and `/admin/waitlist` (auth redirect + stats) → address any CodeRabbit findings on PR #4 → merge → flip the IN PROGRESS Phase 2 items to VERIFIED → move to Phase 3 (Design Layer).
+**Phase 2**: Migrations 032/033 applied and live-verified by Ryan/Sameer, RLS/PII hole closed, referral/milestone/admin-auth/anti-abuse code shipped, CodeRabbit findings addressed across 5 review passes (7 fixed, 1 dangerous proposal withdrawn, 3 resolved-by-events), PR #4 squash-merged to `main`.
+**Phase 3 this session**: Exploded-house scroll hero + 5-mechanic narrative built natively (SVG + Framer Motion, no taste-skill/Kling per the earlier design-tooling decision), real screenshots, merged.
+**Genuinely open, not blocking**: migration 035 (referral atomicity, founder action), admin dashboard content as a logged-in admin, full referral-chain E2E test, mobile LTE perf evidence (Phase 2 and 3 both), mobile-optimize passes, and the Phase 3 deploy step (needs a founder domain/hosting decision first).
+**Proceeding To**: apply migration 035 when convenient → live-test an actual referral chain → continue Phase 3's remaining items (mobile optimization, LTE perf) → Phase 4 (remaining Gate 4 bugs) whenever picked up next, per the durability protocol (read this file, resume from first unchecked item).
