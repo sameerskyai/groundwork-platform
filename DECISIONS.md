@@ -1148,17 +1148,17 @@ npx tsx supabase/seed/02-founder-walkthrough-dataset.ts
 
 ---
 
-## FOUNDER/RYAN OR SAMEER ACTION: Apply Migrations 032 AND 033, in order (2026-07-21, updated after live verification below)
+## FOUNDER/RYAN OR SAMEER ACTION: Apply Migrations 032, 033, 035, in order (2026-07-21, updated twice — migrations 032+033 now confirmed APPLIED, 035 is new)
 
-**Updated**: this originally said "apply 033" only. After actually testing a live signup (not just reading code), found migration 032 was never really applied either — see the MAJOR FINDING entry below. Both are needed, 032 first.
+**Status as of this update**: 032 and 033 were applied and live-verified earlier today (see MAJOR FINDING entry and the VERIFIED LIVE items in EXECUTION.md's Phase 2 section — real signup returns 201, negative RLS test passes). **Migration 034 should NOT be applied — it's a documented no-op, see its file header.** What's left is migration 035, written in response to CodeRabbit review of PR #4.
 
-**What**: Apply, in this exact order:
-1. `supabase/migrations/032_waitlist_table.sql` — the live table currently only has 5 of ~20 columns this migration defines (confirmed via direct REST query with the service-role key). Every real signup is 500ing right now because of this.
-2. `supabase/migrations/033_waitlist_rls_lockdown.sql` — fixes the PII exposure (anon could SELECT raw waitlist rows) and adds the `get_waitlist_public_stats()` / `get_waitlist_leaderboard()` functions the redesigned public waitlist page calls.
+**What**: Apply `supabase/migrations/035_waitlist_hardening.sql` via the Supabase SQL Editor (same project ref as before, confirmed correct). It:
+1. Revokes the default PUBLIC execute grant on `get_waitlist_public_stats()`/`get_waitlist_leaderboard()` (033 granted anon/authenticated but never revoked PUBLIC first).
+2. Adds `credit_referral()` — an atomic replacement for the referral position-boost/milestone logic that was previously a JS read-then-write race in `route.ts`. Until this is applied, the RPC call will return an error that `route.ts` checks and logs (`console.error`) without failing the signup itself — so referral crediting silently no-ops rather than erroring the request, since the RPC doesn't exist yet.
 
-**Why**: (1) is currently blocking signups in production entirely — more urgent than the §14 issue. (2) closes the §14 PII violation and unblocks the founding-500 counter / leaderboard (they fail closed, not crash, until this runs).
+**Why**: (2) is the more important one — without it, referral credit silently no-ops instead of racing, which is safe but means the referral mechanic doesn't actually work at all until this runs.
 
-**Risk note on running 032 now**: `CREATE TABLE waitlist (...)` will fail with "relation already exists" since the table is already there in its 5-column form. Before pasting 032 as-is, either (a) confirm the live table truly has zero rows (verified empty as of this writing, so a drop+recreate is safe), or (b) convert it to `ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS ...` for each missing column instead of a straight paste. Whoever runs this should re-check row count first (`select count(*) from waitlist`) in case a real signup landed between now and then.
+**Original context (032/033), for the record**: 032 previously blocked all signups (500 errors) because the live table only had 5 of ~20 columns it defines; 033 closed a real PII exposure (anon could SELECT raw waitlist rows) and added the two stats/leaderboard RPCs.
 
 **How**: No DB password or Supabase personal access token is available in this environment (same constraint noted for prior migrations) — paste directly into the Supabase SQL Editor:
 ```
@@ -1166,7 +1166,7 @@ https://app.supabase.com/project/dhmxxywdsdxzzcuezztv/sql/new
 ```
 Confirmed this is the correct, live, reachable project ref for `sameerskyai/groundwork-platform` (verified via direct REST calls this session, matches `.env.local`'s `NEXT_PUBLIC_SUPABASE_URL`).
 
-**After applying both**: run `npm run test:live-db -- __tests__/waitlist-security.test.ts` and paste the raw output into EXECUTION.md, then re-test a real signup through `/waitlist` to confirm it no longer 500s.
+**After applying 035**: run `npm run test:live-db -- __tests__/waitlist-security.test.ts` (already 4/4 passing without 035 — this just confirms nothing regressed), then live-test an actual referral chain (sign up A, sign up B via A's referral link, confirm A's position dropped ~100 and `verified_referral_count` incremented) to close the last open Phase 2 checklist item in EXECUTION.md.
 
 ---
 
