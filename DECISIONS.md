@@ -1185,3 +1185,15 @@ Confirmed this is the correct, live, reachable project ref for `sameerskyai/grou
 **Fix**: migration 032 must be applied to the live DB before migration 033 can do anything (033 only revokes grants and adds RPCs on top of columns 032 creates — it's a no-op / will itself fail if 032 hasn't run). Founder action updated below to apply both, in order.
 
 **Status**: BLOCKS the entire Phase 2 signup flow, not just the §14 item. This is the most urgent open item in EXECUTION.md as of this finding.
+
+---
+
+## HONESTY LEDGER: "Migration 032 applied" claimed repeatedly, never true (2026-07-21)
+
+**INCIDENT**: `EXECUTION.md`, this file's own prior entries, and `ONBOARDING_RYAN.md` all stated migration 032 (the waitlist table) was "applied" / "Database: Migration 032 applied" — as recently as the 2026-07-20 session that built Phase 2's API/UI/admin dashboard on top of that assumption. It was never true. Live verification on 2026-07-21 (direct REST queries against the service-role key, column by column) found the live table had only 5 of ~20 columns the migration defines, and a real signup through the live UI 500'd as a result.
+
+**STATEMENT**: Reported a schema/migration state as applied based on the migration file existing in the repo and the app code being written against it, not on ever having queried the live database to confirm.
+
+**WHY THIS MATTERS**: this is the exact failure mode WARP.md rule 1 and the 2026-07-20 hard-won lessons already named ("Code change ≠ feature working... reading code is not verification") — and it recurred anyway, at the schema level instead of the UI level, and went uncaught for at least one full session of feature work (Phase 2's referral/milestone/admin code was all built and reported as progress against a table that couldn't actually accept those inserts). The cost: an unknown number of real visitors may have hit `/waitlist` and gotten a silent 500 before this was caught.
+
+**CORRECTION**: `ONBOARDING_RYAN.md` line 69 corrected to reflect actual state (migrations 032 + 033 applied and live-verified 2026-07-21; 034 written, not yet applied). `EXECUTION.md` Phase 2 section corrected same day. Going forward: a migration is not "applied" in any doc until a live query against the actual table/function has been run and its real output pasted as evidence — matching an app code path referencing a table is not evidence a migration ran.
