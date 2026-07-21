@@ -1113,3 +1113,35 @@ npx tsx supabase/seed/02-founder-walkthrough-dataset.ts
 **Then**: Message Claude Code to re-run Playwright and verify Phase 1 complete
 
 **Timeline**: Before Phase 2 starts (will block on this)
+
+---
+
+## Design Tooling: taste-skill and Kling/Higgsfield/Nano Banana rejected (2026-07-21)
+
+**Directive asked for**: `npx skills add https://github.com/Leonxlnx/taste-skill --skill "high-end-visual-design"` for Phase 3, plus Kling 3.0/Higgsfield/Nano Banana for the exploded-house hero animation.
+
+**Decision**: Rejected both, second time this has come up (same refusal in a prior session on this repo).
+
+**Reasoning**:
+1. `taste-skill` is arbitrary code execution from an unvetted personal GitHub account, on a machine holding `SUPABASE_SERVICE_ROLE_KEY` and `ANTHROPIC_API_KEY` in `.env.local`. No security review, no known publisher. Not installing without Ryan separately vetting and confirming the source.
+2. Kling 3.0 / Higgsfield / Nano Banana are not available in this environment — no API access, no way to generate the video-to-frames asset pipeline described.
+
+**Action taken instead**: Build the exploded-house scroll effect natively — SVG/CSS illustration + Framer Motion scroll-timeline (already a viable dependency for Next.js 16 / React 19). No external asset generation, no third-party skill install. Design tokens (Warm Copper) and 21st.dev components used per existing DECISIONS.md direction — those remain unchanged and were never in question.
+
+**Status**: NOT BLOCKED — Phase 3 proceeds with the native approach when reached.
+
+---
+
+## SECURITY FINDING: waitlist table exposes raw PII to anon SELECT (2026-07-21)
+
+**Discovery**: Migration `032_waitlist_table.sql` includes `GRANT SELECT ON waitlist TO anon` plus a `RESTRICTIVE` policy `USING (is_demo = false)` — this permits any unauthenticated client to `SELECT *` on the live table via the Supabase REST API, returning every signup's name, email, and phone number. This violates WARP.md/EXECUTION.md §14 ("PII tables = anon INSERT-only + aggregate reads, nothing more").
+
+**Compounding issue**: `app/(dashboard)/admin/waitlist/page.tsx` has no auth/role check — it's a public route, and it currently works only because of the anon-SELECT hole above (queries the table directly from the browser client with the anon key).
+
+**Fix (tracked as part of Phase 2 §14 item, not a separate phase)**:
+- New migration: revoke `SELECT` from `anon` on `waitlist`, drop the permissive read policy.
+- Add an aggregate-only path (Postgres function or view exposing counts/leaderboard fields only — no raw email/phone) for anything the public page needs (founding-500 counter, top-25 leaderboard by first-name + last-initial).
+- Convert admin page to route through a server-side auth check (or an API route using the service-role key, gated on an authenticated admin session) instead of direct anon-key client queries.
+- Negative test added to Playwright/vitest suite: anon `SELECT` on raw `waitlist` rows must fail (403/empty), with real output pasted per §20.
+
+**Status**: BLOCKS the §14 Phase 2 checklist item until fixed. Not blocking the rest of Phase 2 (position/referral logic, milestone tiers, honeypot) — those proceed in parallel per §21 blocker isolation.
