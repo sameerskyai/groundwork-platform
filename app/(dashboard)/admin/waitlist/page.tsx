@@ -1,106 +1,85 @@
-'use client'
+import { redirect } from 'next/navigation'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
+import WaitlistAdminDashboard from './dashboard'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+export default async function WaitlistAdminPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-interface WaitlistStats {
-  total: number
-  today: number
-  founding_500: number
-  top_referrer: any
-  utm_breakdown: Record<string, number>
-}
-
-export default function WaitlistAdminPage() {
-  const [stats, setStats] = useState<WaitlistStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const supabase = createClient()
-
-  useEffect(() => {
-    async function loadStats() {
-      try {
-        // Total signups
-        const { count: total } = await supabase
-          .from('waitlist')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_demo', false)
-
-        // Today's signups
-        const today = new Date().toISOString().split('T')[0]
-        const { count: todayCount } = await supabase
-          .from('waitlist')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_demo', false)
-          .gte('created_at', today + 'T00:00:00')
-
-        // Founding 500 count
-        const { count: founding500 } = await supabase
-          .from('waitlist')
-          .select('*', { count: 'exact', head: true })
-          .eq('founding_500', true)
-          .eq('is_demo', false)
-
-        // Top referrer
-        const { data: topReferrers } = await supabase
-          .from('waitlist')
-          .select('name, verified_referral_count')
-          .eq('is_demo', false)
-          .order('verified_referral_count', { ascending: false })
-          .limit(1)
-
-        setStats({
-          total: total || 0,
-          today: todayCount || 0,
-          founding_500: founding500 || 0,
-          top_referrer: topReferrers?.[0],
-          utm_breakdown: {}
-        })
-      } catch (error) {
-        console.error('Error loading stats:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadStats()
-  }, [])
-
-  if (loading) {
-    return <div className="p-8">Loading...</div>
+  if (!user) {
+    redirect('/login')
   }
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'admin') {
+    redirect('/')
+  }
+
+  // Service-role client bypasses RLS -- safe here because the role check
+  // above already gated this route. Raw waitlist SELECT is not exposed to
+  // anon/authenticated roles (see migration 033).
+  const admin = createAdminClient()
+
+  const { count: total } = await admin
+    .from('waitlist')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_demo', false)
+
+  const today = new Date().toISOString().split('T')[0]
+  const { count: todayCount } = await admin
+    .from('waitlist')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_demo', false)
+    .gte('created_at', today + 'T00:00:00')
+
+  const { count: founding500 } = await admin
+    .from('waitlist')
+    .select('*', { count: 'exact', head: true })
+    .eq('founding_500', true)
+    .eq('is_demo', false)
+
+  const { data: topReferrers } = await admin
+    .from('waitlist')
+    .select('name, verified_referral_count')
+    .eq('is_demo', false)
+    .order('verified_referral_count', { ascending: false })
+    .limit(1)
+
+  const { data: utmRows } = await admin
+    .from('waitlist')
+    .select('utm_source')
+    .eq('is_demo', false)
+    .not('utm_source', 'is', null)
+
+  const utmBreakdown: Record<string, number> = {}
+  for (const row of utmRows ?? []) {
+    const source = row.utm_source as string
+    utmBreakdown[source] = (utmBreakdown[source] ?? 0) + 1
+  }
+
+  const { count: referredCount } = await admin
+    .from('waitlist')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_demo', false)
+    .not('referrer_id', 'is', null)
+
+  const kFactor = total && total > 0 ? (referredCount ?? 0) / total : 0
+
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">Waitlist Admin</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="p-6 rounded-lg border" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface-secondary)' }}>
-          <p style={{ color: 'var(--color-text-tertiary)' }} className="text-sm mb-2">Total Signups</p>
-          <p className="text-3xl font-bold">{stats?.total || 0}</p>
-        </div>
-
-        <div className="p-6 rounded-lg border" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface-secondary)' }}>
-          <p style={{ color: 'var(--color-text-tertiary)' }} className="text-sm mb-2">Today</p>
-          <p className="text-3xl font-bold">{stats?.today || 0}</p>
-        </div>
-
-        <div className="p-6 rounded-lg border" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface-secondary)' }}>
-          <p style={{ color: 'var(--color-text-tertiary)' }} className="text-sm mb-2">Founding 500</p>
-          <p className="text-3xl font-bold">{stats?.founding_500 || 0}</p>
-        </div>
-
-        <div className="p-6 rounded-lg border" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface-secondary)' }}>
-          <p style={{ color: 'var(--color-text-tertiary)' }} className="text-sm mb-2">Spots Remaining</p>
-          <p className="text-3xl font-bold">{Math.max(0, 500 - (stats?.founding_500 || 0))}</p>
-        </div>
-      </div>
-
-      {stats?.top_referrer && (
-        <div className="p-6 rounded-lg border" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface-secondary)' }}>
-          <h2 className="font-bold mb-2">Top Referrer</h2>
-          <p>{stats.top_referrer.name}: {stats.top_referrer.verified_referral_count} referrals</p>
-        </div>
-      )}
-    </div>
+    <WaitlistAdminDashboard
+      stats={{
+        total: total || 0,
+        today: todayCount || 0,
+        founding_500: founding500 || 0,
+        top_referrer: topReferrers?.[0] ?? null,
+        utm_breakdown: utmBreakdown,
+        k_factor: kFactor
+      }}
+    />
   )
 }

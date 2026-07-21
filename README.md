@@ -143,6 +143,15 @@ git push origin main  # Auto-deploys to Vercel
 - `ANTHROPIC_API_KEY`
 - `STRIPE_SECRET_KEY`
 
+### Waitlist system (`/waitlist`, `/api/waitlist/*`, `/admin/waitlist`)
+
+Uses the same env vars above — no additional secrets. Before this is live:
+
+1. Apply `supabase/migrations/032_waitlist_table.sql` (table) and `supabase/migrations/033_waitlist_rls_lockdown.sql` (RLS lockdown — closes a real PII exposure, see DECISIONS.md 2026-07-21) via the Supabase SQL Editor, in that order.
+2. `NEXT_PUBLIC_APP_URL` should be set to the production domain — it's used to build referral links (`route.ts` falls back to `http://localhost:3000` if unset, which would leak into production referral links).
+3. `/admin/waitlist` requires a `profiles.role = 'admin'` row for whoever needs access — same auth pattern as `/admin`.
+4. Optional: `/public/videos/groundwork-intro.mp4` — the hero has a gradient fallback if this is missing, not required to deploy.
+
 ---
 
 **Last Updated:** 2026-07-14  

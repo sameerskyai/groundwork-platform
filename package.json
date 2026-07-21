@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest --exclude '__tests__/demo-isolation.test.ts' --exclude '__tests__/demo-session-auth.test.ts' --exclude '__tests__/apply-migration-019.test.ts'",
-    "test:live-db": "vitest run __tests__/demo-isolation.test.ts"
+    "test": "vitest --exclude '__tests__/demo-isolation.test.ts' --exclude '__tests__/demo-session-auth.test.ts' --exclude '__tests__/apply-migration-019.test.ts' --exclude '__tests__/waitlist-security.test.ts'",
+    "test:live-db": "vitest run __tests__/demo-isolation.test.ts __tests__/waitlist-security.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",

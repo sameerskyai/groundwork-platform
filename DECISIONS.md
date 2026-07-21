@@ -1145,3 +1145,21 @@ npx tsx supabase/seed/02-founder-walkthrough-dataset.ts
 - Negative test added to Playwright/vitest suite: anon `SELECT` on raw `waitlist` rows must fail (403/empty), with real output pasted per §20.
 
 **Status**: BLOCKS the §14 Phase 2 checklist item until fixed. Not blocking the rest of Phase 2 (position/referral logic, milestone tiers, honeypot) — those proceed in parallel per §21 blocker isolation.
+
+---
+
+## FOUNDER/RYAN OR SAMEER ACTION: Apply Migration 033 (2026-07-21)
+
+**What**: Apply `supabase/migrations/033_waitlist_rls_lockdown.sql` — fixes the PII exposure found today (anon could SELECT raw waitlist rows).
+
+**Why**: Closes the §14 violation. Until this runs, the live DB still has the hole from migration 032, and the new `get_waitlist_public_stats()` / `get_waitlist_leaderboard()` functions the redesigned public waitlist page calls don't exist yet — the founding-500 counter and leaderboard sections will silently no-op (fail closed, not crash) until this is applied.
+
+**How**: No DB password or Supabase personal access token is available in this environment (same constraint noted for prior migrations) — paste directly into the Supabase SQL Editor:
+```
+https://app.supabase.com/project/dhmxxywdsdxzzcuezztv/sql/new
+```
+Full contents: `supabase/migrations/033_waitlist_rls_lockdown.sql`
+
+**After applying**: run `npm run test:live-db -- __tests__/waitlist-security.test.ts` and paste the raw output into EXECUTION.md to close the §14 Phase 2 checklist item.
+
+**Note**: I have not independently confirmed `dhmxxywdsdxzzcuezztv` is still the correct project ref for `sameerskyai/groundwork-platform` (this ref carried over from the old `Rycrypn/Groundwork-platform` memory/docs) — verify the project ref in `.env.local`'s `NEXT_PUBLIC_SUPABASE_URL` before opening the SQL editor link above.
