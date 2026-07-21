@@ -66,7 +66,7 @@ Then: WAR_PLAN.md, MASTER_PLAN.md, TIMELINE.md for full context.
 - **Evidence**: Playwright screenshot in `tests/e2e-screenshots/phase1-dashboard-estimate-rendered.png`
 
 ### Phase 2 🏗️ INFRASTRUCTURE READY
-- **Database**: Migration 032 (waitlist table) applied
+- **Database**: Migrations 032 and 033 applied 2026-07-21, confirmed live via direct schema queries + a real signup returning 201 (see honesty-ledger entry in DECISIONS.md — this line previously said "Migration 032 applied" when it never actually had been; caught by live testing, not code-reading). Migration 034 (a small `anon` INSERT grant fix found while testing 033) is written but **not yet applied** — doesn't block the real app, low urgency.
 - **API**: `/api/waitlist` endpoint with anti-abuse + referral mechanics
 - **UI**: `/waitlist` page (hero, form, success state) — **design refinement needed** (Warm Copper via 21st.dev)
 - **Admin**: `/admin/waitlist` dashboard (stats view)

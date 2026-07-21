@@ -1,0 +1,24 @@
+-- Migration 034: WITHDRAWN -- do not grant anon table-level INSERT
+--
+-- Originally proposed: GRANT INSERT ON waitlist TO anon, to match the
+-- "Anyone can sign up" RLS policy's stated intent (migration 032 created
+-- the policy but never granted anon the base table privilege it needs).
+--
+-- Reversed after CodeRabbit review of PR #4 (2026-07-21): migration 032's
+-- INSERT policy is `WITH CHECK (true)` -- unconditional. Granting anon
+-- raw table INSERT would let any unauthenticated client set
+-- server-controlled columns directly (is_demo, founding_500,
+-- verified_referral_count, position_number), bypassing every check
+-- app/api/waitlist/route.ts performs (rate limiting, honeypot, dedupe,
+-- self-referral, milestone logic). That's a real vulnerability, not a
+-- gap to close.
+--
+-- The real app never needs this: app/api/waitlist/route.ts always uses
+-- the service-role key, which bypasses grants and RLS entirely. Leaving
+-- anon without table-level INSERT is the correct, safer state. The
+-- "Anyone can sign up" policy from migration 032 is effectively inert as
+-- a result (no base grant to exercise it) -- intentionally, not a bug.
+--
+-- No-op migration, kept only so the numbering and the reversal are part
+-- of the permanent migration history rather than silently deleted.
+SELECT 1;

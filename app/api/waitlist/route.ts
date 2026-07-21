@@ -11,7 +11,17 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json()
-    const { name, email, phone, sms_consent, referral_code: referrer_code, utm_source, utm_medium, utm_campaign, utm_content } = body
+    const { name, email, phone, sms_consent, referral_code: referrer_code, utm_source, utm_medium, utm_campaign, utm_content, website } = body
+
+    // Honeypot: real users never see or fill this field (hidden via CSS on the
+    // form). Any value here means a bot. Return a fake success so the bot
+    // doesn't learn its submission was rejected, but never write to the DB.
+    if (typeof website === 'string' && website.trim().length > 0) {
+      return Response.json({
+        success: true,
+        message: "You're on the waitlist!"
+      }, { status: 201 })
+    }
 
     // Validation
     if (!name || !email || typeof sms_consent !== 'boolean') {
@@ -21,6 +31,13 @@ export async function POST(request: Request) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return Response.json({ error: 'Invalid email address' }, { status: 400 })
+    }
+
+    // Normalize phone to digits-only so "(555) 123-4567" and "5551234567"
+    // are recognized as the same number for dedupe. Stored normalized too.
+    const normalizedPhone: string | null = phone ? String(phone).replace(/\D/g, '') : null
+    if (normalizedPhone && (normalizedPhone.length < 10 || normalizedPhone.length > 15)) {
+      return Response.json({ error: 'Invalid phone number' }, { status: 400 })
     }
 
     // Anti-abuse: Check for duplicate email
@@ -35,11 +52,11 @@ export async function POST(request: Request) {
     }
 
     // Anti-abuse: Check for duplicate phone (if provided)
-    if (phone) {
+    if (normalizedPhone) {
       const { data: existingPhone } = await supabase
         .from('waitlist')
         .select('id')
-        .eq('phone', phone)
+        .eq('phone', normalizedPhone)
         .single()
 
       if (existingPhone) {
@@ -103,7 +120,7 @@ export async function POST(request: Request) {
       .insert({
         name: name.trim(),
         email: email.toLowerCase(),
-        phone: phone || null,
+        phone: normalizedPhone,
         sms_consent,
         sms_consent_language: sms_consent ? 'I agree to receive SMS and email updates from Groundwork. Message and data rates may apply. See Privacy Policy.' : null,
         sms_consent_timestamp: sms_consent ? new Date().toISOString() : null,
@@ -124,6 +141,24 @@ export async function POST(request: Request) {
     if (error) {
       console.error('Insert error:', error)
       return Response.json({ error: 'Failed to join waitlist' }, { status: 500 })
+    }
+
+    // Referral credit: a referral counts as "verified" the moment the
+    // referred person completes signup (this request succeeding IS the
+    // verification — there's no separate confirmation step in this product).
+    // Move the referrer up ~100 spots (floored at 1) and flip milestone
+    // tiers at 3/5/10 verified referrals per DECISIONS.md. Done via a
+    // single atomic UPDATE in credit_referral() (migration 035) rather than
+    // a JS read-then-write, which would race under concurrent referrals
+    // for the same referrer and silently lose credits.
+    if (referrerId) {
+      const { error: creditError } = await supabase.rpc('credit_referral', { p_referrer_id: referrerId })
+      if (creditError) {
+        // The referred person's own signup already succeeded and is the
+        // primary outcome of this request -- a failed bonus-credit update
+        // for the referrer is logged, not treated as a signup failure.
+        console.error('Referral credit failed:', creditError)
+      }
     }
 
     return Response.json({

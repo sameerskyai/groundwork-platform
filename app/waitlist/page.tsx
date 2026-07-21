@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/Input'
 import { ChevronRight, CheckCircle2 } from 'lucide-react'
+import { ExplodedHouseHero } from '@/components/waitlist/ExplodedHouseHero'
+import { HorrorStory, EstimateTeaser, MechanicsPanels } from '@/components/waitlist/ScrollNarrative'
 
 function WaitlistContent() {
   const searchParams = useSearchParams()
@@ -19,8 +21,25 @@ function WaitlistContent() {
   const [positionNumber, setPositionNumber] = useState(0)
   const [referralLink, setReferralLink] = useState('')
   const [referralCode, setReferralCode] = useState('')
+  const [website, setWebsite] = useState('') // honeypot — never shown to real users
+  const [spotsRemaining, setSpotsRemaining] = useState<number | null>(null)
 
   const referrerCode = searchParams?.get('ref')
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/waitlist/stats')
+        if (res.ok) {
+          const data = await res.json()
+          setSpotsRemaining(data.spots_remaining)
+        }
+      } catch {
+        // Non-critical — counter just won't render if this fails
+      }
+    }
+    loadStats()
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -60,7 +79,8 @@ function WaitlistContent() {
           utm_source,
           utm_medium,
           utm_campaign,
-          utm_content
+          utm_content,
+          website
         })
       })
 
@@ -85,34 +105,15 @@ function WaitlistContent() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
-      {/* Hero Section with Video (graceful fallback if no video) */}
+      {/* Hero: exploded-house illustration assembles on scroll (Home Passport metaphor) */}
       <div
-        className="flex-1 flex items-center justify-center relative overflow-hidden"
+        className="relative overflow-hidden"
         style={{
           backgroundImage: 'linear-gradient(135deg, rgba(140, 80, 50, 0.12) 0%, rgba(180, 100, 60, 0.15) 100%)',
           backgroundColor: 'var(--color-surface-secondary)'
         }}
       >
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{
-            backgroundColor: 'var(--color-surface-secondary)',
-            opacity: 0.3
-          }}
-          onError={() => {
-            // Video failed to load (file missing) — gradient fallback already applied
-            console.warn('Video failed to load: /videos/groundwork-intro.mp4')
-          }}
-        >
-          <source src="/videos/groundwork-intro.mp4" type="video/mp4" />
-        </video>
-
-        <div className="relative z-10 max-w-2xl mx-auto px-6 py-20 text-center">
-          {/* Trust badge */}
+        <div className="relative z-10 max-w-2xl mx-auto px-6 pt-20 text-center">
           <div className="mb-6 inline-block px-4 py-2 rounded-full text-sm" style={{ backgroundColor: 'var(--color-brand-lighter)', color: 'var(--color-brand)' }}>
             ✓ Trusted by homeowners nationwide
           </div>
@@ -120,12 +121,46 @@ function WaitlistContent() {
           <h1 style={{ fontSize: 'clamp(2.5rem, 10vw, 3.5rem)', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--color-text-primary)', lineHeight: 1.1 }}>
             Stop gambling on contractors.
           </h1>
-          <p style={{ fontSize: 'clamp(1.125rem, 3vw, 1.25rem)', marginBottom: '2.5rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 'clamp(1.125rem, 3vw, 1.25rem)', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
             Free AI estimates + contractors matched at 80%+ compatibility. Northern Virginia first.
           </p>
+        </div>
+
+        <ExplodedHouseHero />
+      </div>
+
+      <HorrorStory />
+      <EstimateTeaser />
+      <MechanicsPanels />
+
+      {/* Final CTA: Founding 500 counter + signup form */}
+      <div
+        className="flex-1 flex items-center justify-center relative overflow-hidden"
+        style={{ backgroundColor: 'var(--color-surface-primary)' }}
+      >
+        <div className="relative z-10 max-w-2xl mx-auto px-6 py-20 text-center">
+          {spotsRemaining !== null && (
+            <p className="mb-6 text-sm font-medium" style={{ color: 'var(--color-brand)' }}>
+              {spotsRemaining > 0
+                ? `${spotsRemaining} of 500 Founding Member spots left`
+                : 'Founding 500 is full — join the general waitlist'}
+            </p>
+          )}
 
           {!submitted ? (
             <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-5 bg-white/5 backdrop-blur-sm p-8 rounded-2xl border" style={{ borderColor: 'var(--color-border)' }}>
+              {/* Honeypot: real users never see this (visually hidden, but present in DOM/tab order to catch simple bots that fill every field) */}
+              <input
+                type="text"
+                name="website"
+                value={website}
+                onChange={e => setWebsite(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }}
+              />
+
               <Input
                 type="text"
                 label="Full Name"
@@ -248,6 +283,8 @@ function WaitlistContent() {
         </div>
       </div>
 
+      <Leaderboard />
+
       {/* Footer */}
       <footer className="px-6 py-4 border-t" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface-secondary)' }}>
         <div className="max-w-2xl mx-auto flex items-center justify-between text-sm" style={{ color: 'var(--color-text-secondary)' }}>
@@ -262,6 +299,61 @@ function WaitlistContent() {
           </div>
         </div>
       </footer>
+    </div>
+  )
+}
+
+interface LeaderboardEntry {
+  display_name: string
+  verified_referral_count: number
+}
+
+function Leaderboard() {
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([])
+
+  useEffect(() => {
+    async function loadLeaderboard() {
+      try {
+        const res = await fetch('/api/waitlist/leaderboard')
+        if (res.ok) {
+          const data = await res.json()
+          setEntries(data.leaderboard ?? [])
+        }
+      } catch {
+        // Non-critical — section just won't render
+      }
+    }
+    loadLeaderboard()
+  }, [])
+
+  if (entries.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="px-6 py-16" style={{ backgroundColor: 'var(--color-surface-secondary)' }}>
+      <div className="max-w-md mx-auto">
+        <h2 className="text-2xl font-bold text-center mb-8" style={{ color: 'var(--color-text-primary)' }}>
+          Top Referrers
+        </h2>
+        <div className="space-y-2">
+          {entries.map((entry, i) => (
+            <div
+              key={`${entry.display_name}-${i}`}
+              className="flex items-center justify-between p-3 rounded-lg"
+              style={{ backgroundColor: 'var(--color-surface-primary)', border: '1px solid var(--color-border)' }}
+            >
+              <span style={{ color: 'var(--color-text-primary)' }}>
+                <span className="font-mono text-sm mr-3" style={{ color: 'var(--color-text-tertiary)' }}>#{i + 1}</span>
+                {entry.display_name}
+              </span>
+              <span className="font-bold" style={{ color: 'var(--color-brand)' }}>
+                {entry.verified_referral_count} {entry.verified_referral_count === 1 ? 'referral' : 'referrals'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
