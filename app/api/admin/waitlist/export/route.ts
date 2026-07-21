@@ -3,7 +3,13 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/admin-check'
 
 function csvEscape(value: unknown): string {
-  const str = value === null || value === undefined ? '' : String(value)
+  let str = value === null || value === undefined ? '' : String(value)
+  // Prevent spreadsheet formula injection: Excel/Sheets evaluate any cell
+  // starting with =, +, -, or @, and waitlist name/UTM values are user-
+  // controlled. Prefixing with an apostrophe forces literal-text display.
+  if (/^[=+\-@]/.test(str)) {
+    str = `'${str}`
+  }
   if (/[",\n]/.test(str)) {
     return `"${str.replace(/"/g, '""')}"`
   }
@@ -38,9 +44,11 @@ export async function GET(req: NextRequest) {
       }
     })
   } catch (err) {
-    const status = (err as any).status === 403 ? 403 : 500
-    const message = (err as any).status === 403 ? 'Forbidden' : 'Export failed'
+    const isForbidden = typeof err === 'object' && err !== null && 'status' in err && (err as { status: unknown }).status === 403
     console.error('Waitlist export error:', err)
-    return NextResponse.json({ error: message }, { status })
+    return NextResponse.json(
+      { error: isForbidden ? 'Forbidden' : 'Export failed' },
+      { status: isForbidden ? 403 : 500 }
+    )
   }
 }

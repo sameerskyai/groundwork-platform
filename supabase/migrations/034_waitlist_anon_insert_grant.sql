@@ -1,16 +1,24 @@
--- Migration 034: grant anon the INSERT privilege migration 032 always intended
+-- Migration 034: WITHDRAWN -- do not grant anon table-level INSERT
 --
--- Migration 032 created the "Anyone can sign up" RLS policy
--- (FOR INSERT WITH CHECK (true)) but only ever granted the base table-level
--- INSERT privilege to `authenticated`, never to `anon`. RLS policies narrow
--- what a GRANT already allows -- they don't substitute for the GRANT itself.
--- Found 2026-07-21 while running __tests__/waitlist-security.test.ts live:
--- an anon-key INSERT failed with 42501 "permission denied for table
--- waitlist" regardless of Prefer header, confirming this was never granted.
+-- Originally proposed: GRANT INSERT ON waitlist TO anon, to match the
+-- "Anyone can sign up" RLS policy's stated intent (migration 032 created
+-- the policy but never granted anon the base table privilege it needs).
 --
--- Does not affect the current production signup flow (app/api/waitlist/
--- route.ts uses the service-role key, which bypasses grants entirely) --
--- this closes the gap between stated intent and actual grants for any
--- future direct anon-key usage, and is what the test suite expects.
-
-GRANT INSERT ON waitlist TO anon;
+-- Reversed after CodeRabbit review of PR #4 (2026-07-21): migration 032's
+-- INSERT policy is `WITH CHECK (true)` -- unconditional. Granting anon
+-- raw table INSERT would let any unauthenticated client set
+-- server-controlled columns directly (is_demo, founding_500,
+-- verified_referral_count, position_number), bypassing every check
+-- app/api/waitlist/route.ts performs (rate limiting, honeypot, dedupe,
+-- self-referral, milestone logic). That's a real vulnerability, not a
+-- gap to close.
+--
+-- The real app never needs this: app/api/waitlist/route.ts always uses
+-- the service-role key, which bypasses grants and RLS entirely. Leaving
+-- anon without table-level INSERT is the correct, safer state. The
+-- "Anyone can sign up" policy from migration 032 is effectively inert as
+-- a result (no base grant to exercise it) -- intentionally, not a bug.
+--
+-- No-op migration, kept only so the numbering and the reversal are part
+-- of the permanent migration history rather than silently deleted.
+SELECT 1;

@@ -25,58 +25,41 @@ export default async function WaitlistAdminPage() {
   // anon/authenticated roles (see migration 033).
   const admin = createAdminClient()
 
-  const { count: total } = await admin
-    .from('waitlist')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_demo', false)
+  const [totalRes, todayRes, founding500Res, topReferrersRes, utmRowsRes, referredRes] = await Promise.all([
+    admin.from('waitlist').select('*', { count: 'exact', head: true }).eq('is_demo', false),
+    admin.from('waitlist').select('*', { count: 'exact', head: true }).eq('is_demo', false)
+      .gte('created_at', new Date().toISOString().split('T')[0] + 'T00:00:00'),
+    admin.from('waitlist').select('*', { count: 'exact', head: true }).eq('founding_500', true).eq('is_demo', false),
+    admin.from('waitlist').select('name, verified_referral_count').eq('is_demo', false)
+      .order('verified_referral_count', { ascending: false }).limit(1),
+    admin.from('waitlist').select('utm_source').eq('is_demo', false).not('utm_source', 'is', null),
+    admin.from('waitlist').select('*', { count: 'exact', head: true }).eq('is_demo', false).not('referrer_id', 'is', null)
+  ])
 
-  const today = new Date().toISOString().split('T')[0]
-  const { count: todayCount } = await admin
-    .from('waitlist')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_demo', false)
-    .gte('created_at', today + 'T00:00:00')
+  // A failed analytics query must not silently render as a 0 count or an
+  // empty breakdown -- that reports wrong numbers as if they were real.
+  for (const res of [totalRes, todayRes, founding500Res, topReferrersRes, utmRowsRes, referredRes]) {
+    if (res.error) {
+      throw new Error(`Waitlist admin analytics query failed: ${res.error.message}`)
+    }
+  }
 
-  const { count: founding500 } = await admin
-    .from('waitlist')
-    .select('*', { count: 'exact', head: true })
-    .eq('founding_500', true)
-    .eq('is_demo', false)
-
-  const { data: topReferrers } = await admin
-    .from('waitlist')
-    .select('name, verified_referral_count')
-    .eq('is_demo', false)
-    .order('verified_referral_count', { ascending: false })
-    .limit(1)
-
-  const { data: utmRows } = await admin
-    .from('waitlist')
-    .select('utm_source')
-    .eq('is_demo', false)
-    .not('utm_source', 'is', null)
-
+  const total = totalRes.count
   const utmBreakdown: Record<string, number> = {}
-  for (const row of utmRows ?? []) {
+  for (const row of utmRowsRes.data ?? []) {
     const source = row.utm_source as string
     utmBreakdown[source] = (utmBreakdown[source] ?? 0) + 1
   }
 
-  const { count: referredCount } = await admin
-    .from('waitlist')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_demo', false)
-    .not('referrer_id', 'is', null)
-
-  const kFactor = total && total > 0 ? (referredCount ?? 0) / total : 0
+  const kFactor = total && total > 0 ? (referredRes.count ?? 0) / total : 0
 
   return (
     <WaitlistAdminDashboard
       stats={{
         total: total || 0,
-        today: todayCount || 0,
-        founding_500: founding500 || 0,
-        top_referrer: topReferrers?.[0] ?? null,
+        today: todayRes.count || 0,
+        founding_500: founding500Res.count || 0,
+        top_referrer: topReferrersRes.data?.[0] ?? null,
         utm_breakdown: utmBreakdown,
         k_factor: kFactor
       }}

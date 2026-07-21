@@ -31,6 +31,11 @@ describe('Waitlist PII/RLS Security (Live DB)', () => {
     serviceRoleClient = createClient(supabaseUrl, supabaseServiceKey)
     anonClient = createClient(supabaseUrl, supabaseAnonKey)
 
+    // is_demo: false is deliberate -- the vulnerable migration 032 policy
+    // excluded demo rows anyway (`USING (is_demo = false)`), so a demo
+    // fixture would pass the negative test even if the old PII exposure
+    // came back. A real non-demo row is the only fixture that actually
+    // re-exercises the original vulnerability.
     const { data } = await serviceRoleClient
       .from('waitlist')
       .insert({
@@ -40,7 +45,7 @@ describe('Waitlist PII/RLS Security (Live DB)', () => {
         sms_consent: false,
         position_number: 999999,
         referral_code: `TESTFX${Date.now()}`,
-        is_demo: true
+        is_demo: false
       })
       .select()
       .single()
@@ -58,10 +63,10 @@ describe('Waitlist PII/RLS Security (Live DB)', () => {
     const { data, error } = await anonClient
       .from('waitlist')
       .select('name, email, phone')
-      .limit(1)
+      .eq('id', fixtureId)
 
     // Either the query errors (permission denied) or returns zero rows.
-    // Either is acceptable — what's unacceptable is returning PII.
+    // Either is acceptable — what's unacceptable is returning the fixture's PII.
     if (!error) {
       expect(data).toEqual([])
     } else {
@@ -69,7 +74,16 @@ describe('Waitlist PII/RLS Security (Live DB)', () => {
     }
   })
 
-  it('anon can still INSERT a new signup', async () => {
+  it('anon cannot INSERT directly at the table level (by design)', async () => {
+    // Migration 032's "Anyone can sign up" RLS policy is unconditional
+    // (WITH CHECK (true)) -- granting anon the base table INSERT privilege
+    // it would need to actually fire would let any unauthenticated client
+    // set server-controlled columns (is_demo, founding_500,
+    // verified_referral_count) directly, bypassing every safeguard
+    // app/api/waitlist/route.ts enforces. Migration 034 was proposed to
+    // grant this and deliberately withdrawn after review -- see its file
+    // header and DECISIONS.md. All real signups go through the API route,
+    // which uses the service-role key and isn't affected by this.
     const testEmail = `insert-test-${Date.now()}@groundworkapp.test`
     const { error } = await anonClient
       .from('waitlist')
@@ -82,10 +96,8 @@ describe('Waitlist PII/RLS Security (Live DB)', () => {
         is_demo: true
       })
 
-    expect(error).toBeNull()
-
-    // Clean up via service role (anon can't read/delete its own row)
-    await serviceRoleClient.from('waitlist').delete().eq('email', testEmail)
+    expect(error).not.toBeNull()
+    expect(error?.code).toBe('42501')
   })
 
   it('get_waitlist_public_stats() returns aggregate counts only, no PII columns', async () => {

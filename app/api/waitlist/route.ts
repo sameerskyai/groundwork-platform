@@ -147,29 +147,17 @@ export async function POST(request: Request) {
     // referred person completes signup (this request succeeding IS the
     // verification — there's no separate confirmation step in this product).
     // Move the referrer up ~100 spots (floored at 1) and flip milestone
-    // tiers at 3/5/10 verified referrals per DECISIONS.md.
+    // tiers at 3/5/10 verified referrals per DECISIONS.md. Done via a
+    // single atomic UPDATE in credit_referral() (migration 035) rather than
+    // a JS read-then-write, which would race under concurrent referrals
+    // for the same referrer and silently lose credits.
     if (referrerId) {
-      const { data: referrer } = await supabase
-        .from('waitlist')
-        .select('position_number, verified_referral_count')
-        .eq('id', referrerId)
-        .single()
-
-      if (referrer) {
-        const newCount = referrer.verified_referral_count + 1
-        const newPosition = Math.max(1, referrer.position_number - 100)
-
-        await supabase
-          .from('waitlist')
-          .update({
-            verified_referral_count: newCount,
-            position_number: newPosition,
-            founding_member: newCount >= 3,
-            backstory_eligible: newCount >= 5,
-            homeowner_plus_eligible: newCount >= 10,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', referrerId)
+      const { error: creditError } = await supabase.rpc('credit_referral', { p_referrer_id: referrerId })
+      if (creditError) {
+        // The referred person's own signup already succeeded and is the
+        // primary outcome of this request -- a failed bonus-credit update
+        // for the referrer is logged, not treated as a signup failure.
+        console.error('Referral credit failed:', creditError)
       }
     }
 

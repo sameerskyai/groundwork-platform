@@ -142,13 +142,14 @@ git push origin main  # Auto-deploys to Vercel
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `ANTHROPIC_API_KEY`
 - `STRIPE_SECRET_KEY`
+- `NEXT_PUBLIC_APP_URL` — **required**, not optional, for any deploy serving real signups (see waitlist section below for why)
 
 ### Waitlist system (`/waitlist`, `/api/waitlist/*`, `/admin/waitlist`)
 
-Uses the same env vars above — no additional secrets. Before this is live:
+No additional secrets beyond the list above. Before this is live:
 
-1. Apply `supabase/migrations/032_waitlist_table.sql` (table) and `supabase/migrations/033_waitlist_rls_lockdown.sql` (RLS lockdown — closes a real PII exposure, see DECISIONS.md 2026-07-21) via the Supabase SQL Editor, in that order.
-2. `NEXT_PUBLIC_APP_URL` should be set to the production domain — it's used to build referral links (`route.ts` falls back to `http://localhost:3000` if unset, which would leak into production referral links).
+1. Apply, in order, via the Supabase SQL Editor: `032_waitlist_table.sql`, `033_waitlist_rls_lockdown.sql` (closes a real PII exposure, see DECISIONS.md 2026-07-21), `035_waitlist_hardening.sql` (RPC permission hardening + atomic referral credit). `034_waitlist_anon_insert_grant.sql` is a documented no-op — do not adapt it into a real grant, see its file header.
+2. `NEXT_PUBLIC_APP_URL` **must** be set to the production domain before real users sign up — `app/api/waitlist/route.ts` falls back to `http://localhost:3000` if unset, which would ship broken (`localhost`) referral links to real visitors. Deployment should fail closed if this is missing, not silently fall back.
 3. `/admin/waitlist` requires a `profiles.role = 'admin'` row for whoever needs access — same auth pattern as `/admin`.
 4. Optional: `/public/videos/groundwork-intro.mp4` — the hero has a gradient fallback if this is missing, not required to deploy.
 

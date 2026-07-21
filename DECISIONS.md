@@ -1197,3 +1197,26 @@ Confirmed this is the correct, live, reachable project ref for `sameerskyai/grou
 **WHY THIS MATTERS**: this is the exact failure mode WARP.md rule 1 and the 2026-07-20 hard-won lessons already named ("Code change ≠ feature working... reading code is not verification") — and it recurred anyway, at the schema level instead of the UI level, and went uncaught for at least one full session of feature work (Phase 2's referral/milestone/admin code was all built and reported as progress against a table that couldn't actually accept those inserts). The cost: an unknown number of real visitors may have hit `/waitlist` and gotten a silent 500 before this was caught.
 
 **CORRECTION**: `ONBOARDING_RYAN.md` line 69 corrected to reflect actual state (migrations 032 + 033 applied and live-verified 2026-07-21; 034 written, not yet applied). `EXECUTION.md` Phase 2 section corrected same day. Going forward: a migration is not "applied" in any doc until a live query against the actual table/function has been run and its real output pasted as evidence — matching an app code path referencing a table is not evidence a migration ran.
+
+---
+
+## CodeRabbit Review — PR #4, findings addressed (2026-07-21)
+
+10 actionable findings across 3 review passes. Fixed 6, withdrew 1 risky proposal instead of fixing it, logged 3 as resolved-by-events (real findings when written, overtaken by what actually happened since).
+
+**Fixed:**
+1. `waitlist-security.test.ts` — negative RLS test used an `is_demo: true` fixture; the vulnerable policy excluded demo rows anyway, so it wouldn't have caught a regression of the original bug. Changed to `is_demo: false`, filtered by `fixtureId` directly.
+2. `app/api/admin/waitlist/export/route.ts` — CSV formula injection: cells starting with `=`, `+`, `-`, `@` now get an apostrophe prefix before escaping.
+3. Same file — dropped the two `(err as any).status` casts for a single typed guard.
+4. `app/(dashboard)/admin/waitlist/page.tsx` — analytics queries ran without checking `error`, so a failed query silently rendered as a `0` count instead of surfacing. Now runs all six in parallel via `Promise.all` and throws if any errored.
+5. `app/api/waitlist/route.ts` referral credit — was a JS read-then-write (SELECT count/position, compute, UPDATE), a real race under concurrent referrals for the same referrer (lost-update problem). Replaced with `credit_referral()`, a single atomic `UPDATE ... SET x = x + 1` in `migrations/035_waitlist_hardening.sql`.
+6. `migrations/033_waitlist_rls_lockdown.sql` functions never revoked the default PUBLIC execute grant before granting anon/authenticated. `migrations/035` adds the missing `REVOKE ... FROM PUBLIC` for both.
+7. README — `NEXT_PUBLIC_APP_URL` was listed as a waitlist-specific "should be set" note; promoted to the main required-env-vars list with "must," since the fallback ships broken localhost referral links to real users.
+
+**Withdrawn, not fixed** — CodeRabbit was right that this was dangerous, the correct response was to not do it:
+8. `migrations/034_waitlist_anon_insert_grant.sql` — originally proposed granting `anon` table-level `INSERT` to match the "Anyone can sign up" policy's intent. CodeRabbit correctly flagged that migration 032's policy is unconditional (`WITH CHECK (true)`), so this grant would let any unauthenticated client set `is_demo`/`founding_500`/`verified_referral_count` directly, bypassing every check the API route enforces. Rewrote 034 as a documented no-op instead of applying the grant, and inverted the corresponding test to assert anon INSERT is correctly blocked.
+
+**Resolved by events, not re-fixed:**
+9. "Deploy migration 033 before releasing this route" (`admin/waitlist/page.tsx`) — true when CodeRabbit reviewed the earlier commit; migrations 032+033 were applied to the live DB by Ryan/Sameer before this review finished. No action needed.
+10. "Remove the unverified project-specific SQL Editor URL" (`DECISIONS.md`) — the concern (linking to `dhmxxywdsdxzzcuezztv` without confirming it's the right project) was valid at the time it was written; by the time this review posted, the ref had already been independently confirmed correct (matches `.env.local`'s `NEXT_PUBLIC_SUPABASE_URL`) and migrations had already succeeded against it. Left as-is with the existing confirmation note.
+11. "Backfill existing phone values before relying on normalized lookup" (`route.ts`) — correct general practice, but the live table was confirmed empty (0 rows) via direct query before migrations 032/033 ran, so there was no non-normalized data to backfill. No migration needed; worth revisiting only if that assumption ever changes.
