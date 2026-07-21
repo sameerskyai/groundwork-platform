@@ -108,7 +108,13 @@ Top priority. Blocks entire marketing campaign. 21st.dev components, Warm Copper
 - [x] Deploy-ready: document exact deploy steps + env vars needed in README
   - **Status**: VERIFIED — README.md "Waitlist system" subsection added under Deployment (commit 7ca9c52): migration order, `NEXT_PUBLIC_APP_URL` requirement (referral links fall back to localhost if unset), admin role requirement, optional video asset.
 
-**Phase 2 Status**: IN PROGRESS — all functional/security gaps have code written and are in **PR #4** (`feature/phase2-waitlist-rls-admin-auth`, commit 7ca9c52), `npx tsc --noEmit` clean. Blocked on two things outside this environment's control: (1) migration 033 needs to be pasted into the Supabase SQL Editor by Ryan or Sameer — founder action logged in DECISIONS.md; (2) live/E2E verification needs a working dev server — this session's `next dev` was unusable (see Playwright item above). Once both clear: run `test:live-db`, get real Playwright screenshots, merge the PR, flip the IN PROGRESS items above to VERIFIED.
+**Phase 2 Status**: IN PROGRESS — all functional/security gaps have code written and are in **PR #4** (`feature/phase2-waitlist-rls-admin-auth`, latest commit 36be4c8), `npx tsc --noEmit` clean, real Playwright screenshots captured for `/waitlist` (desktop+mobile) and `/admin/waitlist` (confirmed 307 redirect to `/login` when unauthenticated).
+
+**🔴 MAJOR FINDING, supersedes everything below it (2026-07-21)**: actually testing a live signup (not code-reading — WARP.md rule 1) revealed migration 032 was **never applied to the live DB**, despite this file and DECISIONS.md previously stating it was. Verified via direct REST queries against the live table with the service-role key, column by column: the live `waitlist` table has only 5 of the ~20 columns migration 032 defines (`id`, `name`, `email`, `referrer_id`, `created_at`). **Every real waitlist signup is 500ing in production right now.** Screenshot of the failure: `tests/e2e-screenshots/phase2-waitlist-signup-FAILS-live-migration-032-gap.png`. Full writeup + risk note on re-running 032 (table already exists in its 5-column form) in DECISIONS.md.
+
+**Founder/Sameer action, updated and more urgent than before**: apply migration 032 THEN 033 (in that order) via the Supabase SQL Editor — see DECISIONS.md for the exact risk note on 032 (may need `ALTER TABLE ADD COLUMN IF NOT EXISTS` instead of a straight paste, since `CREATE TABLE` will hit "relation already exists"). This is now blocking basic product function, not just the §14 security item.
+
+Once both migrations are applied: re-test a real signup through `/waitlist`, run `test:live-db`, merge PR #4, flip the IN PROGRESS items above to VERIFIED.
 
 ---
 
