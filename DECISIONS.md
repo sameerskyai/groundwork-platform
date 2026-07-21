@@ -1161,7 +1161,7 @@ npx tsx supabase/seed/02-founder-walkthrough-dataset.ts
 **Original context (032/033), for the record**: 032 previously blocked all signups (500 errors) because the live table only had 5 of ~20 columns it defines; 033 closed a real PII exposure (anon could SELECT raw waitlist rows) and added the two stats/leaderboard RPCs.
 
 **How**: No DB password or Supabase personal access token is available in this environment (same constraint noted for prior migrations) — paste directly into the Supabase SQL Editor:
-```
+```text
 https://app.supabase.com/project/dhmxxywdsdxzzcuezztv/sql/new
 ```
 Confirmed this is the correct, live, reachable project ref for `sameerskyai/groundwork-platform` (verified via direct REST calls this session, matches `.env.local`'s `NEXT_PUBLIC_SUPABASE_URL`).
@@ -1202,7 +1202,7 @@ Confirmed this is the correct, live, reachable project ref for `sameerskyai/grou
 
 ## CodeRabbit Review — PR #4, findings addressed (2026-07-21)
 
-10 actionable findings across 3 review passes. Fixed 6, withdrew 1 risky proposal instead of fixing it, logged 3 as resolved-by-events (real findings when written, overtaken by what actually happened since).
+11 actionable findings across 3 review passes. Fixed 7, withdrew 1 risky proposal instead of fixing it, logged 3 as resolved-by-events (real findings when written, overtaken by what actually happened since).
 
 **Fixed:**
 1. `waitlist-security.test.ts` — negative RLS test used an `is_demo: true` fixture; the vulnerable policy excluded demo rows anyway, so it wouldn't have caught a regression of the original bug. Changed to `is_demo: false`, filtered by `fixtureId` directly.
