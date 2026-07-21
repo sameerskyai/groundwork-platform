@@ -1148,18 +1148,40 @@ npx tsx supabase/seed/02-founder-walkthrough-dataset.ts
 
 ---
 
-## FOUNDER/RYAN OR SAMEER ACTION: Apply Migration 033 (2026-07-21)
+## FOUNDER/RYAN OR SAMEER ACTION: Apply Migrations 032 AND 033, in order (2026-07-21, updated after live verification below)
 
-**What**: Apply `supabase/migrations/033_waitlist_rls_lockdown.sql` — fixes the PII exposure found today (anon could SELECT raw waitlist rows).
+**Updated**: this originally said "apply 033" only. After actually testing a live signup (not just reading code), found migration 032 was never really applied either — see the MAJOR FINDING entry below. Both are needed, 032 first.
 
-**Why**: Closes the §14 violation. Until this runs, the live DB still has the hole from migration 032, and the new `get_waitlist_public_stats()` / `get_waitlist_leaderboard()` functions the redesigned public waitlist page calls don't exist yet — the founding-500 counter and leaderboard sections will silently no-op (fail closed, not crash) until this is applied.
+**What**: Apply, in this exact order:
+1. `supabase/migrations/032_waitlist_table.sql` — the live table currently only has 5 of ~20 columns this migration defines (confirmed via direct REST query with the service-role key). Every real signup is 500ing right now because of this.
+2. `supabase/migrations/033_waitlist_rls_lockdown.sql` — fixes the PII exposure (anon could SELECT raw waitlist rows) and adds the `get_waitlist_public_stats()` / `get_waitlist_leaderboard()` functions the redesigned public waitlist page calls.
+
+**Why**: (1) is currently blocking signups in production entirely — more urgent than the §14 issue. (2) closes the §14 PII violation and unblocks the founding-500 counter / leaderboard (they fail closed, not crash, until this runs).
+
+**Risk note on running 032 now**: `CREATE TABLE waitlist (...)` will fail with "relation already exists" since the table is already there in its 5-column form. Before pasting 032 as-is, either (a) confirm the live table truly has zero rows (verified empty as of this writing, so a drop+recreate is safe), or (b) convert it to `ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS ...` for each missing column instead of a straight paste. Whoever runs this should re-check row count first (`select count(*) from waitlist`) in case a real signup landed between now and then.
 
 **How**: No DB password or Supabase personal access token is available in this environment (same constraint noted for prior migrations) — paste directly into the Supabase SQL Editor:
 ```
 https://app.supabase.com/project/dhmxxywdsdxzzcuezztv/sql/new
 ```
-Full contents: `supabase/migrations/033_waitlist_rls_lockdown.sql`
+Confirmed this is the correct, live, reachable project ref for `sameerskyai/groundwork-platform` (verified via direct REST calls this session, matches `.env.local`'s `NEXT_PUBLIC_SUPABASE_URL`).
 
-**After applying**: run `npm run test:live-db -- __tests__/waitlist-security.test.ts` and paste the raw output into EXECUTION.md to close the §14 Phase 2 checklist item.
+**After applying both**: run `npm run test:live-db -- __tests__/waitlist-security.test.ts` and paste the raw output into EXECUTION.md, then re-test a real signup through `/waitlist` to confirm it no longer 500s.
 
-**Note**: I have not independently confirmed `dhmxxywdsdxzzcuezztv` is still the correct project ref for `sameerskyai/groundwork-platform` (this ref carried over from the old `Rycrypn/Groundwork-platform` memory/docs) — verify the project ref in `.env.local`'s `NEXT_PUBLIC_SUPABASE_URL` before opening the SQL editor link above.
+---
+
+## MAJOR FINDING: live `waitlist` table doesn't match migration 032 at all (2026-07-21)
+
+**Discovery**: While testing the Phase 2 signup flow live (not just code-reading, per WARP.md's own hard-won lesson #1), a real signup POST failed with `Could not find the 'founding_500' column of 'waitlist' in the schema cache`. Queried the live table directly via the Supabase REST API with the service-role key, column by column:
+
+**Columns that exist live**: `id`, `name`, `email`, `referrer_id`, `created_at` — five columns, table is empty (0 rows).
+
+**Columns that do NOT exist live** despite being in `supabase/migrations/032_waitlist_table.sql`: `phone`, `position_number`, `referral_code`, `verified_referral_count`, `founding_member`, `backstory_eligible`, `homeowner_plus_eligible`, `founding_500`, `sms_consent`, `sms_consent_language`, `sms_consent_timestamp`, `utm_source`, `ip_address`, `is_demo`, `updated_at` — i.e. almost the entire schema migration 032 defines.
+
+**Root cause**: `supabase/migrations/032_waitlist_table.sql` is the only migration file in the repo that touches a `waitlist` table. The live table's 5-column shape doesn't match any migration file in this repo, meaning it was almost certainly created ad hoc (Supabase dashboard table editor) rather than via a migration, and migration 032 itself was never actually run against the live database — despite EXECUTION.md, DECISIONS.md's own prior entries, and ONBOARDING_RYAN.md all stating "Migration 032 (waitlist table) applied" / "Database: Migration 032 applied." Those claims were apparently based on code existing locally, not on live verification — the exact failure mode WARP.md's lesson #1 warns about ("Code change ≠ feature working... reading code is not verification").
+
+**Practical effect**: the waitlist signup flow (`/api/waitlist` POST) is currently broken in production/live — every real signup attempt will 500. This is a bigger and more urgent gap than the RLS/PII issue found earlier today.
+
+**Fix**: migration 032 must be applied to the live DB before migration 033 can do anything (033 only revokes grants and adds RPCs on top of columns 032 creates — it's a no-op / will itself fail if 032 hasn't run). Founder action updated below to apply both, in order.
+
+**Status**: BLOCKS the entire Phase 2 signup flow, not just the §14 item. This is the most urgent open item in EXECUTION.md as of this finding.
