@@ -1220,3 +1220,9 @@ Confirmed this is the correct, live, reachable project ref for `sameerskyai/grou
 9. "Deploy migration 033 before releasing this route" (`admin/waitlist/page.tsx`) — true when CodeRabbit reviewed the earlier commit; migrations 032+033 were applied to the live DB by Ryan/Sameer before this review finished. No action needed.
 10. "Remove the unverified project-specific SQL Editor URL" (`DECISIONS.md`) — the concern (linking to `dhmxxywdsdxzzcuezztv` without confirming it's the right project) was valid at the time it was written; by the time this review posted, the ref had already been independently confirmed correct (matches `.env.local`'s `NEXT_PUBLIC_SUPABASE_URL`) and migrations had already succeeded against it. Left as-is with the existing confirmation note.
 11. "Backfill existing phone values before relying on normalized lookup" (`route.ts`) — correct general practice, but the live table was confirmed empty (0 rows) via direct query before migrations 032/033 ran, so there was no non-normalized data to backfill. No migration needed; worth revisiting only if that assumption ever changes.
+
+---
+
+## Process note: Phase 3 landed on the Phase 2 branch/PR (2026-07-21)
+
+WARP.md §23 calls for one PR per phase completion. Phase 3 (design layer) work ended up committed onto `feature/phase2-waitlist-rls-admin-auth` / PR #4 instead of its own branch, because it was started mid-review of the Phase 2 PR ("continue Phase 3 in parallel" without a new branch specified) and splitting cleanly after CodeRabbit had already reviewed everything together wasn't worth the churn. Both phases are the same waitlist system, so the coupling is at least thematically defensible, but going forward: start a new branch per phase, even when phases run concurrently, rather than adding to whatever branch happens to be checked out.
