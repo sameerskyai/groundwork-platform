@@ -1293,3 +1293,43 @@ All confirmed with real contrast math (not eyeballed) and by reading the actual 
 4. **Nitpick, declined**: CodeRabbit suggested replacing the raw `useEffect` with `@gsap/react`'s `useGSAP` hook, specifically for its auto-revert-on-unmount behavior. CodeRabbit's own label on this one was "🏗️ Heavy lift." Declining because it would add a new npm dependency for a single component when the actual motivating gap — finding #2 above — is now fixed directly with plain `.kill()` calls on explicitly-tracked instances. `@gsap/react` is a reasonable pattern if GSAP usage grows across more components later, but not justified for one loading screen.
 
 Re-ran the full evidence suite after the fixes: 4/4 passing, screenshots refreshed.
+
+---
+
+## Warm Copper superseded by Blueprint Blue (2026-07-22, founder decision)
+
+**Founder decision, effective 2026-07-22: Warm Copper is superseded by Blueprint Blue.** The Warm Copper rationale and history above this entry is kept as-is, not deleted or rewritten — this entry supersedes it going forward.
+
+**New palette** (`app/styles/design-tokens.css`):
+- `--color-surface-primary: #FBFCFD` (paper white, was `#FBF8F4`)
+- `--color-surface-secondary: #EDF2F7` (was `#F4EDE4`)
+- `--color-text-primary: #0D2438` (warm-leaning navy ink, was `#2B2320`)
+- `--color-text-secondary/tertiary: #5B6B7B` (text-muted, was `#756D66` / `#8A8178`)
+- `--color-brand` / `--color-brand-text` / `--color-brand-solid: #1A5490` (blueprint blue, was `#B87333` / `#8B5A2B` / `#9C612A`)
+- `--color-brand-light: #7BA4CC` (line), `--color-brand-lighter: rgba(26, 84, 144, 0.08)`
+- `--color-success: #2E7D5B` (verified, was `#3E7C59`), `--color-error: #B03A2E` (alert, was `#A44A3F`)
+- `--color-warning: #906931` (darkened brass, text-safe — see the CodeRabbit-fix entry below; `--color-brass: #B8873F` is the separate decorative token), `--color-info: #7BA4CC` (line, retoned — now welcomes blue back, unlike Warm Copper which had to avoid it)
+- Full rationale, every derivation, and the real WCAG contrast table are in `design-tokens.css`'s own header comment — not duplicated here to avoid the two drifting out of sync.
+
+**Executed as a variable-value swap, not a component rewrite**, per the founder's own instruction: every existing token *name* was kept identical, only the hex values changed. Verified this actually held by screenshotting `/waitlist` (already-merged, zero code changes) after the swap — renders correctly in Blueprint Blue with no touched component code. Screenshot evidence in the PR, not committed to the repo (sanity check, not a deliverable).
+
+**Real AA finding, initially flagged rather than fixed, then actually fixed after CodeRabbit review**: raw brass (`#B8873F`) is 3.11:1 on base — fails body-text AA (4.5:1), passes large-text/18px+ or bold-14px+ only (3:1 threshold). This entry originally just flagged it and left it live as `--color-warning`, reasoning brass was "human moments only" (position number, badges, milestones) and therefore large-display. CodeRabbit correctly caught that real components (`onboarding/page.tsx`, `Badge.tsx`) render it as body-size text — see the CodeRabbit-fix entry below for the actual split into a text-safe `--color-warning` (`#906931`) and a separate decorative `--color-brass` (`#B8873F`) token.
+
+**Hardcoded hex hunt**: searched the whole Warm-Copper-family hex value set (`#B87333`, `#8B5A2B`, `#9C612A`, etc.) across `app/` and `components/`. Found hardcodes only in `components/loading/LoadingScreen.tsx` (this session's own new component, not yet using tokens) — fixed to reference `var(--color-brand)` / `var(--color-text-primary)` / `var(--color-border)` instead. A broader sweep for *any* hardcoded hex (not just the copper family) turned up ~40 hits in unrelated pages (`app/home/page.tsx`, contractor profile, `SwipeDemo.tsx`, contact, how-it-works, etc.) that predate and are unrelated to the `design-tokens.css` system entirely — left untouched as out of scope for a Warm-Copper-to-Blueprint-Blue swap; touching them would be scope creep the founder's own instruction ("fix only these items") ruled out.
+
+**Loading screen**: `components/loading/LoadingScreen.tsx` house strokes and progress line now use `var(--color-brand)` (`#1A5490`), wordmark uses `var(--color-text-primary)` (`#0D2438`), base uses `var(--color-surface-primary)` (`#FBFCFD`) — matches the founder's explicit rule 6 exactly. Re-ran the full evidence suite (4/4 passing) and re-captured all screenshots against the new palette.
+
+**Dark mode**: also inverted to a Blueprint Blue equivalent (ink-based dark surface, lighter blue accents), mirroring the exact scope of the original Warm Copper dark-mode inversion ("not required for launch, not built out further than this inversion"). Not explicitly requested in the founder's task list, but leaving it in stale copper hex under a system whose light mode is entirely blue would be a half-finished swap, not a deliberate scope boundary — full reasoning and the two derived dark-surface tones are commented inline in `design-tokens.css`.
+
+---
+
+## CodeRabbit review — PR #7 (Blueprint Blue palette), findings addressed (2026-07-22)
+
+2 actionable findings, both real, both fixed:
+
+1. **`--color-warning` shipped a non-AA color as generic warning text.** I'd flagged brass's 3.11:1 contrast in the original PR but left it live as `--color-warning` anyway, reasoning it was "large-only" per the founder's brief. CodeRabbit checked actual usage and was right to push back: `app/(auth)/onboarding/page.tsx` renders it as `--text-xs` hint text, and `components/ui/Badge.tsx` renders it as badge text — both real body-size text uses that need 4.5:1, not decorative-only. Fixed by splitting the role: added a literal `--color-brass: #B8873F` token (matching the founder's own naming) reserved for the "human moments only" large/decorative use the brief specified (position number, Founding Member badge, milestones), and darkened `--color-warning` to `#906931` (4.81:1, text-safe) for the actual warning-text role. Same fix pattern the Warm Copper era used for `--color-brand` vs `--color-brand-text`.
+2. **Dark mode never overrode `--color-success`/`--color-error`.** They were falling through to the light-mode values, which compute to 3.17:1 and 2.62:1 against the dark `#0D2438` surface — both fail AA. This gap predates this PR (the Warm Copper dark mode never overrode these either), but fixed here since dark mode is what this diff touches: added `--color-success: #76A994` (5.93:1), `--color-error: #CA7E76` (5.09:1), and `--color-warning: #D6B27A` (7.92:1) as dark-mode-specific overrides.
+
+Both computed with the same relative-luminance formula as everything else in this file, not eyeballed. Full numbers in `design-tokens.css`'s header comment.
+
+**Not yet wired in, flagging rather than silently doing or silently skipping**: the founder's rule 3 says the waitlist position number ("You're #X") should render in brass specifically, diverging from the general blue accent used for other numeric anchors. The already-merged waitlist code wasn't touched to point that specific element at the new `--color-brass` token — that's a component-level change (finding the JSX, switching its color reference), not a variable-value swap, and fell outside the 5 listed tasks (which were scoped to `design-tokens.css` + the loading screen). Surfacing this now rather than guessing whether it's in scope.
