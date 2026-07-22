@@ -1280,3 +1280,16 @@ Two GSAP count-up stats ($18,500-$42,000, 80%) were flagged as showing "$0-$0" /
 4. **`react-hooks/set-state-in-effect` in `CountUpStat.tsx`** — the separate `reducedMotion` state+effect wasn't needed: the rendered JSX never depends on it (the number is set imperatively via ref, not React state), so no hydration-mismatch reason to defer it. Removed the extra state/effect, read `matchMedia` directly inside the existing animation effect instead.
 
 All confirmed with real contrast math (not eyeballed) and by reading the actual component code, not assumed.
+
+---
+
+## CodeRabbit review — PR #6 (design/loading-screen), findings addressed (2026-07-22)
+
+2 actionable findings, both real, both fixed; 1 nitpick fixed; 1 nitpick declined with reasoning logged here rather than silently ignored, per WARP.md §19.
+
+1. **`/dev/loading-preview` was reachable in production** — it's a Playwright-only harness that exists solely to give the isolated `LoadingScreen` component a URL to screenshot against, not a real page. It was unlinked but still publicly reachable on any live deploy. Gated with `if (process.env.NODE_ENV === 'production') notFound()`. Verified directly, not assumed: `next build && next start`, `/dev/loading-preview` → `404`, `/waitlist` → `200`.
+2. **Cleanup gap in `LoadingScreen`'s effect** — the `useEffect` cleanup only ever called `entrance.kill()`, but the hold-phase `gsap.delayedCall` and the exit `gsap.timeline` are created later, inside `entrance`'s `onComplete` callback, so neither was tracked or killed. Unmounting mid-hold or mid-exit could still fire their callbacks (writing to `container.dataset`, calling `onComplete`) against an already-detached component. Both are now tracked in closure variables and explicitly `.kill()`ed in cleanup alongside `entrance`.
+3. **Nitpick, fixed**: `progressTrackRef` was attached but unused — the exit timeline reached for `refs.progressFill.parentElement` instead, which would silently break if the JSX around the progress bar ever changed shape. Added `progressTrack` to `LoadingScreenRefs` and wired the ref through directly.
+4. **Nitpick, declined**: CodeRabbit suggested replacing the raw `useEffect` with `@gsap/react`'s `useGSAP` hook, specifically for its auto-revert-on-unmount behavior. CodeRabbit's own label on this one was "🏗️ Heavy lift." Declining because it would add a new npm dependency for a single component when the actual motivating gap — finding #2 above — is now fixed directly with plain `.kill()` calls on explicitly-tracked instances. `@gsap/react` is a reasonable pattern if GSAP usage grows across more components later, but not justified for one loading screen.
+
+Re-ran the full evidence suite after the fixes: 4/4 passing, screenshots refreshed.
