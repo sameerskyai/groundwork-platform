@@ -164,7 +164,7 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
       role="status"
       aria-live="polite"
       className="fixed inset-0 z-50 flex flex-col items-center justify-center"
-      style={{ backgroundColor: 'var(--color-surface-primary, #FBF8F4)' }}
+      style={{ backgroundColor: 'var(--color-surface-primary, #FBFCFD)' }}
     >
       <span className="sr-only">Loading Groundwork</span>
 
@@ -179,7 +179,7 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
         <path
           ref={roofRef}
           d="M70,110 L200,20 L330,110"
-          stroke="#B87333"
+          stroke="var(--color-brand)"
           strokeWidth="1.75"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -189,7 +189,7 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
         <path
           ref={wallsRef}
           d="M100,110 L100,240 L300,240 L300,110"
-          stroke="#B87333"
+          stroke="var(--color-brand)"
           strokeWidth="1.75"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -199,7 +199,7 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
         <path
           ref={doorRef}
           d="M180,240 L180,165 L220,165 L220,240"
-          stroke="#B87333"
+          stroke="var(--color-brand)"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -209,7 +209,7 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
         <path
           ref={windowLeftRef}
           d="M125,155 L155,155 L155,185 L125,185 Z"
-          stroke="#B87333"
+          stroke="var(--color-brand)"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -219,7 +219,7 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
         <path
           ref={windowRightRef}
           d="M245,155 L275,155 L275,185 L245,185 Z"
-          stroke="#B87333"
+          stroke="var(--color-brand)"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -229,7 +229,7 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
         <line
           ref={partitionVRef}
           x1="200" y1="110" x2="200" y2="240"
-          stroke="#B87333"
+          stroke="var(--color-brand)"
           strokeWidth="1.5"
           strokeLinecap="round"
         />
@@ -238,21 +238,21 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
         <line
           ref={partitionHRef}
           x1="100" y1="200" x2="300" y2="200"
-          stroke="#B87333"
+          stroke="var(--color-brand)"
           strokeWidth="1.5"
           strokeLinecap="round"
         />
       </svg>
 
-      <div ref={progressTrackRef} className="mt-6 h-[2px] w-40 overflow-hidden" style={{ backgroundColor: 'rgba(184, 115, 51, 0.18)' }}>
-        <div ref={progressFillRef} className="h-full w-full" style={{ backgroundColor: '#B87333' }} />
+      <div ref={progressTrackRef} className="mt-6 h-[2px] w-40 overflow-hidden" style={{ backgroundColor: 'var(--color-border)' }}>
+        <div ref={progressFillRef} className="h-full w-full" style={{ backgroundColor: 'var(--color-brand)' }} />
       </div>
 
       <div
         ref={wordmarkRef}
         className="mt-6 text-sm md:text-base"
         style={{
-          color: '#2B2320',
+          color: 'var(--color-text-primary)',
           fontFamily: 'var(--font-serif)',
           letterSpacing: '0.3em',
           fontWeight: 500,

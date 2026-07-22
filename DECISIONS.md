@@ -1293,3 +1293,30 @@ All confirmed with real contrast math (not eyeballed) and by reading the actual 
 4. **Nitpick, declined**: CodeRabbit suggested replacing the raw `useEffect` with `@gsap/react`'s `useGSAP` hook, specifically for its auto-revert-on-unmount behavior. CodeRabbit's own label on this one was "🏗️ Heavy lift." Declining because it would add a new npm dependency for a single component when the actual motivating gap — finding #2 above — is now fixed directly with plain `.kill()` calls on explicitly-tracked instances. `@gsap/react` is a reasonable pattern if GSAP usage grows across more components later, but not justified for one loading screen.
 
 Re-ran the full evidence suite after the fixes: 4/4 passing, screenshots refreshed.
+
+---
+
+## Warm Copper superseded by Blueprint Blue (2026-07-22, founder decision)
+
+**Founder decision, effective 2026-07-22: Warm Copper is superseded by Blueprint Blue.** The Warm Copper rationale and history above this entry is kept as-is, not deleted or rewritten — this entry supersedes it going forward.
+
+**New palette** (`app/styles/design-tokens.css`):
+- `--color-surface-primary: #FBFCFD` (paper white, was `#FBF8F4`)
+- `--color-surface-secondary: #EDF2F7` (was `#F4EDE4`)
+- `--color-text-primary: #0D2438` (warm-leaning navy ink, was `#2B2320`)
+- `--color-text-secondary/tertiary: #5B6B7B` (text-muted, was `#756D66` / `#8A8178`)
+- `--color-brand` / `--color-brand-text` / `--color-brand-solid: #1A5490` (blueprint blue, was `#B87333` / `#8B5A2B` / `#9C612A`)
+- `--color-brand-light: #7BA4CC` (line), `--color-brand-lighter: rgba(26, 84, 144, 0.08)`
+- `--color-success: #2E7D5B` (verified, was `#3E7C59`), `--color-error: #B03A2E` (alert, was `#A44A3F`)
+- `--color-warning: #B8873F` (brass, retoned), `--color-info: #7BA4CC` (line, retoned — now welcomes blue back, unlike Warm Copper which had to avoid it)
+- Full rationale, every derivation, and the real WCAG contrast table are in `design-tokens.css`'s own header comment — not duplicated here to avoid the two drifting out of sync.
+
+**Executed as a variable-value swap, not a component rewrite**, per the founder's own instruction: every existing token *name* was kept identical, only the hex values changed. Verified this actually held by screenshotting `/waitlist` (already-merged, zero code changes) after the swap — renders correctly in Blueprint Blue with no touched component code. Screenshot evidence in the PR, not committed to the repo (sanity check, not a deliverable).
+
+**Real AA finding, not silently fixed**: `--color-warning: #B8873F` (brass) is 3.11:1 on base — fails body-text AA (4.5:1), passes large-text/18px+ or bold-14px+ only (3:1 threshold). Brass is spec'd for "human moments only" (position number, Founding Member badge, referral milestones), which are typically large/display-sized renders already, but flagging rather than assuming — if a body-size brass use case turns up, it needs a founder call on a darker text-safe variant (the same split Warm Copper needed between `--color-brand` and `--color-brand-text`). Did not invent a darker value unilaterally since the founder's palette explicitly said "six colors total, do not add a seventh."
+
+**Hardcoded hex hunt**: searched the whole Warm-Copper-family hex value set (`#B87333`, `#8B5A2B`, `#9C612A`, etc.) across `app/` and `components/`. Found hardcodes only in `components/loading/LoadingScreen.tsx` (this session's own new component, not yet using tokens) — fixed to reference `var(--color-brand)` / `var(--color-text-primary)` / `var(--color-border)` instead. A broader sweep for *any* hardcoded hex (not just the copper family) turned up ~40 hits in unrelated pages (`app/home/page.tsx`, contractor profile, `SwipeDemo.tsx`, contact, how-it-works, etc.) that predate and are unrelated to the `design-tokens.css` system entirely — left untouched as out of scope for a Warm-Copper-to-Blueprint-Blue swap; touching them would be scope creep the founder's own instruction ("fix only these items") ruled out.
+
+**Loading screen**: `components/loading/LoadingScreen.tsx` house strokes and progress line now use `var(--color-brand)` (`#1A5490`), wordmark uses `var(--color-text-primary)` (`#0D2438`), base uses `var(--color-surface-primary)` (`#FBFCFD`) — matches the founder's explicit rule 6 exactly. Re-ran the full evidence suite (4/4 passing) and re-captured all screenshots against the new palette.
+
+**Dark mode**: also inverted to a Blueprint Blue equivalent (ink-based dark surface, lighter blue accents), mirroring the exact scope of the original Warm Copper dark-mode inversion ("not required for launch, not built out further than this inversion"). Not explicitly requested in the founder's task list, but leaving it in stale copper hex under a system whose light mode is entirely blue would be a half-finished swap, not a deliberate scope boundary — full reasoning and the two derived dark-surface tones are commented inline in `design-tokens.css`.
