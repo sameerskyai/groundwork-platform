@@ -1226,3 +1226,15 @@ Confirmed this is the correct, live, reachable project ref for `sameerskyai/grou
 ## Process note: Phase 3 landed on the Phase 2 branch/PR (2026-07-21)
 
 WARP.md §23 calls for one PR per phase completion. Phase 3 (design layer) work ended up committed onto `feature/phase2-waitlist-rls-admin-auth` / PR #4 instead of its own branch, because it was started mid-review of the Phase 2 PR ("continue Phase 3 in parallel" without a new branch specified) and splitting cleanly after CodeRabbit had already reviewed everything together wasn't worth the churn. Both phases are the same waitlist system, so the coupling is at least thematically defensible, but going forward: start a new branch per phase, even when phases run concurrently, rather than adding to whatever branch happens to be checked out.
+
+---
+
+## Migration 035 gap found live: credit_referral() was callable by anon (2026-07-21)
+
+**What happened**: migration 035 applied successfully by Ryan ("Success. No rows returned"). Verified live immediately after (not assumed): the new `credit_referral()` RPC works correctly via service role, and the two read-only stats RPCs are unaffected. But a direct anon-key call to `credit_referral()` also succeeded (`200`), when it should have failed — this function is meant to be service-role-only.
+
+**Root cause**: this Supabase project has a schema-level default privilege rule (`ALTER DEFAULT PRIVILEGES ... GRANT EXECUTE ON FUNCTIONS TO anon, authenticated`) applied to `public` at project creation — a named-role grant issued automatically whenever a new function is created there, entirely separate from the `PUBLIC` pseudo-role. Migration 035's `REVOKE EXECUTE ... FROM PUBLIC` only undoes Postgres's own implicit grant-on-creation; it never touches this Supabase-specific default. Same class of mistake as the `034` grant confusion earlier today (RLS policies and grants being two different mechanisms that don't substitute for each other) — this time it was two *different kinds of grant* (PUBLIC vs. named-role-via-default-privileges) that don't substitute for each other either.
+
+**Fix**: `supabase/migrations/036_credit_referral_lockdown.sql` — explicit `REVOKE EXECUTE ... FROM anon` and `FROM authenticated`, which does target the actual grant in effect. Not yet applied — founder action.
+
+**Verify after applying**: re-run the anon-key `credit_referral()` call, expect `401`/`42501`, not `200`.
