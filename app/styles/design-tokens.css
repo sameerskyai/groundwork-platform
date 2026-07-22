@@ -3,39 +3,66 @@
  * Trust-first, approachable home services product
  * Target: Homeowners 35–60, seeking trustworthy contractors
  * Warm, grounded, human-centered
+ *
+ * COLOR SYSTEM — psychology-driven, 60/30/10, six colors total.
+ * Homeowners judge trustworthiness on warmth + competence. Corporate
+ * blue/green (Angi, Thumbtack) reads competent but cold. Bright consumer
+ * palettes read warm but not credible for a $40k decision. Copper does
+ * both, and it's literally the material of the trades (pipe, wire,
+ * fixtures) -- reads as craftsmanship, not software.
+ *
+ * Every text/background pair below is WCAG AA-verified (4.5:1 normal
+ * text, 3:1 large text/18px+ or 14px+bold) -- computed with the real
+ * relative-luminance formula, not eyeballed. Two corrections were made
+ * to the originally proposed hex values because they failed AA at body
+ * text sizes (see inline notes): the secondary-text warm gray and the
+ * copper button fill both needed to be darkened slightly.
+ *
+ *   charcoal text on base off-white     14.54:1  PASS
+ *   charcoal text on alt sand           13.26:1  PASS
+ *   brand-text copper on base           5.52:1   PASS (all text sizes)
+ *   brand-text copper on badge bg       4.65:1   PASS (all text sizes)
+ *   secondary gray text on base         4.80:1   PASS (all text sizes)
+ *   white on brand-solid button fill    4.59:1   PASS (all text sizes)
+ *   full accent copper on base          3.58:1   large text/borders only
+ *   forest success on base              4.69:1   PASS
+ *   clay error on base                  5.46:1   PASS
  */
 
 :root {
   /* ============================================================
-     COLOR PALETTE — Warm, earthy, trustworthy
+     COLOR PALETTE — Warm Copper, six colors, 60/30/10 distribution
      ============================================================ */
 
-  /* Surfaces & Backgrounds */
-  --color-surface-primary: oklch(97% 0.01 60); /* Warm off-white, cream tint */
-  --color-surface-secondary: oklch(93% 0.02 55); /* Warm beige for depth */
-  --color-surface-tertiary: oklch(86% 0.01 60); /* Warm mid-gray, accents */
+  /* 60% BASE -- warm off-white/sand. Never a cool gray on this site. */
+  --color-surface-primary: #FBF8F4; /* primary surface */
+  --color-surface-secondary: #F4EDE4; /* alternating sections */
+  --color-surface-tertiary: #EDE3D6; /* cards/panels needing more separation */
 
-  /* Text — high contrast mandatory */
-  --color-text-primary: oklch(20% 0.02 40); /* Dark warm brown */
-  --color-text-secondary: oklch(50% 0.01 50); /* Warm mid-gray */
-  --color-text-tertiary: oklch(65% 0 0); /* Light gray, hints */
-  --color-text-inverse: oklch(97% 0 0); /* For dark backgrounds */
+  /* 30% STRUCTURE -- deep warm charcoal, never pure #000 (harsh) or cool gray (clinical) */
+  --color-text-primary: #2B2320;
+  --color-text-secondary: #756D66; /* darkened from spec's #8A8178 -- that value only clears AA at 3.61:1 (large text), fails at body size */
+  --color-text-tertiary: #8A8178; /* reserved for large/decorative text only -- this is the original spec value, large-text-safe (3.61:1) but not body-text-safe */
+  --color-text-inverse: #FBF8F4; /* for dark backgrounds */
 
-  /* Semantic Colors */
-  --color-success: oklch(65% 0.18 130); /* Warm green (trust) */
-  --color-warning: oklch(74% 0.20 70); /* Amber (caution) */
-  --color-error: oklch(62% 0.22 20); /* Warm red (approachable error) */
-  --color-info: oklch(68% 0.15 230); /* Softer blue (informational) */
+  /* 10% ACCENT -- copper. Isolation effect: rare = commands attention.
+     One copper CTA per viewport. If it's everywhere it converts nothing. */
+  --color-brand: #B87333; /* large display type, borders, non-text fills. 3.58:1 -- large text/18px+ only, never small body text */
+  --color-brand-text: #8B5A2B; /* WCAG-safe copper for text at any size (5.52:1) -- use this, not --color-brand, whenever copper text needs to be readable at body/small size */
+  --color-brand-solid: #A5672D; /* darkened copper specifically for solid-fill buttons carrying white/light text (4.59:1) -- --color-brand itself fails AA with white text (3.79:1) */
+  --color-brand-light: #C98F55; /* lighter copper tint, decorative/hover fills only, not for text contrast */
+  --color-brand-lighter: #F3E3D2; /* badge/pill backgrounds -- verified against --color-brand-text at 4.65:1 */
 
-  /* Brand Primary — Warm Copper, trusted and approachable */
-  --color-brand: oklch(55% 0.22 40); /* Warm copper-brown */
-  --color-brand-light: oklch(70% 0.16 45); /* Lighter copper */
-  --color-brand-lighter: oklch(84% 0.08 50); /* Very light warm copper */
+  /* Semantic -- functional only, never decorative. Green = "verified," never brand. */
+  --color-success: #3E7C59; /* muted forest -- verification states, confirmed signups only */
+  --color-error: #A44A3F; /* clay red -- genuine warnings/form errors only, never decoration, never in the hero */
+  --color-warning: #C9974A; /* pre-existing site-wide token (star ratings, form hints elsewhere) -- retoned warm to match, not part of the waitlist page's 6-color set */
+  --color-info: #6B7A82; /* pre-existing site-wide token, shifted off cool blue to a warm-neutral slate to stay consistent with the no-cool-color rule; not part of the waitlist page's 6-color set */
 
   /* Interactive States */
-  --color-interactive-hover: oklch(73% 0.14 42); /* Lighter warm on hover */
-  --color-interactive-active: oklch(45% 0.24 38); /* Darker copper when active */
-  --color-interactive-disabled: oklch(78% 0.01 50); /* Warm gray disabled */
+  --color-interactive-hover: #C98F55; /* lighter warm on hover */
+  --color-interactive-active: #8B5A2B; /* darker copper when active/pressed */
+  --color-interactive-disabled: #C4BCB2; /* warm gray disabled */
 
   /* ============================================================
      TYPOGRAPHY — Warm, approachable, readable
@@ -103,9 +130,9 @@
   --border-normal: 2px;
   --border-thick: 3px;
 
-  /* Border color — Subtle but present */
-  --color-border: oklch(90% 0 0); /* Light gray */
-  --color-border-strong: oklch(75% 0 0); /* Medium gray */
+  /* Border color — Subtle but present, warm-toned not cool gray */
+  --color-border: #E4DACC;
+  --color-border-strong: #C4B8A6;
 
   /* ============================================================
      SHADOWS — Depth without heaviness
@@ -160,22 +187,26 @@
    DARK MODE — Warm copper inversion, intentional
    ============================================================ */
 
+/* Not required for launch, not built out further than this inversion.
+   Kept warm-charcoal-based per the palette rule: dark mode must invert to
+   #2B2320-family warm charcoal with copper accents, never cool black. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-surface-primary: oklch(18% 0.01 40); /* Warm dark brown */
-    --color-surface-secondary: oklch(23% 0.015 45); /* Warm dark secondary */
-    --color-surface-tertiary: oklch(30% 0.01 40); /* Warm dark tertiary */
+    --color-surface-primary: #2B2320;
+    --color-surface-secondary: #35291F;
+    --color-surface-tertiary: #40332A;
 
-    --color-text-primary: oklch(96% 0.01 60); /* Warm light text */
-    --color-text-secondary: oklch(72% 0.01 50); /* Warm mid-light text */
-    --color-text-tertiary: oklch(58% 0 0); /* Muted light text */
+    --color-text-primary: #FBF8F4;
+    --color-text-secondary: #C4B8A6;
+    --color-text-tertiary: #8A8178;
 
-    --color-border: oklch(28% 0.01 45); /* Warm dark border */
-    --color-border-strong: oklch(42% 0.01 45); /* Warmer stronger border */
+    --color-border: #4A3C30;
+    --color-border-strong: #5E4C3C;
 
-    /* Warm copper brand in dark mode — slightly lighter */
-    --color-brand: oklch(62% 0.20 40); /* Lighter copper for visibility */
-    --color-brand-light: oklch(74% 0.14 42); /* Lighter again */
-    --color-brand-lighter: oklch(82% 0.08 45); /* Very light */
+    --color-brand: #C98F55; /* lighter copper for dark-surface visibility */
+    --color-brand-text: #E0AA72;
+    --color-brand-solid: #B87333;
+    --color-brand-light: #D9A876;
+    --color-brand-lighter: #4A3826;
   }
 }
