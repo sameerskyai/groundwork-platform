@@ -23,14 +23,23 @@
  *   base (text-inverse) on ink (active fill)  15.41:1 PASS (all text sizes)
  *   verified on base                           4.87:1 PASS
  *   alert on base                              5.86:1 PASS
- *   brass on base                              3.11:1 FAILS body text (4.5:1) -- passes large-text/18px+ or bold 14px+ only (3:1).
- *                                                       Brass is spec'd for "human moments only" (position number, badges,
- *                                                       milestones) -- restrict those renders to large/bold display sizes.
- *                                                       Flagging rather than silently darkening a founder-given value; if a
- *                                                       body-size brass use case shows up, it needs a founder call on a
- *                                                       darker text-safe variant (mirrors the copper-era brand-text split).
+ *   warning (darkened brass) on base           4.81:1 PASS -- CodeRabbit caught raw brass (3.11:1) shipping as the
+ *                                                       generic --color-warning token while real components (onboarding
+ *                                                       hint text, Badge.tsx) render it as text. Darkened specifically
+ *                                                       for --color-warning; same fix pattern as the copper-era brand
+ *                                                       vs brand-text split.
+ *   brass on base (--color-brass, decorative)  3.11:1 FAILS body text (4.5:1) -- passes large-text/18px+ or bold 14px+
+ *                                                       only (3:1). Reserved for "human moments only" (position number,
+ *                                                       Founding Member badge, referral milestones) per the founder's
+ *                                                       own spec -- restrict those renders to large/bold display sizes.
+ *                                                       Separate token from --color-warning above precisely so the
+ *                                                       decorative role and the AA-required text role don't collide.
  *   line on base                               2.55:1  Decorative/structural only (strokes, dividers, technical annotation)
  *                                                       -- never used for text, so AA text thresholds don't apply.
+ *   [dark mode] verified on ink                 5.93:1 PASS -- light-mode value alone was 3.17:1 on dark ink, CodeRabbit
+ *                                                       caught this too. Dark-mode override added.
+ *   [dark mode] alert on ink                    5.09:1 PASS -- light-mode value alone was 2.62:1 on dark ink.
+ *   [dark mode] warning on ink                  7.92:1 PASS -- separate lightened dark-mode override.
  *
  * Unlike Warm Copper -- which needed three separate darkened variants
  * (--color-brand-text, --color-brand-solid, and a second round on
@@ -67,8 +76,16 @@
   /* Semantic -- functional only, never decorative. Green = "verified," never brand. */
   --color-success: #2E7D5B; /* verified -- verification states, confirmed signups only. 4.87:1 */
   --color-error: #B03A2E; /* alert -- genuine warnings/form errors only, never decoration, never in the hero. 5.86:1 */
-  --color-warning: #B8873F; /* brass reused/retoned for this pre-existing site-wide token (star ratings, form hints elsewhere) -- not part of the waitlist page's core set. Note: brass is 3.11:1 on base, large-text/bold only -- see header comment. */
+  --color-warning: #906931; /* darkened brass, text-safe (4.81:1) -- CodeRabbit correctly caught raw brass (3.11:1) shipping as this site-wide token while real components (onboarding hint text, Badge.tsx) render it as text, which needs 4.5:1. Same fix pattern as Warm Copper's brand vs brand-text split. */
   --color-info: #7BA4CC; /* line reused/retoned -- Blueprint Blue welcomes blue back for this, unlike Warm Copper which had to shift it warm-neutral to avoid a cool color */
+
+  /* Brass -- reserved for "human moments" only per the founder's spec: the
+     waitlist position number, Founding Member badge, referral milestones.
+     Never interface chrome, never body text -- 3.11:1 on base clears large-
+     display/bold-only AA (3:1), not body text (4.5:1). Distinct from
+     --color-warning above, which is a darkened text-safe derivative of this
+     same hue for actual warning UI. */
+  --color-brass: #B8873F;
 
   /* Interactive States */
   --color-interactive-hover: #7BA4CC; /* line -- lighter blue on hover */
@@ -223,5 +240,15 @@
     --color-brand-solid: #1A5490; /* accent itself still reads fine as a solid fill in dark mode */
     --color-brand-light: #7BA4CC;
     --color-brand-lighter: rgba(123, 164, 204, 0.12);
+
+    /* CodeRabbit caught these: light-mode --color-success/--color-error were
+       falling through unchanged, and both fail AA against the dark #0D2438
+       surface (3.17:1 / 2.62:1). Lightened toward base for dark-surface
+       legibility -- this gap predates this PR (the Warm Copper dark mode
+       never overrode these either) but is being fixed here since dark mode
+       is what this diff touches. */
+    --color-success: #76A994; /* 5.93:1 on dark surface */
+    --color-error: #CA7E76; /* 5.09:1 on dark surface */
+    --color-warning: #D6B27A; /* lightened brass-derived warning, 7.92:1 on dark surface */
   }
 }
