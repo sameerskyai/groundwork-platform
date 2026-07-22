@@ -1238,3 +1238,45 @@ WARP.md §23 calls for one PR per phase completion. Phase 3 (design layer) work 
 **Fix**: `supabase/migrations/036_credit_referral_lockdown.sql` — explicit `REVOKE EXECUTE ... FROM anon` and `FROM authenticated`, which does target the actual grant in effect. Not yet applied — founder action.
 
 **Verify after applying**: re-run the anon-key `credit_referral()` call, expect `401`/`42501`, not `200`.
+
+---
+
+## Phase 3 Premium Design Layer — decisions (2026-07-21)
+
+**taste-skill refused a third time.** Same directive (`npx skills add https://github.com/Leonxlnx/taste-skill`, all three variants: high-end-visual-design, full-output-enforcement, redesign-existing-projects) has now been requested three separate times across this project's session history, always as part of a larger pasted directive. Refusing again, same reasoning: unvetted personal GitHub repo, arbitrary code execution, machine holds Supabase service-role + Anthropic keys. Flagging the repetition itself as a pattern worth Ryan knowing about, not re-litigating the decision each time.
+
+**Kling/Higgsfield/Nano Banana still unavailable.** Continuing the native SVG + Framer Motion exploded-house hero from the first Phase 3 pass, enhanced this round with a literal copper pipes/wiring "systems" layer -- ties directly into the palette rationale itself (copper as the material of the trades).
+
+**GSAP added, Framer Motion kept.** GSAP is a mainstream, safe npm package (unlike taste-skill) -- installed for the numeric count-up anchors ($18,500-$42,000, 80%) where its ScrollTrigger is better suited than a plain Framer Motion transform. Framer Motion stays for the hero assembly and panel reveals, which already work -- full migration to GSAP for everything would be a rewrite with no functional benefit.
+
+**Color system: two AA contrast failures found and corrected in the directive's own proposed hex values**, verified with the real WCAG relative-luminance formula (not eyeballed):
+- Secondary text gray `#8A8178` on base `#FBF8F4` = 3.61:1, fails AA for body-size text (needs 4.5:1). Darkened to `#756D66` (4.80:1). Original value kept as `--color-text-tertiary`, restricted to large/decorative use only.
+- White button label on copper `#B87333` fill = 3.79:1, fails AA. Introduced `--color-brand-solid: #A5672D` (4.59:1 with white text) specifically for solid-fill CTA buttons; `--color-brand` itself stays reserved for large display type, borders, and non-text fills per the original spec's own rule.
+- Full contrast table in `app/styles/design-tokens.css`'s header comment.
+
+**`--color-warning` and `--color-info` kept, retoned.** These aren't part of the waitlist page's 6-color system, but `design-tokens.css` is site-wide (star ratings, toasts, badges on other pages) -- removing them would break 3+ unrelated pages outside this task's scope. Shifted both off their original amber/blue toward the warm palette family rather than leaving a cool blue in a "no cool colors" system.
+
+---
+
+## Mobile LTE performance evidence (2026-07-21/22)
+
+Measured against the actual PR #5 Vercel preview (Vercel's infrastructure, not local -- local machine was under severe memory pressure this session, see the earlier entry), via Playwright + CDP network/CPU throttling to simulate a real weak-LTE/Fast-3G connection:
+
+- Profile: 1.6 Mbps down / 750 Kbps up / 150ms RTT (Fast 3G-equivalent), 4x CPU throttle, cache disabled, iPhone viewport (390x844) + iOS user agent
+- **Result: 1.95s to full `load` event**, 25 requests, 360.7KB total transferred
+- Target from the design brief was "usable in under 3 seconds" -- passes with real margin, not assumed
+
+Two GSAP count-up stats ($18,500-$42,000, 80%) were flagged as showing "$0-$0" / a low intermediate value during initial screenshot passes -- re-verified with longer post-scroll waits and confirmed both settle correctly at their real target values. Root cause was screenshot timing (captured before the ScrollTrigger threshold was crossed or before the count-up duration elapsed), not an actual bug -- documented so a future session doesn't re-diagnose the same non-issue.
+
+---
+
+## CodeRabbit review — PR #5, findings addressed (2026-07-22)
+
+4 actionable findings, all real, all fixed:
+
+1. **Duplicate success card** (`app/waitlist/page.tsx`) — `renderForm` was called unconditionally in both the hero and final CTA, and its `submitted` branch ignored `compact`, so a real signup showed the full referral card twice on the page. Split into `renderSuccess()` (renders once, hero position only) and `renderForm()` (pre-submit only); final CTA collapses to a one-line pointer back to the top once submitted instead of duplicating.
+2. **Hero counter not hidden after submit** — `spotsCounter` in the hero rendered unconditionally, unlike the final CTA's `!submitted &&` guard. Same guard added to the hero.
+3. **Primary button text fails AA, real miss in the first pass** — the design-tokens.css header comment verified `--color-brand-solid` against literal `#FFFFFF` (4.59:1), but `components/ui/button.tsx` actually pairs it with `--color-text-inverse` (`#FBF8F4`, a warm off-white), which computes to 4.33:1 — under the 4.5:1 AA minimum. `--color-brand-solid` darkened from `#A5672D` to `#9C612A` (4.77:1 against the token actually in use), same fix applied to the dark-mode value. Also swapped a hardcoded `color: 'white'` on the referral-copy button to `var(--color-text-inverse)` while in there.
+4. **`react-hooks/set-state-in-effect` in `CountUpStat.tsx`** — the separate `reducedMotion` state+effect wasn't needed: the rendered JSX never depends on it (the number is set imperatively via ref, not React state), so no hydration-mismatch reason to defer it. Removed the extra state/effect, read `matchMedia` directly inside the existing animation effect instead.
+
+All confirmed with real contrast math (not eyeballed) and by reading the actual component code, not assumed.
