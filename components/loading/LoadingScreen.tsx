@@ -17,6 +17,7 @@ export interface LoadingScreenRefs {
   walls: SVGPathElement
   windowsDoor: SVGPathElement[]
   interior: SVGLineElement[]
+  progressTrack: HTMLDivElement
   progressFill: HTMLDivElement
   wordmark: HTMLDivElement
 }
@@ -33,7 +34,7 @@ export function createLoadingExitTimeline(refs: LoadingScreenRefs) {
   const tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.inOut' } })
 
   tl.to(strokes, { opacity: 0, duration: 0.35 }, 0)
-    .to(refs.progressFill.parentElement, { opacity: 0, duration: 0.25 }, 0)
+    .to(refs.progressTrack, { opacity: 0, duration: 0.25 }, 0)
     .to(refs.wordmark, { opacity: 0, y: -12, duration: 0.35 }, 0.05)
     .to(refs.container, { yPercent: -100, opacity: 0, duration: 0.55 }, 0.1)
 
@@ -69,11 +70,12 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
     const windowRight = windowRightRef.current
     const partitionV = partitionVRef.current
     const partitionH = partitionHRef.current
+    const progressTrack = progressTrackRef.current
     const progressFill = progressFillRef.current
     const wordmark = wordmarkRef.current
 
     if (!container || !roof || !walls || !door || !windowLeft || !windowRight ||
-        !partitionV || !partitionH || !progressFill || !wordmark) {
+        !partitionV || !partitionH || !progressTrack || !progressFill || !wordmark) {
       return
     }
 
@@ -83,6 +85,7 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
       walls,
       windowsDoor: [door, windowLeft, windowRight],
       interior: [partitionV, partitionH],
+      progressTrack,
       progressFill,
       wordmark
     }
@@ -132,11 +135,16 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
       .to(wordmark, { opacity: 1, y: 0, duration: 0.3, ease: 'power1.out' }, WORDMARK_START)
       .call(() => { container.dataset.loadingState = 'wordmark-visible' }, [], WORDMARK_START)
 
+    // Tracked outside the callback so unmounting mid-hold or mid-exit can
+    // still kill them -- entrance.kill() alone only covers the entrance leg.
+    let holdCall: gsap.core.Tween | null = null
+    let exit: gsap.core.Timeline | null = null
+
     entrance.eventCallback('onComplete', () => {
-      const exit = createLoadingExitTimeline(refs)
-      gsap.delayedCall(holdDuration, () => {
+      exit = createLoadingExitTimeline(refs)
+      holdCall = gsap.delayedCall(holdDuration, () => {
         container.dataset.loadingState = 'exiting'
-        exit.play().eventCallback('onComplete', () => {
+        exit!.play().eventCallback('onComplete', () => {
           container.dataset.loadingState = 'complete'
           onComplete?.()
         })
@@ -145,6 +153,8 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
 
     return () => {
       entrance.kill()
+      holdCall?.kill()
+      exit?.kill()
     }
   }, [onComplete, holdDuration])
 
