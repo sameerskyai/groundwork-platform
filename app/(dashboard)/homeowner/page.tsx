@@ -244,7 +244,7 @@ export default function HomeownerDashboard() {
         <nav style={{ display: 'flex', gap: 8 }}>
           {[
             { label: 'Dashboard', href: '/homeowner', active: true },
-            { label: 'Matches', href: '/homeowner/matches' },
+            { label: 'Matches', href: project?.id ? `/homeowner/matches?project=${project.id}` : '/homeowner' },
             { label: 'Messages', href: '/homeowner/messages' },
             { label: 'Neighborhood', href: project?.zip_code ? `/feed/${project.zip_code}` : '/homeowner' }
           ].map(t => (

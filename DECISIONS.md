@@ -1333,3 +1333,42 @@ Re-ran the full evidence suite after the fixes: 4/4 passing, screenshots refresh
 Both computed with the same relative-luminance formula as everything else in this file, not eyeballed. Full numbers in `design-tokens.css`'s header comment.
 
 **Not yet wired in, flagging rather than silently doing or silently skipping**: the founder's rule 3 says the waitlist position number ("You're #X") should render in brass specifically, diverging from the general blue accent used for other numeric anchors. The already-merged waitlist code wasn't touched to point that specific element at the new `--color-brass` token — that's a component-level change (finding the JSX, switching its color reference), not a variable-value swap, and fell outside the 5 listed tasks (which were scoped to `design-tokens.css` + the loading screen). Surfacing this now rather than guessing whether it's in scope.
+
+---
+
+## Gate 4 walkthrough prep — findings and fixes (2026-07-22)
+
+**Scope**: Bugs #3/#4/#5, back/cancel button audit, walkthrough environment prep. Two migrations written but NOT applied (no DB password/PAT in this environment, same constraint as migration 035) -- **founder action required before the walkthrough**, see below.
+
+### Bug #3: Neighborhood → /homeowner/communities
+Multiple real, layered bugs found, most fixed in app code, one requires a founder-applied migration:
+1. **Fixed**: `app/(dashboard)/homeowner/communities/page.tsx` looked up the current user's own ZIP via `properties` filtered `is_demo=false` — is_demo isolation (WARP.md §14) is for hiding demo rows from *other* users, not a user's own data, so a demo account (founder.demo) could never find its own property. Removed the filter.
+2. **Fixed**: the same page (and `[id]/page.tsx`) selected/inserted `member_count`/`post_count`/`is_demo` columns on `communities` that don't exist per the real schema (migration 005). Rewrote to select real columns and compute member/post counts via count queries against `community_members`/`community_posts`; community-create insert now sets the actually-required `creator_id`/`name`.
+3. **NOT fixed, founder action required**: live-verified `infinite recursion detected in policy for relation "community_members"` — `community_members_view`'s RLS policy subqueries `community_members` from within its own policy, retriggering itself. Also breaks `communities_view` indirectly (same subquery pattern). Wrote `supabase/migrations/037_fix_community_members_rls_recursion.sql` (SECURITY DEFINER helper function, standard fix for this exact class of Postgres RLS recursion) — needs to be pasted into the Supabase SQL Editor before Communities will work at all, demo or real user.
+4. **Not fixed, flagged not attempted**: `/homeowner/communities/[id]` (the detail page reached by clicking into a community) has a *separate*, deeper schema mismatch — it joins a `posts` table with columns (`author_id`, `content`, `reply_count`) that don't match the real `community_posts` table at all (`user_id`, `title`, `description`, `photo_urls`, `project_type`, `budget_min`, `budget_max`). This is a bigger fix (redesigning the post-creation flow) than "Bug #3" as scoped — logged, not attempted this session.
+
+### Bug #4: Messages inbox + persistence
+Founder.demo had zero conversations/messages (demo data drift — the project/property survived, but matches/conversations/community rows were gone, cause unconfirmed). Re-seeded matches (0.92/0.85/0.81/0.65) + 1 conversation + 2 messages directly against the existing project (`610c1a13-a8cb-4dfb-be00-be4488beb04b`) rather than re-running the full seed script, which would have duplicated the project. Live-verified: inbox shows the conversation, opening it works, sending a message persists across navigation away and back.
+
+### Bug #5: "Back to matches" dead end
+Root cause: `/homeowner/matches` requires a `?project=<id>` query param to load anything; without it, the page's own `useEffect` redirects to `/homeowner`. Six places linked to bare `/homeowner/matches` with no param:
+- `app/(dashboard)/homeowner/page.tsx` — the dashboard's own top-nav "Matches" link (the most-used entry point, arguably the real Bug #5). Fixed: `` `/homeowner/matches?project=${project.id}` ``.
+- `app/(dashboard)/homeowner/chat/page.tsx` — error-state "Back to matches" button and the header back-arrow. Fixed: uses `matchProjectId` (already fetched in this component) when known, falls back to `/homeowner` when not (e.g. no `matchId` at all — there's genuinely no project to go back to in that case).
+- `app/contractor/[id]/page.tsx` — "Back to matches" button and a `handleMessage` redirect. This page has no project context available at all (appears to be currently unreached from any live nav path — nothing links to it). Pointed both at `/homeowner` instead of a broken matches link.
+- `app/(auth)/onboarding/page.tsx` — `router.push('/homeowner/matches')` after onboarding, before any project exists yet. Left alone: not a back/cancel button, and the matches page's own fallback already sends this to `/homeowner` correctly (no user-visible break), just via an extra bounce.
+
+### Back/cancel button audit (full list checked)
+`contractor/profile`, `homeowner/budget`, `homeowner/communities` + `[id]`, `homeowner/estimate`, `homeowner/matches`, `homeowner/messages` + `[id]`, `homeowner/personality`, `homeowner/project`, `homeowner/saved`, `contractor/[id]`, `waitlist` — all checked. All resolve to real, working destinations except the six matches-param dead ends above (now fixed) and the two open items already noted. `personality/page.tsx`'s `router.back()` and `budget/page.tsx`'s `window.history.back()` rely on browser history rather than an explicit route — acceptable in normal in-app flow, theoretical no-op only on direct-URL landing (not evidence of an actual break, left as-is).
+
+### Additional finding while checking for demo-data leaks (task item 2), NOT in the original bug list
+**Real, live, currently-active security finding**: `contractor_profiles` is publicly readable by *anonymous* clients (no auth) with **zero** `is_demo` filtering — verified directly: an anon-key query returned 7 demo contractors ("General Contractor - Demo 1" etc.) mixed with 3 real ones. Traced through the full migration history:
+- 001 created `contractor_profiles_public_read` PERMISSIVE `USING (true)` — open to everyone, pre-dates demo isolation.
+- 012 added a RESTRICTIVE `is_demo = false` policy on top — correctly closed the gap at the time.
+- 029 dropped 012's policy for a smarter one (real OR demo-matched-to-own-project), but hit RLS subquery issues per its own follow-up.
+- 030 dropped 029's policy and added a PERMISSIVE `authenticated`-only policy instead, reasoning access control happened at the matches/projects level — but **never restored any RESTRICTIVE is_demo filter, and never dropped 001's original `USING (true)` policy**. Since PERMISSIVE policies OR together, `(true) OR (authenticated)` is still just `(true)` — fully open, no is_demo awareness at all, for anyone, this whole time.
+
+Wrote `supabase/migrations/038_fix_contractor_profiles_demo_leak.sql`: drops the original 001 permissive-true policy, restores a RESTRICTIVE `is_demo=false` filter with the same SECURITY DEFINER pattern as migration 037 for the "demo contractor matched to the current user's own project" exception (so a demo account's own matches still work). **Founder action required** — same as 037, paste into the SQL Editor. This predates this session and wasn't caused by anything done here; found only because task item 2 explicitly asked to verify no demo rows leak to real users.
+
+### Migrations awaiting founder action (paste into Supabase SQL Editor, same process as migration 035)
+- `supabase/migrations/037_fix_community_members_rls_recursion.sql` — blocks Communities entirely until applied.
+- `supabase/migrations/038_fix_contractor_profiles_demo_leak.sql` — real anon-readable demo-data leak, live right now, independent of the walkthrough.

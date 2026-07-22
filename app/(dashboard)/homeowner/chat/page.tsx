@@ -133,7 +133,7 @@ function ChatContent() {
       <div className="text-center">
         <h2 className="text-lg font-bold text-gray-900 mb-2">Conversation unavailable</h2>
         <p className="text-gray-600 mb-6">{error}</p>
-        <Link href="/homeowner/matches">
+        <Link href={matchProjectId ? `/homeowner/matches?project=${matchProjectId}` : '/homeowner'}>
           <Button>Back to matches</Button>
         </Link>
       </div>
@@ -153,7 +153,7 @@ function ChatContent() {
     <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
       <header className="bg-white border-b border-gray-100 px-6 py-4">
         <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <Link href="/homeowner/matches" className="text-gray-400 hover:text-gray-700">
+          <Link href={matchProjectId ? `/homeowner/matches?project=${matchProjectId}` : '/homeowner'} className="text-gray-400 hover:text-gray-700">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 className="font-bold text-gray-900">Chat</h1>
