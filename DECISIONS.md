@@ -1267,3 +1267,16 @@ Measured against the actual PR #5 Vercel preview (Vercel's infrastructure, not l
 - Target from the design brief was "usable in under 3 seconds" -- passes with real margin, not assumed
 
 Two GSAP count-up stats ($18,500-$42,000, 80%) were flagged as showing "$0-$0" / a low intermediate value during initial screenshot passes -- re-verified with longer post-scroll waits and confirmed both settle correctly at their real target values. Root cause was screenshot timing (captured before the ScrollTrigger threshold was crossed or before the count-up duration elapsed), not an actual bug -- documented so a future session doesn't re-diagnose the same non-issue.
+
+---
+
+## CodeRabbit review — PR #5, findings addressed (2026-07-22)
+
+5 actionable findings, all real, all fixed:
+
+1. **Duplicate success card** (`app/waitlist/page.tsx`) — `renderForm` was called unconditionally in both the hero and final CTA, and its `submitted` branch ignored `compact`, so a real signup showed the full referral card twice on the page. Split into `renderSuccess()` (renders once, hero position only) and `renderForm()` (pre-submit only); final CTA collapses to a one-line pointer back to the top once submitted instead of duplicating.
+2. **Hero counter not hidden after submit** — `spotsCounter` in the hero rendered unconditionally, unlike the final CTA's `!submitted &&` guard. Same guard added to the hero.
+3. **Primary button text fails AA, real miss in the first pass** — the design-tokens.css header comment verified `--color-brand-solid` against literal `#FFFFFF` (4.59:1), but `components/ui/button.tsx` actually pairs it with `--color-text-inverse` (`#FBF8F4`, a warm off-white), which computes to 4.33:1 — under the 4.5:1 AA minimum. `--color-brand-solid` darkened from `#A5672D` to `#9C612A` (4.77:1 against the token actually in use), same fix applied to the dark-mode value. Also swapped a hardcoded `color: 'white'` on the referral-copy button to `var(--color-text-inverse)` while in there.
+4. **`react-hooks/set-state-in-effect` in `CountUpStat.tsx`** — the separate `reducedMotion` state+effect wasn't needed: the rendered JSX never depends on it (the number is set imperatively via ref, not React state), so no hydration-mismatch reason to defer it. Removed the extra state/effect, read `matchMedia` directly inside the existing animation effect instead.
+
+All confirmed with real contrast math (not eyeballed) and by reading the actual component code, not assumed.

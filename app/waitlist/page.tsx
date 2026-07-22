@@ -109,64 +109,68 @@ function WaitlistContent() {
     </p>
   )
 
-  // Shared between the hero (compact) and final-CTA (full) placements --
-  // one set of state, one submit handler, rendered twice. `compact` trims
-  // the copy line and reduces padding for the hero context.
-  function renderForm(compact: boolean) {
-    if (submitted) {
-      return (
-        <div className="max-w-md mx-auto space-y-4 p-6 rounded-lg" style={{ backgroundColor: 'var(--color-surface-secondary)' }}>
-          <CheckCircle2 className="w-16 h-16 mx-auto" style={{ color: 'var(--color-success)' }} />
-          <h2 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-            You&apos;re #{positionNumber}!
-          </h2>
-          <p style={{ color: 'var(--color-text-secondary)' }}>
-            Check your email for next steps. Share your referral link to move up the queue.
+  // Renders once, at the hero position only -- previously this was
+  // returned from both hero and final-CTA renderForm() calls, so a real
+  // submission showed the referral card twice on the page (CodeRabbit
+  // catch on PR #5). The final CTA collapses to a short pointer back up
+  // instead once submitted; see successPointer below.
+  function renderSuccess() {
+    return (
+      <div className="max-w-md mx-auto space-y-4 p-6 rounded-lg" style={{ backgroundColor: 'var(--color-surface-secondary)' }}>
+        <CheckCircle2 className="w-16 h-16 mx-auto" style={{ color: 'var(--color-success)' }} />
+        <h2 className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+          You&apos;re #{positionNumber}!
+        </h2>
+        <p style={{ color: 'var(--color-text-secondary)' }}>
+          Check your email for next steps. Share your referral link to move up the queue.
+        </p>
+
+        <div className="p-4 rounded-lg" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface-primary)' }}>
+          <p className="text-xs mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+            Your Referral Link
           </p>
-
-          <div className="p-4 rounded-lg" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface-primary)' }}>
-            <p className="text-xs mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-              Your Referral Link
-            </p>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                readOnly
-                value={referralLink}
-                className="flex-1 px-3 py-2 rounded text-sm"
-                style={{
-                  backgroundColor: 'var(--color-surface-secondary)',
-                  color: 'var(--color-text-primary)',
-                  border: '1px solid var(--color-border)'
-                }}
-              />
-              <button
-                onClick={() => navigator.clipboard.writeText(referralLink)}
-                className="px-3 py-2 rounded text-sm font-medium whitespace-nowrap"
-                style={{ backgroundColor: 'var(--color-brand-solid)', color: 'white' }}
-              >
-                Copy
-              </button>
-            </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              readOnly
+              value={referralLink}
+              className="flex-1 px-3 py-2 rounded text-sm"
+              style={{
+                backgroundColor: 'var(--color-surface-secondary)',
+                color: 'var(--color-text-primary)',
+                border: '1px solid var(--color-border)'
+              }}
+            />
+            <button
+              onClick={() => navigator.clipboard.writeText(referralLink)}
+              className="px-3 py-2 rounded text-sm font-medium whitespace-nowrap"
+              style={{ backgroundColor: 'var(--color-brand-solid)', color: 'var(--color-text-inverse)' }}
+            >
+              Copy
+            </button>
           </div>
-
-          <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--color-brand-lighter)', color: 'var(--color-brand-text)' }}>
-            <p className="text-sm font-medium">Your referral code: <span className="font-mono font-bold">{referralCode}</span></p>
-          </div>
-
-          <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
-            Each friend who joins moves you up ~100 spots. Share to unlock exclusive perks!
-          </p>
-
-          <Link href="/home">
-            <Button size="lg" className="w-full">
-              Back to Home
-            </Button>
-          </Link>
         </div>
-      )
-    }
 
+        <div className="text-center p-3 rounded-lg" style={{ backgroundColor: 'var(--color-brand-lighter)', color: 'var(--color-brand-text)' }}>
+          <p className="text-sm font-medium">Your referral code: <span className="font-mono font-bold">{referralCode}</span></p>
+        </div>
+
+        <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
+          Each friend who joins moves you up ~100 spots. Share to unlock exclusive perks!
+        </p>
+
+        <Link href="/home">
+          <Button size="lg" className="w-full">
+            Back to Home
+          </Button>
+        </Link>
+      </div>
+    )
+  }
+
+  // Pre-submit form only now -- shared between the hero (compact) and
+  // final-CTA (full) placements, one set of state, one submit handler.
+  function renderForm(compact: boolean) {
     return (
       <form
         onSubmit={handleSubmit}
@@ -273,8 +277,8 @@ function WaitlistContent() {
             Free AI estimates + contractors matched at 80%+ compatibility. Northern Virginia first.
           </p>
 
-          {spotsCounter}
-          {renderForm(true)}
+          {!submitted && spotsCounter}
+          {submitted ? renderSuccess() : renderForm(true)}
         </div>
 
         <ExplodedHouseHero />
@@ -286,14 +290,24 @@ function WaitlistContent() {
       <EightyGate />
       <FoundingTiers />
 
-      {/* Beat 7 — Final CTA: the form again + the position moment */}
+      {/* Beat 7 — Final CTA: the form again + the position moment.
+          Collapses to a short pointer once submitted rather than
+          duplicating the success/referral card a second time. */}
       <div className="py-24" style={{ backgroundColor: 'var(--color-surface-primary)' }}>
         <div className="max-w-2xl mx-auto px-6 text-center">
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 700, marginBottom: '2rem', color: 'var(--color-text-primary)' }}>
             {submitted ? 'You’re in.' : 'Get your number before your neighbor does.'}
           </h2>
-          {!submitted && spotsCounter}
-          {renderForm(false)}
+          {submitted ? (
+            <p style={{ color: 'var(--color-text-secondary)' }}>
+              You&apos;re #{positionNumber} on the list — your referral link is up top.
+            </p>
+          ) : (
+            <>
+              {spotsCounter}
+              {renderForm(false)}
+            </>
+          )}
         </div>
       </div>
 

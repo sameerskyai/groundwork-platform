@@ -13,20 +13,28 @@
  *
  * Every text/background pair below is WCAG AA-verified (4.5:1 normal
  * text, 3:1 large text/18px+ or 14px+bold) -- computed with the real
- * relative-luminance formula, not eyeballed. Two corrections were made
+ * relative-luminance formula, not eyeballed. Three corrections were made
  * to the originally proposed hex values because they failed AA at body
- * text sizes (see inline notes): the secondary-text warm gray and the
- * copper button fill both needed to be darkened slightly.
+ * text sizes (see inline notes): the secondary-text warm gray, the
+ * copper button fill, and the button fill again (round 2 -- see below).
  *
- *   charcoal text on base off-white     14.54:1  PASS
- *   charcoal text on alt sand           13.26:1  PASS
- *   brand-text copper on base           5.52:1   PASS (all text sizes)
- *   brand-text copper on badge bg       4.65:1   PASS (all text sizes)
- *   secondary gray text on base         4.80:1   PASS (all text sizes)
- *   white on brand-solid button fill    4.59:1   PASS (all text sizes)
- *   full accent copper on base          3.58:1   large text/borders only
- *   forest success on base              4.69:1   PASS
- *   clay error on base                  5.46:1   PASS
+ *   charcoal text on base off-white          14.54:1  PASS
+ *   charcoal text on alt sand                13.26:1  PASS
+ *   brand-text copper on base                5.52:1   PASS (all text sizes)
+ *   brand-text copper on badge bg            4.65:1   PASS (all text sizes)
+ *   secondary gray text on base              4.80:1   PASS (all text sizes)
+ *   text-inverse on brand-solid button fill  4.77:1   PASS (all text sizes)
+ *   text-inverse on interactive-active hover 5.52:1   PASS (all text sizes)
+ *   full accent copper on base               3.58:1   large text/borders only
+ *   forest success on base                   4.69:1   PASS
+ *   clay error on base                       5.46:1   PASS
+ *
+ * CodeRabbit review of PR #5 caught a real miss in the first pass: the
+ * "white on brand-solid" row above was verified against literal #FFFFFF,
+ * but components/ui/button.tsx actually pairs --color-brand-solid with
+ * --color-text-inverse (#FBF8F4, a warm off-white, not pure white) --
+ * that pairing was only 4.33:1, failing AA. --color-brand-solid darkened
+ * from #A5672D to #9C612A to pass against the token actually in use.
  */
 
 :root {
@@ -49,7 +57,7 @@
      One copper CTA per viewport. If it's everywhere it converts nothing. */
   --color-brand: #B87333; /* large display type, borders, non-text fills. 3.58:1 -- large text/18px+ only, never small body text */
   --color-brand-text: #8B5A2B; /* WCAG-safe copper for text at any size (5.52:1) -- use this, not --color-brand, whenever copper text needs to be readable at body/small size */
-  --color-brand-solid: #A5672D; /* darkened copper specifically for solid-fill buttons carrying white/light text (4.59:1) -- --color-brand itself fails AA with white text (3.79:1) */
+  --color-brand-solid: #9C612A; /* darkened copper specifically for solid-fill buttons carrying --color-text-inverse text (4.77:1) -- --color-brand itself fails AA (3.79:1 with white, worse with the warmer text-inverse) */
   --color-brand-light: #C98F55; /* lighter copper tint, decorative/hover fills only, not for text contrast */
   --color-brand-lighter: #F3E3D2; /* badge/pill backgrounds -- verified against --color-brand-text at 4.65:1 */
 
@@ -205,7 +213,7 @@
 
     --color-brand: #C98F55; /* lighter copper for dark-surface visibility */
     --color-brand-text: #E0AA72;
-    --color-brand-solid: #B87333;
+    --color-brand-solid: #9C612B; /* 4.77:1 against --color-text-inverse, same fix as light mode */
     --color-brand-light: #D9A876;
     --color-brand-lighter: #4A3826;
   }
