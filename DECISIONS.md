@@ -1272,7 +1272,7 @@ Two GSAP count-up stats ($18,500-$42,000, 80%) were flagged as showing "$0-$0" /
 
 ## CodeRabbit review — PR #5, findings addressed (2026-07-22)
 
-5 actionable findings, all real, all fixed:
+4 actionable findings, all real, all fixed:
 
 1. **Duplicate success card** (`app/waitlist/page.tsx`) — `renderForm` was called unconditionally in both the hero and final CTA, and its `submitted` branch ignored `compact`, so a real signup showed the full referral card twice on the page. Split into `renderSuccess()` (renders once, hero position only) and `renderForm()` (pre-submit only); final CTA collapses to a one-line pointer back to the top once submitted instead of duplicating.
 2. **Hero counter not hidden after submit** — `spotsCounter` in the hero rendered unconditionally, unlike the final CTA's `!submitted &&` guard. Same guard added to the hero.
