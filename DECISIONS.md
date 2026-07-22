@@ -1255,3 +1255,15 @@ WARP.md §23 calls for one PR per phase completion. Phase 3 (design layer) work 
 - Full contrast table in `app/styles/design-tokens.css`'s header comment.
 
 **`--color-warning` and `--color-info` kept, retoned.** These aren't part of the waitlist page's 6-color system, but `design-tokens.css` is site-wide (star ratings, toasts, badges on other pages) -- removing them would break 3+ unrelated pages outside this task's scope. Shifted both off their original amber/blue toward the warm palette family rather than leaving a cool blue in a "no cool colors" system.
+
+---
+
+## Mobile LTE performance evidence (2026-07-21/22)
+
+Measured against the actual PR #5 Vercel preview (Vercel's infrastructure, not local -- local machine was under severe memory pressure this session, see the earlier entry), via Playwright + CDP network/CPU throttling to simulate a real weak-LTE/Fast-3G connection:
+
+- Profile: 1.6 Mbps down / 750 Kbps up / 150ms RTT (Fast 3G-equivalent), 4x CPU throttle, cache disabled, iPhone viewport (390x844) + iOS user agent
+- **Result: 1.95s to full `load` event**, 25 requests, 360.7KB total transferred
+- Target from the design brief was "usable in under 3 seconds" -- passes with real margin, not assumed
+
+Two GSAP count-up stats ($18,500-$42,000, 80%) were flagged as showing "$0-$0" / a low intermediate value during initial screenshot passes -- re-verified with longer post-scroll waits and confirmed both settle correctly at their real target values. Root cause was screenshot timing (captured before the ScrollTrigger threshold was crossed or before the count-up duration elapsed), not an actual bug -- documented so a future session doesn't re-diagnose the same non-issue.
