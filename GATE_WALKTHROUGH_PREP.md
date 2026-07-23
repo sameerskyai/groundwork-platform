@@ -1,26 +1,45 @@
 # GATE WALKTHROUGH PREP
 
-**Prepared**: 2026-07-22
+**Prepared**: 2026-07-22 · **Updated**: 2026-07-23 (migrations 037+038 applied and verified)
 **For**: founder gate walkthrough
 **Read this before starting** so you only log *new* findings — everything below is already known.
 
 ---
 
-## ⚠️ READ FIRST: TWO MIGRATIONS MUST BE APPLIED BEFORE THE WALKTHROUGH
+## STATUS: WALKTHROUGH-READY ✅ (with one behavior change to be aware of)
 
-Neither could be applied from the agent environment (no DB password / Supabase PAT available — same constraint documented for migration 035). **Both need to be pasted into the Supabase SQL Editor before you walk anything**, or you will hit known-broken behavior:
+Migrations 037 and 038 were applied to the live DB on 2026-07-23 and **both are verified working**. No blockers remain.
 
-| Migration | What breaks without it |
-|---|---|
-| `supabase/migrations/037_fix_community_members_rls_recursion.sql` | **Communities is completely broken.** Any visit to `/homeowner/communities` errors with `infinite recursion detected in policy for relation "community_members"` — for demo *and* real users. |
-| `supabase/migrations/038_fix_contractor_profiles_demo_leak.sql` | **Live data leak, active right now.** `contractor_profiles` is readable by anonymous clients with zero `is_demo` filtering. Verified directly: an anon-key query returns demo contractors ("General Contractor - Demo 1" etc.) mixed with real ones. Not walkthrough-blocking, but it's live in production. |
+### Migration 037 — verified
+`/homeowner/communities` now loads a real community. Screenshot: `tests/e2e-screenshots/gate4/bug3-communities.png` — renders "ZIP 22201 · 1 members · 0 posts" with no recursion error and no marketing header.
 
-After applying, verify 038 with:
-```sql
-set role anon;
-select id, business_name, is_demo from contractor_profiles;  -- expect zero is_demo = true rows
-reset role;
+### Migration 038 — verified, leak closed
+Raw anon-key query against `contractor_profiles`, run live:
+
+```text
+--- RAW anon-key result ---
+error: none
+row count: 0
+rows: []
+
+>>> demo rows visible to anon: 0
+>>> PASS (zero demo rows): true
+
+--- ground truth via service role ---
+total in table: 28  (real: 3, demo: 25)
 ```
+
+Before the fix, that same query returned all 28 rows including "General Contractor - Demo 1". **Zero demo rows now leak.**
+
+Authenticated access still works correctly — logged in as the demo account, `contractor_profiles` returns 7 rows (3 real + 4 demo contractors matched to that account's own project), which is exactly the intended carve-out.
+
+### ⚠️ Behavior change you should know about
+
+038 was applied as **Option A** (as-written, no anon read policy added). `RESTRICTIVE` policies only filter, they never grant — so dropping migration 001's `USING (true)` removed anon's *only* grant. Anon now sees **zero** contractor rows, not "all real ones."
+
+Concrete effect, verified live: **`/contractors/<id>` returns HTTP 404 for logged-out visitors.** Public contractor profiles are now login-gated.
+
+That's fine if everything is gated pre-launch. If you want those pages publicly linkable (SEO, sharing a contractor), say so and I'll add the one-line anon PERMISSIVE policy — the RESTRICTIVE filter above stays in place, so the demo leak stays closed either way. `/feed/[zip]` is unaffected; it uses the admin client.
 
 ---
 
@@ -31,10 +50,10 @@ reset role;
 | **Test URL** | https://groundwork-platform-git-main-groundwork-b24989b8.vercel.app |
 | **Production URL** | https://groundwork-platform.vercel.app (same build; `/` redirects to `/waitlist` pre-launch) |
 | **Demo account** | `founder.demo@example.com` — **password not committed here**, see note below |
-| **Commit being walked** | `7e829b7` (this branch: `design/gate4-walkthrough-prep`) — becomes the merge commit on `main` once PR #8 lands |
+| **Commit being walked** | `fb2119d` on `main` (PR #8, squash-merged) |
 | **Dashboard entry point** | `/homeowner` (log in first; `/` goes to the waitlist, not the app) |
 
-**Note on the test URL**: `main` auto-deploys to that alias. The walkthrough commit is on PR #8 — after merge, the alias serves it. Before merge, use the PR's own preview deployment.
+**Note on the test URL**: `main` auto-deploys to that alias, and PR #8 is merged, so the alias serves the walkthrough commit.
 
 **Note on the demo password**: not written here. Get it from `DEMO_MODE.md` or `tests/helpers/auth.ts` — it's already committed in both, plus four other files, and has been for a long time.
 
@@ -60,15 +79,15 @@ Two follow-ups regardless:
 ## Bugs fixed this batch
 
 ### Bug #3 — Neighborhood nav → authenticated `/homeowner/communities`
-**Status: PARTIALLY FIXED — still blocked by migration 037.**
+**Status: FIXED and verified** (migration 037 applied 2026-07-23).
 
 Two real app-code bugs found and fixed:
 1. The page looked up the current user's own ZIP from `properties` filtered by `is_demo=false`. That's a misapplication of demo isolation — the rule (WARP.md §14) exists to hide demo rows from *other* users, not to hide a demo account's own data from itself. The founder demo account could never find its own property, so the page showed "No ZIP code found. Complete onboarding first."
 2. The page selected and inserted `member_count`, `post_count`, and `is_demo` columns that **do not exist** on the real `communities` table (per migration 005). Rewrote to select real columns and compute the counts via `community_members` / `community_posts` count queries; the create-community insert now supplies the actually-required `creator_id` and `name`.
 
-Evidence: `tests/e2e-screenshots/gate4/bug3-communities.png` — confirms no marketing header on the authenticated page (no "Sign in" / "Get started free" chrome).
+A third bug — RLS infinite recursion on `community_members` — needed migration 037, now applied.
 
-**Honest caveat**: that screenshot currently shows the RLS recursion error, because migration 037 isn't applied. The header assertion (the literal Bug #3 ask) passes; the page still won't render a real community until you apply 037.
+Evidence: `tests/e2e-screenshots/gate4/bug3-communities.png` — the page now renders the real ZIP 22201 community ("1 members · 0 posts", counts computed from `community_members`/`community_posts`), with no marketing header and no recursion error.
 
 ### Bug #4 — Messages: real inbox → open → send → persists
 **Status: FIXED and fully verified.**
@@ -104,15 +123,14 @@ All resolve to real, working destinations. Two use browser history rather than a
 
 ## KNOWN OPEN ITEMS — do not waste walkthrough time logging these
 
-1. **Communities is broken until migration 037 is applied.** Expect `infinite recursion detected in policy for relation "community_members"`. Known, fix written, needs your SQL Editor.
-2. **`/homeowner/communities/[id]` (community detail page) is broken independently of 037.** It queries a `posts` table with columns (`author_id`, `content`, `reply_count`) that don't match the real `community_posts` schema (`user_id`, `title`, `description`, `photo_urls`, `project_type`, `budget_min`, `budget_max`). This is a redesign of the post-creation flow, not a one-line fix — deliberately not attempted this session, it's well outside "Bug #3".
-3. **Anonymous `contractor_profiles` demo leak is live until migration 038 is applied.** Found while checking task item 2 (demo-row leakage). Predates this batch by ~4 migrations.
-4. **Contractor-side experience is unwalked.** Everything verified this session was the homeowner journey on `founder.demo@example.com`. The contractor dashboard, contractor onboarding, and contractor-side chat have not been exercised.
-5. **`app/contractor/[id]` appears unreachable.** Nothing in the current nav links to it (live links point to `/contractors/[id]`, a different route). Its back-links were fixed anyway, but the page may be dead code.
-6. **Phases 5–7 untouched** (empty states, microcopy, dashboard CTA hierarchy, growth tooling, final close-out). Per EXECUTION.md these were never started — not regressions.
-7. **Waitlist items still open from Phase 2**: admin dashboard content as a logged-in admin, milestone flip at exactly 3 referrals (boundary at 1 confirmed correct), custom domain.
-8. **Pre-existing lint errors** (6 errors / 6 warnings across the touched files) — identical count on `main` before this batch. Not introduced here, not cleaned up (out of scope).
-9. **Demo password is plaintext in 7 files in a public repo** (pre-existing, prior decision accepted it, verified low blast radius — see the Environment note). Also `FINAL_REVIEW.md` mislabels the demo account as "Admin User" when it's homeowner-role.
+1. **`/homeowner/communities/[id]` (the "View Community" button) is still broken.** Independent of 037 — re-verified after applying it. The page errors with `Could not find a relationship between 'communities' and 'posts' in the schema cache`: it queries a `posts` table with columns (`author_id`, `content`, `reply_count`) that don't match the real `community_posts` schema (`user_id`, `title`, `description`, `photo_urls`, `project_type`, `budget_min`, `budget_max`). Fixing it means picking a post model (see question 3 below), not a one-line change. **The communities *list* page works — only clicking through breaks.**
+2. **Public contractor profiles are login-gated.** `/contractors/<id>` returns 404 for logged-out visitors, a consequence of applying 038 as Option A. See the behavior-change note at the top. One line reverses it if you want public profiles back.
+3. **Contractor-side experience is unwalked.** Everything verified this session was the homeowner journey on `founder.demo@example.com`. The contractor dashboard, contractor onboarding, and contractor-side chat have not been exercised.
+4. **`app/contractor/[id]` appears unreachable.** Nothing in the current nav links to it (live links point to `/contractors/[id]`, a different route). Its back-links were fixed anyway, but the page may be dead code.
+5. **Phases 5–7 untouched** (empty states, microcopy, dashboard CTA hierarchy, growth tooling, final close-out). Per EXECUTION.md these were never started — not regressions.
+6. **Waitlist items still open from Phase 2**: admin dashboard content as a logged-in admin, milestone flip at exactly 3 referrals (boundary at 1 confirmed correct), custom domain.
+7. **Pre-existing lint errors** (6 errors / 6 warnings across the touched files) — identical count on `main` before this batch. Not introduced here, not cleaned up (out of scope).
+8. **Demo password is plaintext in 7 files in a public repo** (pre-existing, prior decision accepted it, verified low blast radius — see the Environment note). Also `FINAL_REVIEW.md` mislabels the demo account as "Admin User" when it's homeowner-role.
 
 ---
 
@@ -124,7 +142,11 @@ Full Playwright suite, run against local dev with the repaired demo data:
 12 tests total — 12 passed, 0 failed, 0 skipped
 ```
 
-One caveat worth stating plainly: on the first full-suite run with 4 parallel workers, `design-loading-screen.spec.ts`'s duration assertion failed at 3650ms against a 3500ms budget. Re-run in isolation it passes at ~3242ms. That's parallel-worker CPU contention on this machine, not a regression — but it *is* a genuinely tight assertion that will flake again under load. Flagging rather than quietly widening the threshold on an already-merged test.
+Re-run in full after applying migrations 037 and 038 — still 12/12, no regressions from either migration.
+
+Two flakes seen along the way, both investigated rather than waved off:
+- `design-loading-screen.spec.ts`'s duration assertion failed once at 3650ms against a 3500ms budget under 4 parallel workers; passes at ~3242ms in isolation. Parallel-worker CPU contention, not a regression — but it's a genuinely tight assertion that will flake again under load. Flagged rather than quietly widening the threshold on an already-merged test.
+- On the *first* run immediately after the migrations, Bug #5 timed out at 30s and the matches regression check took 18.1s (normally ~9s and ~4s). This looked like a migration-caused performance regression, so I measured the DB directly rather than assuming: the actual queries run in 130–390ms, and both tests returned to normal on the next run. It was cold Turbopack route compilation after the dev-server restart, not the RLS policies.
 
 Suites: `design-loading-screen` (4), `gate-4-matches` (2), `gate4-walkthrough-prep` (4), `phase1-estimate-verification` (1), `phase2-waitlist` (1).
 
@@ -138,8 +160,10 @@ Suites: `design-loading-screen` (4), `gate-4-matches` (2), `gate4-walkthrough-pr
 
 2. **Is `app/contractor/[id]` dead code?** Nothing links to it; `/contractors/[id]` is what live nav uses. I fixed its back-links rather than deleting it, but if it's dead it should probably go — and if it's *not* dead, I want to know what reaches it, because its "Back to matches" had no project context available at all.
 
-3. **How should the communities detail page actually work?** Fixing item #2 above means picking a real post model. The existing `community_posts` schema is project-shaped (title, budget range, project type, photos) but the page was written expecting a simple text feed (content, reply_count). Those are different products. Which did you intend?
+3. **How should the communities detail page actually work?** Fixing open item #1 means picking a real post model. The existing `community_posts` schema is project-shaped (title, budget range, project type, photos) but the page was written expecting a simple text feed (content, reply_count). Those are different products. Which did you intend? **This is the one blocking a real fix** — I can't guess it.
 
-4. **Migration application process.** Three separate batches now have ended with "migration written, founder must paste it." If there's a way to give the agent environment scoped DDL access, that removes a recurring bottleneck and a real class of "documented but not actually fixed" risk — CodeRabbit flagged exactly this on PR #8, and it was right that documentation alone doesn't remediate a live environment.
+4. **Should public contractor profiles stay login-gated?** Applying 038 as Option A made `/contractors/<id>` 404 for logged-out visitors. One-line fix either way; I need to know the intent. If these are meant to be shareable/SEO-indexed, they're currently broken for every anonymous visitor.
 
-5. **The 80% gate on a thin dataset.** The demo project has exactly 4 matches, 3 above gate. After hearting/passing through them the UI correctly shows "You're all caught up" — which is right, but makes the matches screen look empty for most of a walkthrough. Worth seeding more before demoing to anyone external?
+5. **Migration application process.** Three batches now have ended with "migration written, founder must paste it." This one worked, but if there's a way to give the agent environment scoped DDL access it removes a recurring bottleneck and a real class of "documented but not actually fixed" risk — CodeRabbit flagged exactly this on PR #8 and was right that documentation alone doesn't remediate a live environment.
+
+6. **The 80% gate on a thin dataset.** The demo project has exactly 4 matches, 3 above gate. After hearting/passing through them the UI correctly shows "You're all caught up" — which is right, but makes the matches screen look empty for most of a walkthrough. Worth seeding more before demoing to anyone external?
