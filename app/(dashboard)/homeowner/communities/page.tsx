@@ -32,12 +32,14 @@ function CommunitiesContent() {
         return
       }
 
-      // Get user's ZIP from properties
+      // Get user's ZIP from properties. is_demo isolation (WARP.md §14) is
+      // for hiding demo rows from OTHER users, not the owner's own data --
+      // filtering is_demo=false here meant a demo account (e.g. the founder
+      // walkthrough user) could never find its own property.
       const { data: propertyData, error: propError } = await supabase
         .from('properties')
         .select('zip_code')
         .eq('owner_id', user.id)
-        .eq('is_demo', false)
         .order('created_at', { ascending: true })
         .limit(1)
         .single()
@@ -49,34 +51,37 @@ function CommunitiesContent() {
 
       setUserZip(zip)
 
-      // Get or create community for this ZIP
+      // Get or create community for this ZIP. member_count/post_count aren't
+      // real columns on `communities` (migration 005) -- they're computed
+      // below via count queries against community_members/community_posts.
       const { data: communityData, error: commError } = await supabase
         .from('communities')
-        .select('id, zip_code, member_count, post_count, created_at')
+        .select('id, zip_code, created_at')
         .eq('zip_code', zip)
         .single()
 
       let communityId: string
+      let communityRow: { id: string; zip_code: string; created_at: string }
 
       if (commError && commError.code === 'PGRST116') {
-        // Community doesn't exist, create it
+        // Community doesn't exist, create it. RLS requires creator_id = auth.uid().
         const { data: newComm, error: createError } = await supabase
           .from('communities')
           .insert({
             zip_code: zip,
-            member_count: 1,
-            post_count: 0
+            name: `ZIP ${zip} Community`,
+            creator_id: user.id
           })
-          .select('id, zip_code, member_count, post_count, created_at')
+          .select('id, zip_code, created_at')
           .single()
 
         if (createError) throw createError
-        setCommunity(newComm)
+        communityRow = newComm
         communityId = newComm.id
       } else if (commError) {
         throw commError
       } else {
-        setCommunity(communityData)
+        communityRow = communityData
         communityId = communityData.id
       }
 
@@ -89,6 +94,18 @@ function CommunitiesContent() {
         })
 
       if (memberError && memberError.code !== '23505') throw memberError
+
+      const [
+        { count: memberCount, error: memberCountError },
+        { count: postCount, error: postCountError }
+      ] = await Promise.all([
+        supabase.from('community_members').select('*', { count: 'exact', head: true }).eq('community_id', communityId),
+        supabase.from('community_posts').select('*', { count: 'exact', head: true }).eq('community_id', communityId)
+      ])
+      if (memberCountError) throw memberCountError
+      if (postCountError) throw postCountError
+
+      setCommunity({ ...communityRow, member_count: memberCount ?? 0, post_count: postCount ?? 0 })
     } catch (err: any) {
       setError(err.message || 'Failed to load community')
     } finally {

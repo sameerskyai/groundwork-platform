@@ -101,5 +101,8 @@ export async function authenticateAsFounderDemo(page: Page) {
 }
 
 export async function getFounderProjectId() {
-  return '469d18b1-9725-48b9-a33a-722dda804fea'
+  // Was 469d18b1-9725-48b9-a33a-722dda804fea -- that project no longer
+  // exists (demo data drift). Updated to the current live founder.demo
+  // project id, verified directly against the DB during Gate 4 prep.
+  return '610c1a13-a8cb-4dfb-be00-be4488beb04b'
 }

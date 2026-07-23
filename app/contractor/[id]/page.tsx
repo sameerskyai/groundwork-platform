@@ -168,8 +168,10 @@ export default function ContractorProfilePage() {
       }
 
       // Find or create match
-      // For now, route to matches page to create match if needed
-      router.push('/homeowner/matches')
+      // For now, route to dashboard -- this page has no project context to
+      // build a working /homeowner/matches?project=<id> link (see Back to
+      // matches fix below for the same reasoning)
+      router.push('/homeowner')
     } catch (err) {
       console.error('Failed to message', err)
     } finally {
@@ -198,8 +200,8 @@ export default function ContractorProfilePage() {
           <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-lg)' }}>
             {error || 'This contractor profile is not available'}
           </p>
-          <Link href="/homeowner/matches">
-            <Button className="w-full">Back to matches</Button>
+          <Link href="/homeowner">
+            <Button className="w-full">Back to dashboard</Button>
           </Link>
         </Card>
       </div>
