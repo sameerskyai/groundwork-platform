@@ -56,18 +56,37 @@ REVOKE EXECUTE ON FUNCTION is_contractor_matched_to_own_project(UUID) FROM PUBLI
 REVOKE EXECUTE ON FUNCTION is_contractor_matched_to_own_project(UUID) FROM anon;
 GRANT EXECUTE ON FUNCTION is_contractor_matched_to_own_project(UUID) TO authenticated;
 
+-- The RESTRICTIVE policy is split by role. A single policy covering both
+-- roles would be evaluated by anon too, and anon no longer has EXECUTE on
+-- the helper (revoked just above) -- so an anonymous SELECT touching a
+-- demo row would fail outright rather than simply filtering it out.
+-- anon gets the plain is_demo = false check; only authenticated evaluates
+-- the helper. (Caught in CodeRabbit review of this migration -- the revoke
+-- and the policy were written in the same pass and contradicted each other.)
 DROP POLICY IF EXISTS "demo_isolation_contractors" ON contractor_profiles;
 DROP POLICY IF EXISTS "contractor_profiles_access" ON contractor_profiles;
-CREATE POLICY "demo_isolation_contractors" ON contractor_profiles
+
+CREATE POLICY "demo_isolation_contractors_anon" ON contractor_profiles
   AS RESTRICTIVE
   FOR SELECT
+  TO anon
+  USING (is_demo = false);
+
+CREATE POLICY "demo_isolation_contractors_authenticated" ON contractor_profiles
+  AS RESTRICTIVE
+  FOR SELECT
+  TO authenticated
   USING (
     is_demo = false
     OR is_contractor_matched_to_own_project(id)
   );
 
--- Verification query (run manually after applying, not part of the migration):
+-- Verification queries (run manually after applying, not part of the migration):
 --   set role anon;
 --   select id, business_name, is_demo from contractor_profiles;
---   -- should return zero is_demo = true rows.
+--   -- should return rows, and zero of them with is_demo = true (must not error)
 --   reset role;
+--
+-- Authenticated demo users should still see their own matched demo
+-- contractors -- verify by logging in as the founder demo account and
+-- confirming /homeowner/matches still renders its 4 seeded matches.
