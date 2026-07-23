@@ -95,15 +95,15 @@ function CommunitiesContent() {
 
       if (memberError && memberError.code !== '23505') throw memberError
 
-      const { count: memberCount } = await supabase
-        .from('community_members')
-        .select('*', { count: 'exact', head: true })
-        .eq('community_id', communityId)
-
-      const { count: postCount } = await supabase
-        .from('community_posts')
-        .select('*', { count: 'exact', head: true })
-        .eq('community_id', communityId)
+      const [
+        { count: memberCount, error: memberCountError },
+        { count: postCount, error: postCountError }
+      ] = await Promise.all([
+        supabase.from('community_members').select('*', { count: 'exact', head: true }).eq('community_id', communityId),
+        supabase.from('community_posts').select('*', { count: 'exact', head: true }).eq('community_id', communityId)
+      ])
+      if (memberCountError) throw memberCountError
+      if (postCountError) throw postCountError
 
       setCommunity({ ...communityRow, member_count: memberCount ?? 0, post_count: postCount ?? 0 })
     } catch (err: any) {

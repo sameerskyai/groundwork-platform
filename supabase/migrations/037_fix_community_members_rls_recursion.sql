@@ -15,8 +15,15 @@
 -- privileges of their owner (the migration role, which has BYPASSRLS),
 -- so the inner membership check no longer re-triggers RLS on
 -- community_members, breaking the recursion.
+--
+-- CodeRabbit review caught a real gap in the first pass: SECURITY DEFINER
+-- functions in the public schema are directly callable as RPCs by default
+-- (EXECUTE granted to PUBLIC), so a version taking p_user_id as a caller-
+-- supplied parameter would let anyone probe arbitrary (community, user)
+-- pairs. Reads auth.uid() internally instead of accepting it as an
+-- argument, and revokes PUBLIC/anon EXECUTE explicitly.
 
-CREATE OR REPLACE FUNCTION is_community_member(p_community_id UUID, p_user_id UUID)
+CREATE OR REPLACE FUNCTION is_community_member(p_community_id UUID)
 RETURNS BOOLEAN
 LANGUAGE sql
 SECURITY DEFINER
@@ -25,9 +32,13 @@ STABLE
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM community_members
-    WHERE community_id = p_community_id AND user_id = p_user_id
+    WHERE community_id = p_community_id AND user_id = auth.uid()
   );
 $$;
+
+REVOKE EXECUTE ON FUNCTION is_community_member(UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION is_community_member(UUID) FROM anon;
+GRANT EXECUTE ON FUNCTION is_community_member(UUID) TO authenticated;
 
 DROP POLICY IF EXISTS "community_members_view" ON community_members;
 CREATE POLICY "community_members_view" ON community_members FOR SELECT USING (
@@ -35,7 +46,7 @@ CREATE POLICY "community_members_view" ON community_members FOR SELECT USING (
     SELECT 1 FROM communities
     WHERE id = community_id AND (
       auth.uid() = creator_id OR
-      is_community_member(community_id, auth.uid())
+      is_community_member(community_id)
     )
   )
 );
@@ -45,7 +56,7 @@ CREATE POLICY "community_members_view" ON community_members FOR SELECT USING (
 DROP POLICY IF EXISTS "communities_view" ON communities;
 CREATE POLICY "communities_view" ON communities FOR SELECT USING (
   auth.uid() = creator_id OR
-  is_community_member(id, auth.uid()) OR
+  is_community_member(id) OR
   published = true
 );
 

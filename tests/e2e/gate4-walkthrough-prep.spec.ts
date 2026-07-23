@@ -1,7 +1,32 @@
 import { test, expect } from '@playwright/test'
+import { createClient } from '@supabase/supabase-js'
+import * as fs from 'fs'
 import { authenticateAsFounderDemo, getFounderProjectId } from '../helpers/auth'
 
 const SHOTS = 'tests/e2e-screenshots/gate4'
+
+// Fetches a real seeded match id at test time rather than hardcoding one --
+// mirrors getFounderProjectId's "known stale hardcoded id" lesson from this
+// same session.
+async function getFounderFirstMatchId(): Promise<string> {
+  const envContent = fs.readFileSync('.env.local', 'utf-8')
+  const env: Record<string, string> = {}
+  for (const line of envContent.split('\n')) {
+    const m = line.match(/^([A-Z_]+)=(.*)$/)
+    if (m) env[m[1]] = m[2]
+  }
+  const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
+  const projectId = await getFounderProjectId()
+  const { data, error } = await admin
+    .from('matches')
+    .select('id')
+    .eq('project_id', projectId)
+    .order('match_score', { ascending: false })
+    .limit(1)
+    .single()
+  if (error || !data) throw new Error(`No seeded match found for project ${projectId}: ${error?.message}`)
+  return data.id
+}
 
 test.describe('Gate 4: Walkthrough Prep', () => {
   test('Bug #3: /homeowner/communities has no marketing header', async ({ page }) => {
@@ -67,16 +92,26 @@ test.describe('Gate 4: Walkthrough Prep', () => {
     expect(page.url()).toContain('/homeowner/matches?project=')
     await expect(page.locator('text=Project not found or not authorized')).toHaveCount(0)
 
-    // Chat page's "Back to matches" (error-state link, no active conversation)
+    // Chat page's back link WITH a real match -- this is the project-aware
+    // branch (matchProjectId resolved), the one that actually had the bug.
+    const matchId = await getFounderFirstMatchId()
+    await page.goto(`http://localhost:3000/homeowner/chat?match=${matchId}`)
+    await page.waitForLoadState('networkidle')
+    const chatBackLink = page.locator('header a').first()
+    await expect(chatBackLink).toHaveAttribute('href', /\/homeowner\/matches\?project=/, { timeout: 10000 })
+    await chatBackLink.click()
+    await page.waitForURL(/\/homeowner\/matches\?project=/, { timeout: 10000 })
+    await expect(page.locator('text=Loading matches...')).toHaveCount(0, { timeout: 10000 })
+    await page.screenshot({ path: `${SHOTS}/bug5-2-chat-back-to-matches.png`, fullPage: true })
+    expect(page.url()).toContain('/homeowner/matches?project=')
+    await expect(page.locator('text=Project not found or not authorized')).toHaveCount(0)
+
+    // Chat page with NO match -- the fallback branch, should go to /homeowner
+    // rather than a broken bare /homeowner/matches.
     await page.goto('http://localhost:3000/homeowner/chat')
     await page.waitForLoadState('networkidle')
-    const backLink = page.locator('a:has-text("Back to matches")')
-    if (await backLink.count() > 0) {
-      await backLink.click()
-      await page.waitForLoadState('networkidle')
-      await page.screenshot({ path: `${SHOTS}/bug5-2-chat-back-to-matches.png`, fullPage: true })
-      console.log('chat back-to-matches landed on:', page.url())
-    }
+    const fallbackLink = page.locator('a:has-text("Back to matches")')
+    await expect(fallbackLink).toHaveAttribute('href', '/homeowner')
   })
 
   test('Matches page renders real matches (regression check for the seed repair)', async ({ page }) => {
@@ -86,6 +121,6 @@ test.describe('Gate 4: Walkthrough Prep', () => {
     await page.waitForLoadState('networkidle')
     await page.screenshot({ path: `${SHOTS}/matches-regression.png`, fullPage: true })
     const content = await page.content()
-    console.log('matches page shows 92%:', content.includes('92%'))
+    expect(content).toContain('92%')
   })
 })

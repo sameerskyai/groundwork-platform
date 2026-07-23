@@ -29,10 +29,16 @@
 -- filter using a SECURITY DEFINER helper (same pattern as migration 037)
 -- so the "user's own demo-matched contractors" exception doesn't hit the
 -- same nested-RLS-subquery problem that broke migration 029.
+--
+-- CodeRabbit review caught the same gap as migration 037: SECURITY DEFINER
+-- functions are directly callable as RPCs by default, so a version taking
+-- p_user_id as a caller-supplied argument would let anyone probe arbitrary
+-- (contractor, user) match pairs. Reads auth.uid() internally instead, and
+-- revokes PUBLIC/anon EXECUTE explicitly.
 
 DROP POLICY IF EXISTS "contractor_profiles_public_read" ON contractor_profiles;
 
-CREATE OR REPLACE FUNCTION is_contractor_matched_to_own_project(p_contractor_id UUID, p_user_id UUID)
+CREATE OR REPLACE FUNCTION is_contractor_matched_to_own_project(p_contractor_id UUID)
 RETURNS BOOLEAN
 LANGUAGE sql
 SECURITY DEFINER
@@ -42,9 +48,13 @@ AS $$
   SELECT EXISTS (
     SELECT 1 FROM matches m
     JOIN projects p ON p.id = m.project_id
-    WHERE m.contractor_id = p_contractor_id AND p.user_id = p_user_id
+    WHERE m.contractor_id = p_contractor_id AND p.user_id = auth.uid()
   );
 $$;
+
+REVOKE EXECUTE ON FUNCTION is_contractor_matched_to_own_project(UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION is_contractor_matched_to_own_project(UUID) FROM anon;
+GRANT EXECUTE ON FUNCTION is_contractor_matched_to_own_project(UUID) TO authenticated;
 
 DROP POLICY IF EXISTS "demo_isolation_contractors" ON contractor_profiles;
 DROP POLICY IF EXISTS "contractor_profiles_access" ON contractor_profiles;
@@ -53,7 +63,7 @@ CREATE POLICY "demo_isolation_contractors" ON contractor_profiles
   FOR SELECT
   USING (
     is_demo = false
-    OR is_contractor_matched_to_own_project(id, auth.uid())
+    OR is_contractor_matched_to_own_project(id)
   );
 
 -- Verification query (run manually after applying, not part of the migration):
