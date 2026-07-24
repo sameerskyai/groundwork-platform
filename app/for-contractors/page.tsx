@@ -5,8 +5,8 @@ import { WaitlistForm } from '@/components/waitlist/WaitlistForm'
 import { Check, ArrowRight, DollarSign, Clock, Star } from 'lucide-react'
 
 export const metadata = {
-  title: 'For Contractors — Groundwork',
-  description: 'Stop chasing quotes that go nowhere. Groundwork sends you budget-qualified homeowners who already know what fair looks like.'
+  title: 'For Contractors — Laywork',
+  description: 'Stop chasing quotes that go nowhere. Laywork sends you budget-qualified homeowners who already know what fair looks like.'
 }
 
 const PAIN_POINTS = [
@@ -42,7 +42,7 @@ export default function ForContractorsPage() {
             <span style={{ color: '#E8722C' }}>Get budget-qualified homeowners instead.</span>
           </h1>
           <p style={{ color: '#6B8090', fontSize: 17, lineHeight: 1.7, marginBottom: 40, maxWidth: 560 }}>
-            Most lead gen wastes your time: people tire-kicking, collecting quotes with no intention to hire, or expecting $8,000 worth of work for $2,000. Groundwork sends you homeowners who already understand what fair costs.
+            Most lead gen wastes your time: people tire-kicking, collecting quotes with no intention to hire, or expecting $8,000 worth of work for $2,000. Laywork sends you homeowners who already understand what fair costs.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Link href="/signup?role=contractor">
@@ -159,7 +159,7 @@ export default function ForContractorsPage() {
             Claim your ZIP before your competitors do.
           </h2>
           <p style={{ color: '#6B8090', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>
-            Groundwork opens city by city. Join the waitlist and you&apos;ll be first in line
+            Laywork opens city by city. Join the waitlist and you&apos;ll be first in line
             when homeowners in your area start posting projects — early members get
             priority placement at launch.
           </p>

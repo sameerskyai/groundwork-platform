@@ -4,7 +4,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Check } from 'lucide-react'
 
 export const metadata = {
-  title: 'Pricing — Groundwork',
+  title: 'Pricing — Laywork',
   description: 'Simple, transparent pricing for homeowners, contractors, and property managers. No hidden fees.'
 }
 
@@ -165,7 +165,7 @@ export default function PricingPage() {
             {[
               { q: 'Is there a free trial for contractors?', a: 'Not currently, but we\'re working on it. The setup takes under 20 minutes and you can cancel after your first month if it\'s not working for you.' },
               { q: 'What counts as a "job request"?', a: 'A job request is when a homeowner swipes to show interest in your profile and you choose to accept. Passing doesn\'t count against your daily limit.' },
-              { q: 'Are there per-job commissions or fees?', a: 'Never. You pay the flat monthly rate and keep 100% of every job you win through Groundwork.' },
+              { q: 'Are there per-job commissions or fees?', a: 'Never. You pay the flat monthly rate and keep 100% of every job you win through Laywork.' },
               { q: 'Why does the estimate unlock cost $9?', a: 'The full itemized breakdown — labor, materials, timeline, line items — requires significantly more AI compute to generate. $9 covers that cost and funds the platform.' }
             ].map(item => (
               <div key={item.q} style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', paddingBottom: 20 }}>

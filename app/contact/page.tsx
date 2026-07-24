@@ -8,7 +8,7 @@ import { Mail, MessageCircle } from 'lucide-react'
 
 const FAQS = [
   {
-    q: 'Is Groundwork free for homeowners?',
+    q: 'Is Laywork free for homeowners?',
     a: 'Yes. Creating an account and getting an AI estimate is completely free. You only pay if you want to unlock the full itemized breakdown (a one-time $9 unlock) — the estimate range itself is always free.'
   },
   {
@@ -17,11 +17,11 @@ const FAQS = [
   },
   {
     q: 'How are contractors verified?',
-    a: 'Every contractor submits proof of a valid contractor\'s license and general liability insurance before going live on Groundwork. We don\'t accept self-reported claims. See our Contractor Verification page for the full methodology.'
+    a: 'Every contractor submits proof of a valid contractor\'s license and general liability insurance before going live on Laywork. We don\'t accept self-reported claims. See our Contractor Verification page for the full methodology.'
   },
   {
     q: 'What if I don\'t like any of the contractors I\'m matched with?',
-    a: 'You\'re always in control. Pass on any match and Groundwork will surface others. You never have to engage with anyone you don\'t want to.'
+    a: 'You\'re always in control. Pass on any match and Laywork will surface others. You never have to engage with anyone you don\'t want to.'
   },
   {
     q: 'Is my contact information shared with contractors?',

@@ -1,4 +1,4 @@
-// Groundwork plumb bob logo mark
+// Laywork plumb bob logo mark
 // A plumb bob = the tool used to find true vertical — honest, exact, a real trade instrument
 export function LogoMark({ className = 'w-8 h-8' }: { className?: string }) {
   return (
@@ -42,14 +42,14 @@ export function Wordmark({
 }) {
   const textSize = size === 'lg' ? 'text-2xl' : size === 'sm' ? 'text-base' : 'text-lg'
   const logoSize = size === 'lg' ? 'w-9 h-10' : size === 'sm' ? 'w-5 h-6' : 'w-7 h-8'
-  const color = dark ? 'text-[#0A0908]' : 'text-[#EDE8DF]'
-  const accent = dark ? 'text-[#BF7A3A]' : 'text-[#D4903F]'
+  const color = dark ? 'text-[var(--color-ink)]' : 'text-[var(--color-base)]'
+  const accent = dark ? 'text-[var(--color-accent)]' : 'text-[var(--color-brand-light)]'
 
   return (
     <div className={`flex items-center gap-2.5 ${color}`}>
       <LogoMark className={`${logoSize} ${accent}`} />
       <span className={`${textSize} font-bold tracking-tight`}>
-        Groundwork
+        Laywork
       </span>
     </div>
   )

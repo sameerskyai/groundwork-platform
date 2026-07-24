@@ -124,7 +124,7 @@ export function Footer() {
           gap: 12
         }}>
           <p style={{ color: '#2A3A48', fontSize: 13 }}>
-            © {new Date().getFullYear()} Groundwork. All rights reserved.
+            © {new Date().getFullYear()} Laywork. All rights reserved.
           </p>
           <div style={{ display: 'flex', gap: 20 }}>
             {[

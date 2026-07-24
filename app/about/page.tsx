@@ -3,8 +3,8 @@ import { Wordmark } from '@/components/ui/logo'
 import { Footer } from '@/components/layout/Footer'
 
 export const metadata = {
-  title: 'About Groundwork',
-  description: 'Why we built Groundwork — and who\'s building it.'
+  title: 'About Laywork',
+  description: 'Why we built Laywork — and who\'s building it.'
 }
 
 export default function AboutPage() {
@@ -37,14 +37,14 @@ export default function AboutPage() {
           </p>
 
           <div style={{ borderLeft: '3px solid #E8722C', paddingLeft: 24, margin: '8px 0', fontStyle: 'italic', color: '#12181F', fontSize: 19, fontWeight: 500, lineHeight: 1.7 }}>
-            &ldquo;Groundwork exists to fix both sides of that at once, using real data instead of guesses, and letting AI run the parts that used to require a fifty-person team — so two people can build what used to take fifty.&rdquo;
+            &ldquo;Laywork exists to fix both sides of that at once, using real data instead of guesses, and letting AI run the parts that used to require a fifty-person team — so two people can build what used to take fifty.&rdquo;
           </div>
 
           <p>
-            The way we fix it: every estimate on Groundwork comes from real completed jobs, not formulas or national averages. Every contractor is verified — license, insurance, real pricing data — before they can appear in a match. And the swipe mechanic means homeowners are always in control of who hears from them, which means contractors only hear from people who are genuinely interested.
+            The way we fix it: every estimate on Laywork comes from real completed jobs, not formulas or national averages. Every contractor is verified — license, insurance, real pricing data — before they can appear in a match. And the swipe mechanic means homeowners are always in control of who hears from them, which means contractors only hear from people who are genuinely interested.
           </p>
           <p>
-            The data gets better with every job. Every project completion that goes through Groundwork sharpens the estimate for the next homeowner in that ZIP code. Every contractor who answers the pricing interview adds real labor rates to our cost database. The platform learns.
+            The data gets better with every job. Every project completion that goes through Laywork sharpens the estimate for the next homeowner in that ZIP code. Every contractor who answers the pricing interview adds real labor rates to our cost database. The platform learns.
           </p>
           <p>
             We&apos;re a small team. We&apos;re building this because the problem is real, the technology is finally good enough to solve it, and we&apos;re tired of watching people get ripped off on the biggest purchases of their lives.

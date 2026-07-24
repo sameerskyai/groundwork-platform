@@ -12,11 +12,11 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { zip } = await params
   return {
-    title: `Recent home renovations near ${zip} — Groundwork`,
+    title: `Recent home renovations near ${zip} — Laywork`,
     description: `See real completed home improvement projects near ZIP code ${zip}. Verified costs, vetted contractors.`,
     openGraph: {
       title: `Recent renovations near ${zip}`,
-      description: `Real completed projects near ${zip} — verified costs from Groundwork.`
+      description: `Real completed projects near ${zip} — verified costs from Laywork.`
     }
   }
 }
@@ -95,7 +95,7 @@ export default async function PublicFeedPage({ params }: Props) {
             <div className="w-7 h-7 rounded-lg gradient-brand flex items-center justify-center">
               <Wrench className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-bold text-gray-900">Groundwork</span>
+            <span className="font-bold text-gray-900">Laywork</span>
           </Link>
           <Link href="/signup">
             <Button size="sm">Get started free</Button>
@@ -125,7 +125,7 @@ export default async function PublicFeedPage({ params }: Props) {
         {belowThreshold ? (
           <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center mb-8">
             <div className="text-4xl mb-4">🏗️</div>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">Groundwork is just getting started here</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-2">Laywork is just getting started here</h2>
             <p className="text-gray-500 text-sm mb-6">
               No verified jobs have been completed near {zip} yet. As contractors and homeowners use the platform, this feed will fill in automatically.
             </p>

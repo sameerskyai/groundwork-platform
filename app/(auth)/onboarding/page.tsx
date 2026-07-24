@@ -201,7 +201,7 @@ export default function OnboardingPage() {
           <div className="flex flex-col gap-8">
             <div>
               <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.25rem)', fontWeight: 'var(--weight-bold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-sm)' }}>
-                What brings you to Groundwork?
+                What brings you to Laywork?
               </h1>
               <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>
                 We'll customize your experience based on what you do

@@ -3,16 +3,16 @@ import { Wordmark } from '@/components/ui/logo'
 import { Footer } from '@/components/layout/Footer'
 
 export const metadata = {
-  title: 'Privacy Policy — Groundwork',
-  description: 'How Groundwork collects, uses, and protects your data.'
+  title: 'Privacy Policy — Laywork',
+  description: 'How Laywork collects, uses, and protects your data.'
 }
 
 const SECTIONS = [
   {
     title: 'What this policy covers',
-    body: `This Privacy Policy describes how Groundwork ("we," "us") collects, uses, stores, and shares information about you when you use our platform. It applies to all users: homeowners, contractors, and property managers.
+    body: `This Privacy Policy describes how Laywork ("we," "us") collects, uses, stores, and shares information about you when you use our platform. It applies to all users: homeowners, contractors, and property managers.
 
-We built Groundwork on a simple principle: your data is used to run Groundwork, not to make money off you separately. We do not sell your personal data. Ever.`
+We built Laywork on a simple principle: your data is used to run Laywork, not to make money off you separately. We do not sell your personal data. Ever.`
   },
   {
     title: 'What we collect',
@@ -24,7 +24,7 @@ We built Groundwork on a simple principle: your data is used to run Groundwork, 
 
 **Contractor-provided data:** Trade information, pricing ranges, license numbers, and insurance documentation. This is used to verify contractors, build their profiles, and power our matching system.
 
-**Payment data:** We use Stripe to process payments. Groundwork does not store full credit card numbers. We receive transaction records (amounts, dates, outcomes) for billing purposes.
+**Payment data:** We use Stripe to process payments. Laywork does not store full credit card numbers. We receive transaction records (amounts, dates, outcomes) for billing purposes.
 
 **Usage data:** Pages visited, features used, and interactions with the platform. This is used to improve the product. We do not sell usage data to advertisers.
 
@@ -32,7 +32,7 @@ We built Groundwork on a simple principle: your data is used to run Groundwork, 
   },
   {
     title: 'How we use your data',
-    body: `• To provide and improve Groundwork's core features (estimates, matching, profiles, messaging)
+    body: `• To provide and improve Laywork's core features (estimates, matching, profiles, messaging)
 • To verify contractor licenses and insurance status
 • To generate AI-powered cost estimates — your project data (without identifying information) contributes to the cost database that makes estimates more accurate over time
 • To communicate with you about your account, matches, and platform updates
@@ -52,7 +52,7 @@ Photos are not publicly accessible by default. Only matched contractors can view
   },
   {
     title: 'Address data',
-    body: `Your full street address is never required to use Groundwork. We ask for your ZIP code, which we convert to approximate coordinates (via a third-party geocoding service) for distance-based matching. Your ZIP code is visible to matched contractors — your full address is not shared until you choose to share it directly via messaging.
+    body: `Your full street address is never required to use Laywork. We ask for your ZIP code, which we convert to approximate coordinates (via a third-party geocoding service) for distance-based matching. Your ZIP code is visible to matched contractors — your full address is not shared until you choose to share it directly via messaging.
 
 If you complete a project and opt into our Neighborhood Feed, we publish only your neighborhood or intersection (not your full address) along with anonymized job details.`
   },
@@ -68,7 +68,7 @@ If you complete a project and opt into our Neighborhood Feed, we publish only yo
 
 We require all service providers to handle your data only as directed by us and to maintain appropriate security measures.
 
-**Legal requirements:** We may disclose data if required by law, court order, or to protect the rights, property, or safety of Groundwork users.
+**Legal requirements:** We may disclose data if required by law, court order, or to protect the rights, property, or safety of Laywork users.
 
 **We do not sell your data.** We do not share data with advertisers, data brokers, or marketing companies.`
   },
@@ -104,7 +104,7 @@ No system is perfectly secure. If you discover a security vulnerability, please 
   },
   {
     title: 'Children',
-    body: `Groundwork is not directed at or intended for use by anyone under 18. We do not knowingly collect personal information from minors. If we become aware that a minor has provided us with personal information, we will delete it promptly.`
+    body: `Laywork is not directed at or intended for use by anyone under 18. We do not knowingly collect personal information from minors. If we become aware that a minor has provided us with personal information, we will delete it promptly.`
   },
   {
     title: 'Changes to this policy',
@@ -112,7 +112,7 @@ No system is perfectly secure. If you discover a security vulnerability, please 
   },
   {
     title: 'Contact',
-    body: `Privacy questions or requests: hello@groundworkapp.com\n\nOr write to us at:\nGroundwork\nAttn: Privacy\nhello@groundworkapp.com`
+    body: `Privacy questions or requests: hello@groundworkapp.com\n\nOr write to us at:\nLaywork\nAttn: Privacy\nhello@groundworkapp.com`
   }
 ]
 

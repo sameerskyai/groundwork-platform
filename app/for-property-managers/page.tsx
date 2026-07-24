@@ -4,7 +4,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Check, Building2 } from 'lucide-react'
 
 export const metadata = {
-  title: 'For Property Managers — Groundwork',
+  title: 'For Property Managers — Laywork',
   description: 'Manage maintenance and renovation across your portfolio with real cost data and verified contractors in one place.'
 }
 
@@ -32,7 +32,7 @@ export default function ForPropertyManagersPage() {
             One platform for your whole portfolio.
           </h1>
           <p style={{ color: '#6B8090', fontSize: 17, lineHeight: 1.7, marginBottom: 40, maxWidth: 540 }}>
-            Managing maintenance and renovation across multiple properties means juggling multiple contractors, comparing quotes you can&apos;t verify, and never knowing if you&apos;re being overcharged. Groundwork fixes that.
+            Managing maintenance and renovation across multiple properties means juggling multiple contractors, comparing quotes you can&apos;t verify, and never knowing if you&apos;re being overcharged. Laywork fixes that.
           </p>
           <Link href="/contact">
             <button style={{ padding: '15px 28px', borderRadius: 10, background: '#4A6B8A', color: '#fff', border: 'none', fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>

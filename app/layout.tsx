@@ -6,10 +6,10 @@ import './globals.css'
 const geist = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Groundwork — Real estimates. Honest contractors.',
+  title: 'Laywork — Real estimates. Honest contractors.',
   description: 'Stop guessing what home improvement costs. Get an AI-powered estimate from real job data, then get matched with a vetted contractor who actually shows up.',
   openGraph: {
-    title: 'Groundwork',
+    title: 'Laywork',
     description: 'Real estimates. Honest contractors. No guesswork.',
     type: 'website'
   }

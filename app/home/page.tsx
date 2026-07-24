@@ -328,7 +328,7 @@ export default function HomePage() {
             }}>
               <div />
               <div style={{ color: '#4A6070', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Other sites</div>
-              <div style={{ color: '#E8722C', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Groundwork</div>
+              <div style={{ color: '#E8722C', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Laywork</div>
             </div>
             {COMPARE.map((row, i) => (
               <div key={row.label} style={{
@@ -355,7 +355,7 @@ export default function HomePage() {
               <Shield style={{ width: 32, height: 32, color: '#E8722C', marginBottom: 16 }} />
               <h3 style={{ color: '#12181F', fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Contractors are verified</h3>
               <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7 }}>
-                Every contractor on Groundwork submits proof of license and insurance before going live. We don&apos;t accept self-reported claims.
+                Every contractor on Laywork submits proof of license and insurance before going live. We don&apos;t accept self-reported claims.
               </p>
               <Link href="/trust" style={{ display: 'inline-block', marginTop: 16, color: '#E8722C', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                 How verification works →
@@ -374,7 +374,7 @@ export default function HomePage() {
               <div style={{ width: 32, height: 32, marginBottom: 16, fontSize: 28 }}>🔒</div>
               <h3 style={{ color: '#12181F', fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Your data is never sold</h3>
               <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7 }}>
-                Your address, project photos, and payment data are used to run Groundwork — not sold to advertisers, not shared with third parties.
+                Your address, project photos, and payment data are used to run Laywork — not sold to advertisers, not shared with third parties.
               </p>
               <Link href="/privacy" style={{ display: 'inline-block', marginTop: 16, color: '#E8722C', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                 Read our Privacy Policy →
@@ -460,11 +460,11 @@ export default function HomePage() {
             Be the first in your area.
           </h2>
           <p style={{ color: '#6B7280', fontSize: 18, maxWidth: 500, margin: '0 auto 48px' }}>
-            Groundwork is building city by city. Get in early and you&apos;re the homeowner in your ZIP code who already knows the number.
+            Laywork is building city by city. Get in early and you&apos;re the homeowner in your ZIP code who already knows the number.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, maxWidth: 800, margin: '0 auto' }}>
             {[
-              { role: 'Homeowner', name: 'D.W.', location: 'Bethesda, MD', quote: 'I got three quotes for my HVAC. Two were way over what Groundwork said was fair. Ended up paying exactly the estimate.' },
+              { role: 'Homeowner', name: 'D.W.', location: 'Bethesda, MD', quote: 'I got three quotes for my HVAC. Two were way over what Laywork said was fair. Ended up paying exactly the estimate.' },
               { role: 'Homeowner', name: 'M.R.', location: 'Arlington, VA', quote: 'Knowing the price range before anyone showed up changed the whole conversation. I wasn\'t guessing anymore.' },
               { role: 'Contractor', name: 'T.H., Licensed GC', location: 'Silver Spring, MD', quote: 'Every homeowner who comes through already understands what work costs. Way less back and forth on price.' }
             ].map(t => (

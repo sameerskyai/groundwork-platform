@@ -32,7 +32,7 @@ export default async function ContractorPublicProfile({ params }: { params: Prom
             <div className="w-7 h-7 rounded-lg gradient-brand flex items-center justify-center">
               <Wrench className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-bold text-gray-900">Groundwork</span>
+            <span className="font-bold text-gray-900">Laywork</span>
           </Link>
         </div>
       </header>

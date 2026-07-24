@@ -43,7 +43,7 @@ export function FeedSection({ zipCode }: FeedSectionProps) {
       </h2>
       <div className="bg-white rounded-2xl border border-gray-100 p-6 text-center">
         <p className="text-sm text-gray-500">
-          No verified jobs nearby yet — Groundwork is just getting started in your area.
+          No verified jobs nearby yet — Laywork is just getting started in your area.
         </p>
         <p className="text-xs text-gray-400 mt-2">
           Complete your first project to be the first in your neighborhood.

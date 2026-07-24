@@ -24,7 +24,7 @@ export default function HowItWorksPage() {
       <section style={{ background: '#12181F', padding: '80px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: 700, margin: '0 auto' }}>
           <h1 style={{ color: '#F7F5F1', fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 16 }}>
-            How Groundwork works
+            How Laywork works
           </h1>
           <p style={{ color: '#6B8090', fontSize: 17, lineHeight: 1.7 }}>
             From project description to contractor match in under three minutes. Here&apos;s exactly what happens.
@@ -112,7 +112,7 @@ export default function HowItWorksPage() {
               Swipe to pick your contractor
             </h2>
             <p style={{ color: '#6B7280', fontSize: 16, lineHeight: 1.8, marginBottom: 20 }}>
-              Groundwork surfaces verified contractors who match your specific trade, your ZIP code, and your budget range. They appear as cards you can swipe through — like browsing, but for someone who&apos;ll actually show up.
+              Laywork surfaces verified contractors who match your specific trade, your ZIP code, and your budget range. They appear as cards you can swipe through — like browsing, but for someone who&apos;ll actually show up.
             </p>
             <p style={{ color: '#6B7280', fontSize: 16, lineHeight: 1.8, marginBottom: 28 }}>
               Swipe right to show interest — the contractor sees your project and can respond. Swipe left to pass and move on. Your contact information is never shared until you choose to share it.
