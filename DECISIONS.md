@@ -1280,3 +1280,61 @@ Two GSAP count-up stats ($18,500-$42,000, 80%) were flagged as showing "$0-$0" /
 4. **`react-hooks/set-state-in-effect` in `CountUpStat.tsx`** — the separate `reducedMotion` state+effect wasn't needed: the rendered JSX never depends on it (the number is set imperatively via ref, not React state), so no hydration-mismatch reason to defer it. Removed the extra state/effect, read `matchMedia` directly inside the existing animation effect instead.
 
 All confirmed with real contrast math (not eyeballed) and by reading the actual component code, not assumed.
+
+---
+
+## FOUNDER DECISION — Company name: Groundwork → Laywork (2026-07-24)
+
+**Supersedes** every prior use of the name "Groundwork" in user-facing surfaces. History above is intentionally left unedited.
+
+- Rename across the **product surface only**: wordmark, page titles, meta tags, headings, body copy, email templates, and any user-facing string.
+- **Not renamed yet** (separate coordinated change, founder call pending): GitHub repo, database tables/seed identities, env var names, package name, file paths, the `groundworkapp.com` email/social handles, and docs/tests. A full inventory of remaining occurrences is in the rebrand PR description.
+- Ambiguities flagged rather than guessed: wordmark casing recorded as "Laywork" (title case, matching prior usage) pending confirmation of the all-caps "LAYWORK" styling; `hello@groundworkapp.com` and social URLs are live infrastructure and unchanged; legal entity name in Terms/Privacy renamed in copy but needs counsel review (LEGAL_TODO.md).
+
+---
+
+## FOUNDER DECISION — Palette: Warm Copper → Blue / White / Black (2026-07-24)
+
+**Supersedes** the Warm Copper direction (2026-07-14 proposal, PR #5 implementation) and the "Warm Copper is fixed, don't ask again" standing rule in EXECUTION.md. Design direction is confirmed as current-phase, not a durable brand commitment; it changes only by founder entry in this file. (Note: the founder instruction referenced "Blueprint Blue" as the outgoing palette; the incumbent implementation was Warm Copper — same action either way.)
+
+New token set (canonical, in `app/globals.css`, consumed by `app/styles/design-tokens.css`):
+
+    --color-base:       #FFFFFF   /* white, primary surface */
+    --color-base-alt:   #F5F7FA   /* subtle off-white for alternating sections */
+    --color-ink:        #0A0A0A   /* black, headlines and body */
+    --color-accent:     #1A5490   /* blue, CTAs, active states, data anchors */
+    --color-line:       #D6DEE7   /* rules, dividers, borders */
+    --color-text-muted: #6B7280   /* secondary text, metadata */
+    --color-verified:   #1E7A4D   /* verification states only */
+    --color-alert:      #B03A2E   /* genuine errors only */
+
+Rules: one blue CTA per viewport; numeric anchors ($18,500–$42,000, 80%, "You're #X") in blue; black for type, white for space, blue for action — nothing else competes; six colors, no seventh; alert red never in the hero. Interaction shades derive via `color-mix()` from these tokens only. This palette holds until changed here — never relitigated or changed autonomously.
+
+**Durable across any future redesign:** all design values live as CSS variables in the tokens file, never hardcoded in components; one consistent component system.
+
+**Known violation of that durable rule, flagged not silently fixed:** ~500 hardcoded hex values exist across `app/` pages and `components/` (heaviest: home 88, for-contractors 44, pricing 42, how-it-works 38, trust 34 — plus `--color-warning`/`--color-info` legacy site-wide tokens outside the 6-color set). The token swap alone does not restyle those pages; they still render the old copper/orange until migrated to tokens. Screenshots in the rebrand PR show the true mixed state. Migration of hardcoded values to tokens is a follow-up awaiting founder priority call.
+
+**Dark mode:** the Warm Copper dark inversion block was removed; the Blue/White/Black palette defines light mode only. Dark-mode values are undecided — founder call before anyone reinvents them.
+
+---
+
+## FOUNDER DECISION — SMS removed from waitlist (2026-07-23)
+
+SMS removed from waitlist, 2026-07-23, founder decision. Waitlist captures NAME and EMAIL only. No phone, no SMS consent, no TCPA surface. **Supersedes** the Phase 2 SMS consent items in EXECUTION.md (checkbox, consent language, consent timestamp) and prior entries here; history left unedited.
+
+- Database: `phone`, `sms_consent`, `sms_consent_language`, `sms_consent_timestamp` columns stay in place and nullable — NOT dropped (destructive on a live table; SMS may return). The application simply stops writing to them.
+- Dedupe is now email-only.
+- Confirmation and referral copy references email, never text messages.
+
+---
+
+## FOUNDER DECISION — The Founders Program is canon (2026-07-24)
+
+The scarcity engine behind the waitlist. Mechanics (most logic already exists from Phase 2 — reuse, never rebuild):
+
+- First 500 signups become FOUNDING MEMBERS automatically — flagged in DB (`founding_500`), badge in UI, live "X of 500 remaining" counter on-site. Real data only; if unavailable, hide the counter — never fabricate a count.
+- Founding Member status can ALSO be earned through referrals, regardless of position.
+- Referral tiers: **3 referrals = Founding Member status · 5 = free Home Backstory report at launch · 10 = Laywork+ locked at $49/yr for life.**
+- Every signup gets a sequential position number and unique referral link; each verified referral moves them up ~100 spots.
+- Public leaderboard: top 25 referrers, first name + last initial.
+- Founding Members get first access at launch, in waves.

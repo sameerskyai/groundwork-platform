@@ -127,21 +127,28 @@ Apply premium design to the EXISTING Phase 2 page — do not fork it. Ryan's lan
 **Modified from original directive 2026-07-21** (see DECISIONS.md): no `taste-skill` install, no Kling/Higgsfield/Nano Banana. Native build instead.
 
 - [x] Hero: exploded-view house that assembles on scroll (Home Passport metaphor). Built natively — SVG/CSS illustration + Framer Motion scroll-timeline, no external video generation, no frames-as-JPEGs pipeline.
-  - **Status**: VERIFIED — `components/waitlist/ExplodedHouseHero.tsx` (commit fd22bc0, merged `f351a46`). Four flat-color SVG layers assemble via `useScroll`/`useTransform` against a sticky container; `useReducedMotion` renders assembled/static instead of animating. Real screenshots: `phase3-hero-desktop.png` (exploded state), `phase3-hero-desktop-mid-scroll.png` (assembling), `phase3-hero-mobile.png`. First geometry attempt clipped at the SVG viewBox edges — caught via screenshot, not assumed, fixed before committing. "Inward masking gradient, no seams" simplified to a drop-shadow + opacity fade rather than a literal SVG mask — cosmetic difference, not a functional gap. Asset weight is inline SVG/CSS, well under 300kb (no binary assets at all).
+  - **Status**: VERIFIED — `components/waitlist/ExplodedHouseHero.tsx`, merged to `main` as `35374d6` (PR #5, squash). Five flat-color SVG layers (roof/upper/lower/systems/foundation) assemble via `useScroll`/`useTransform` against a sticky container; `useReducedMotion` renders assembled/static instead of animating. This round added a literal copper pipes/wiring "systems" layer between the lower floor and foundation — ties the palette rationale (copper = actual trade material) directly into the hero metaphor. Real screenshots: `phase3-hero-desktop.png` (exploded state), `phase3-hero-desktop-mid-scroll.png` (assembling), `phase3-hero-mobile.png`. Asset weight is inline SVG/CSS, well under 300kb (no binary assets at all).
 
-- [x] Scroll arc: hero (gamble) → horror story → free AI estimate → 5 mechanics (Match/Passport/Backstory/Health Score/Oracle) panels → Founding 500 counter → final CTA with position number
-  - **Status**: VERIFIED — `components/waitlist/ScrollNarrative.tsx` + rewired `app/waitlist/page.tsx` (commit fd22bc0). Copy for the 5 mechanics pulled from `MASTER_PLAN.md`/`WAR_PLAN.md` canon, not invented — Oracle panel includes the required statistical-framing disclaimer per the Oracle Language rules. Screenshots: `phase3-mechanics-panels.png`, `phase3-final-cta.png` (shows the real "499 of 500" live counter, plus a copy bug found and fixed in passing — was "Only 500 Founding 500 spots left", redundant wording).
+- [x] Scroll arc: hero (gamble) → horror story → free AI estimate → 5 mechanics (Match/Passport/Backstory/Health Score/Oracle) panels → 80% matching-standard gate → Founding-tier referral rewards → final CTA with position number
+  - **Status**: VERIFIED — `components/waitlist/ScrollNarrative.tsx` (`Problem`, `Shift`, `MechanicsPanels`, `EightyGate`, `FoundingTiers`) + rewired `app/waitlist/page.tsx`, merged `35374d6`. Copy for the 5 mechanics pulled from `MASTER_PLAN.md`/`WAR_PLAN.md` canon, not invented — Oracle panel includes the required statistical-framing disclaimer. Numeric anchors ($18,500–$42,000 estimate range, 80% match threshold) use GSAP ScrollTrigger count-up (`CountUpStat.tsx`) instead of a static number. Screenshots: `phase3-mechanics-panels.png`, `phase3-final-cta.png`.
+  - **Warm Copper color system applied site-wide**: `app/styles/design-tokens.css` rewritten with a psychology-driven 6-color palette (warm off-white base, warm charcoal text, copper accent), every text/background pairing verified against the real WCAG relative-luminance formula, not eyeballed — full contrast table in the file's header comment. Two real AA failures were found in the process and fixed: secondary gray text (3.61:1 → darkened to 4.80:1) and the primary button's copper fill against its actual inverse-text token (4.33:1 → darkened `--color-brand-solid` to `#9C612A`, 4.77:1) — the latter was a site-wide bug in `components/ui/button.tsx` affecting every primary button, not just the waitlist page. See DECISIONS.md for the two-round color-correction history.
 
-- [ ] Mobile: static hero frame fallback if scroll-scrub too heavy; mobile-optimize 3-4 passes
-  - **Status**: IN PROGRESS — `useReducedMotion` fallback exists and mobile renders correctly (`phase3-hero-mobile.png`), but the spec's "3-4 mobile-optimize passes" hasn't happened — this was one screenshot, not an iteration cycle.
+- [x] Mobile: static hero frame fallback if scroll-scrub too heavy; mobile-optimize passes
+  - **Status**: VERIFIED — `useReducedMotion` fallback renders assembled/static, confirmed via `phase3-hero-mobile.png`. Mobile LTE performance measured against the real PR #5 preview deployment via Playwright + CDP throttling (Fast 3G-equivalent: 1.6Mbps/750Kbps/150ms RTT, 4x CPU throttle, iPhone viewport/UA): **1.95s to full `load`, 25 requests, 360.7KB transferred** — passes the "usable under 3s" target with real margin. Full methodology and evidence in DECISIONS.md.
 
-- [ ] §20 screenshots: hero desktop+mobile, each section, final CTA. Mobile LTE perf pasted.
-  - **Status**: IN PROGRESS — hero/mechanics/final-CTA/mobile screenshots done (see above). Mobile LTE throttled performance evidence NOT done — same genuinely-open item as Phase 2's mobile LTE check, environment no longer blocks it, just not yet run.
+- [x] §20 screenshots: hero desktop+mobile, each section, final CTA. Mobile LTE perf pasted.
+  - **Status**: VERIFIED — hero/mechanics/final-CTA/mobile screenshots plus the LTE throttled-network evidence above, all real captures, not assumed.
+
+- [x] CodeRabbit review — PR #5, findings addressed
+  - **Status**: VERIFIED — 4 actionable findings, all real, all fixed: duplicate success card on submit (hero + final CTA both rendering the full referral card), hero spots-counter not hidden post-submit (final CTA had the guard, hero didn't), the button-contrast miss described above, and an unnecessary `react-hooks/set-state-in-effect` in `CountUpStat.tsx`. Full list in DECISIONS.md.
+
+- [x] Waitlist becomes the pre-launch front page
+  - **Status**: VERIFIED LIVE — `app/page.tsx` now redirects to `/waitlist`; the original 542-line marketing homepage preserved verbatim at `/home` for post-launch use. Confirmed no `(dashboard)` routes linked to `/` (only public marketing pages did, which is the intended pre-launch behavior). Verified on production (not just preview): `/` → 307 to `/waitlist`, `/home` still serves the original page.
 
 - [ ] Deploy the finished page to public domain, SSL, env vars in host not repo, live URL reported
-  - **Status**: NOT STARTED — no domain/hosting decision has been made (see the five open founder decisions further down this file); nothing to deploy to yet.
+  - **Status**: NOT STARTED as a *custom domain* — the page is live on the existing Vercel production URL (env vars fixed live, real signup returns 201) but no custom domain/hosting decision has been made yet (see the open founder decisions further down this file).
 
-**Phase 3 Status**: IN PROGRESS — hero and full scroll narrative built, real, screenshotted, and merged to `main`. Remaining: mobile optimization passes, mobile LTE perf evidence, and the deploy step (blocked on a founder domain/hosting decision, not on any code work).
+**Phase 3 Status**: MERGED — PR #5 squash-merged to `main` as `35374d6` (2026-07-22). Warm Copper design system, GSAP count-up stats, copper-systems hero layer, referral-tier section, and the waitlist-as-homepage swap are all live in production with real evidence (screenshots + LTE perf + CodeRabbit clean). Only remaining item is a custom domain, which is a founder decision, not code work.
 
 ---
 
@@ -261,9 +268,36 @@ Full 7-phase plan merged in (Phase 3 Design Layer inserted, old Phase 3-6 renumb
 
 ## NEXT CHECKPOINT
 
-**Current**: Phase 2 MERGED (`f351a46`), Phase 3 IN PROGRESS (hero + narrative built, merged same PR)
+**Current**: Phase 2 MERGED (`f351a46`), Phase 3 MERGED (`35374d6`, PR #5)
 **Phase 1 Completed**: All close-out items done, live DB verified, Playwright screenshot confirms estimate rendering
-**Phase 2**: Migrations 032/033 applied and live-verified by Ryan/Sameer, RLS/PII hole closed, referral/milestone/admin-auth/anti-abuse code shipped, CodeRabbit findings addressed across 5 review passes (7 fixed, 1 dangerous proposal withdrawn, 3 resolved-by-events), PR #4 squash-merged to `main`.
-**Phase 3 this session**: Exploded-house scroll hero + 5-mechanic narrative built natively (SVG + Framer Motion, no taste-skill/Kling per the earlier design-tooling decision), real screenshots, merged.
-**Genuinely open, not blocking**: migration 035 (referral atomicity, founder action), admin dashboard content as a logged-in admin, full referral-chain E2E test, mobile LTE perf evidence (Phase 2 and 3 both), mobile-optimize passes, and the Phase 3 deploy step (needs a founder domain/hosting decision first).
-**Proceeding To**: apply migration 035 when convenient → live-test an actual referral chain → continue Phase 3's remaining items (mobile optimization, LTE perf) → Phase 4 (remaining Gate 4 bugs) whenever picked up next, per the durability protocol (read this file, resume from first unchecked item).
+**Phase 2**: Migrations 032/033/035 applied and live-verified, RLS/PII hole closed, referral/milestone/admin-auth/anti-abuse code shipped, CodeRabbit findings addressed across 5 review passes (7 fixed, 1 dangerous proposal withdrawn, 3 resolved-by-events), PR #4 squash-merged to `main`. Real referral chain verified live (position 2→1, count 0→1).
+**Phase 3**: Warm Copper design system (real AA contrast math, one site-wide button-contrast bug fixed as a result), exploded-house hero with a copper-systems layer, GSAP count-up stats, 80% gate + Founding-tier referral rewards, waitlist promoted to the pre-launch homepage (`/` → `/waitlist`, old homepage preserved at `/home`), mobile LTE perf evidence (1.95s/360.7KB on throttled Fast-3G), CodeRabbit findings on PR #5 addressed (4/4). PR #5 squash-merged to `main` as `35374d6`, verified live on production.
+**Genuinely open, not blocking**: migration 036 (closes a real gap — `credit_referral()` was anon-callable after 035; fix written, not yet applied — founder action), admin dashboard content as a logged-in admin, full referral-chain E2E test past the count=1 boundary (milestone flip at count=3 not yet directly observed), a custom domain for the waitlist (currently live on the default Vercel production URL, not a custom domain).
+**Proceeding To**: apply migration 036 when convenient → re-verify the anon `credit_referral()` call now 401s → Phase 4 (remaining Gate 4 bugs) whenever picked up next, per the durability protocol (read this file, resume from first unchecked item).
+
+---
+
+## PHASE 4 — LAYWORK PUBLIC WEBSITE (directive 2026-07-24)
+
+**Status**: IN PROGRESS — Step 1 executing
+**Mission**: One job pre-launch — convert visitors into waitlist signups and Founding Members. Not a brochure site.
+
+### Locked decisions (log change requests in DECISIONS.md, don't relitigate)
+- Name LAYWORK, user-facing strings only (repo/DB/env/package rename is a separate founder call — inventory reported in the Step 1 report).
+- Blue/White/Black palette from the tokens file, no hardcoded hex. Black type, white space, blue for action. One blue CTA per viewport. Six colors, never a seventh. (DECISIONS.md 2026-07-24)
+- NO SMS: waitlist = name + email only; phone/sms_* DB columns stay nullable, never dropped. (DECISIONS.md 2026-07-23)
+- WCAG 2.1 AA on every page. Mobile-first (90% of traffic = Instagram on a phone).
+- Durable: tokens file + one component system. The paint is replaceable; the system is not.
+- Founders Program canon per DECISIONS.md 2026-07-24 (500 auto-founders, referral tiers 3/5/10, ~100 spots per referral, top-25 leaderboard, wave access).
+
+### Steps (one step per session, verified, then the founder issues the next)
+
+- [ ] **STEP 1 — Homepage shell + waitlist modal** ← CURRENT
+  - Homepage at `/` (replaces the redirect to /waitlist): nav (wordmark, minimal links, one blue CTA → modal), hero ("Stop gambling on contractors." / "Free AI estimates. Contractors matched at 80%+ compatibility. Northern Virginia first.", CTA → modal, marked slot for scroll video — NOT wired this session), correctly spaced section stubs (problem, estimate, five mechanics, 80% gate, Founders Program, final CTA), footer (wordmark, links, one legal line), scroll reveals per motion tokens.
+  - Waitlist modal per directive: reuse Phase 2 signup logic via shared hook (no second signup path, RLS untouched); lit floating panel (layered shadows, blurred backdrop, 0.96→1 entry, illuminated accent border with bloom); Stage 1 name+email+live Founding-500 counter; Stage 2 in-place count-up position number, glow pulse, referral link one-tap copy, tier rewards, Founding badge; full a11y (§25) incl. reduced-motion; mobile bottom sheet with lit top edge, 16px inputs.
+  - Evidence: homepage + modal-state screenshots desktop/mobile, real signup row pasted from live table, extracted-logic report, old-name inventory.
+- [ ] STEP 2 — Founders Program page (tiers, rewards, counter)
+- [ ] STEP 3 — Referral status page (position, link, progress)
+- [ ] STEP 4 — Public leaderboard page (top 25, first name + last initial)
+- [ ] STEP 5 — Legal: Privacy + Terms placeholder copy, flagged for attorney review
+- [ ] STEP 6 — Shared polish: SEO metadata, Open Graph share cards, favicon; verify existing admin dashboard post-rename
