@@ -301,3 +301,10 @@ Full 7-phase plan merged in (Phase 3 Design Layer inserted, old Phase 3-6 renumb
 - [ ] STEP 4 — Public leaderboard page (top 25, first name + last initial)
 - [ ] STEP 5 — Legal: Privacy + Terms placeholder copy, flagged for attorney review
 - [ ] STEP 6 — Shared polish: SEO metadata, Open Graph share cards, favicon; verify existing admin dashboard post-rename
+
+### Tooling & delegation (directive 2026-07-24, second revision)
+- Skills active this session: `high-end-visual-design` + `full-output-enforcement` (both already installed under .claude/skills — no new install needed; applied within the locked palette, which wins over any skill preference).
+- UI primitives: existing component system (components/ui — 21st.dev-derived Button/Input) reused; bespoke CSS only where the modal spec demands it (soft-filled inputs, illuminated panel).
+- Motion: framer-motion for scroll reveals (already the repo's scroll-motion lib per Phase 3 hero), CSS keyframes + rAF for modal entry/count-up. No new motion dependency.
+- Generation scripts (scripts/generate-image.ts / generate-video.ts): not used — Step 1 needs no imagery; the hero video slot is explicitly unwired this session.
+- Delegation: Agent A (homepage shell), Agent C (a11y audit + old-name inventory) in parallel on disjoint files; modal built in-session (was already 80% complete when the delegation directive arrived — delegating would have duplicated it).
