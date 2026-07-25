@@ -190,3 +190,9 @@
 **Timeline:** Should be done before real user beta (4-6 week lead time for attorney)
 
 **Do not deploy to real users until critical path items are reviewed & approved.**
+
+---
+
+## LIVE PLACEHOLDER PAGES (2026-07-24)
+
+The public site currently ships `/privacy` and `/terms` with **placeholder copy that has NOT been reviewed by an attorney**. Both pages are indexed in the sitemap and linked from the site. They must be replaced with attorney-approved language (items 1 and 2 above) before real user signups. The page JSX carries `ATTORNEY REVIEW PENDING` comments referencing this file.

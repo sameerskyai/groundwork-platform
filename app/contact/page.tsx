@@ -50,16 +50,16 @@ export default function ContactPage() {
     width: '100%',
     padding: '12px 14px',
     borderRadius: 10,
-    background: '#fff',
-    border: '1.5px solid #E0DBD4',
-    color: '#12181F',
+    background: 'var(--color-base)',
+    border: '1.5px solid var(--color-line)',
+    color: 'var(--color-ink)',
     fontSize: 15,
     outline: 'none'
   }
 
   return (
-    <div style={{ background: '#F7F5F1', minHeight: '100vh' }}>
-      <header style={{ background: '#0C1118', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 24px' }}>
+    <div style={{ background: 'var(--color-base-alt)', minHeight: '100vh' }}>
+      <header style={{ background: 'var(--color-ink)', borderBottom: '1px solid color-mix(in srgb, var(--color-base) 6%, transparent)', padding: '16px 24px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/"><Wordmark size="sm" /></Link>
         </div>
@@ -67,10 +67,10 @@ export default function ContactPage() {
 
       <main style={{ maxWidth: 1100, margin: '0 auto', padding: '64px 24px' }}>
         <div style={{ marginBottom: 60 }}>
-          <h1 style={{ color: '#12181F', fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 12 }}>
+          <h1 style={{ color: 'var(--color-ink)', fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 12 }}>
             Contact & Support
           </h1>
-          <p style={{ color: '#6B7280', fontSize: 17 }}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 17 }}>
             We read every message. Expect a response within one business day.
           </p>
         </div>
@@ -79,16 +79,16 @@ export default function ContactPage() {
 
           {/* Contact form */}
           <div>
-            <h2 style={{ color: '#12181F', fontSize: 22, fontWeight: 700, marginBottom: 24 }}>Send us a message</h2>
+            <h2 style={{ color: 'var(--color-ink)', fontSize: 22, fontWeight: 700, marginBottom: 24 }}>Send us a message</h2>
 
             {submitted ? (
               <div style={{
-                background: '#EDFAF3', border: '1px solid #B7EDD4',
+                background: 'color-mix(in srgb, var(--color-verified) 8%, var(--color-base))', border: '1px solid color-mix(in srgb, var(--color-verified) 30%, var(--color-base))',
                 borderRadius: 16, padding: '32px', textAlign: 'center'
               }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>✓</div>
-                <h3 style={{ color: '#12181F', fontWeight: 700, marginBottom: 8 }}>Message received</h3>
-                <p style={{ color: '#6B7280', fontSize: 14 }}>
+                <h3 style={{ color: 'var(--color-ink)', fontWeight: 700, marginBottom: 8 }}>Message received</h3>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>
                   We&apos;ll get back to you at {form.email} within one business day.
                 </p>
               </div>
@@ -100,7 +100,7 @@ export default function ContactPage() {
                   { label: 'Subject', field: 'subject' as const, type: 'text', placeholder: 'What is this about?' }
                 ].map(f => (
                   <div key={f.field}>
-                    <label style={{ display: 'block', color: '#374151', fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
+                    <label style={{ display: 'block', color: 'var(--color-ink)', fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
                       {f.label}
                     </label>
                     <input
@@ -114,7 +114,7 @@ export default function ContactPage() {
                   </div>
                 ))}
                 <div>
-                  <label style={{ display: 'block', color: '#374151', fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
+                  <label style={{ display: 'block', color: 'var(--color-ink)', fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
                     Message
                   </label>
                   <textarea
@@ -128,7 +128,7 @@ export default function ContactPage() {
                 </div>
                 <button type="submit" style={{
                   padding: '13px 24px', borderRadius: 10,
-                  background: '#E8722C', color: '#fff',
+                  background: 'var(--color-accent)', color: 'var(--color-base)',
                   border: 'none', fontSize: 15, fontWeight: 700, cursor: 'pointer'
                 }}>
                   Send message
@@ -138,32 +138,32 @@ export default function ContactPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 32 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Mail style={{ width: 16, height: 16, color: '#E8722C' }} />
-                <a href="mailto:hello@groundworkapp.com" style={{ color: '#12181F', fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>
+                <Mail style={{ width: 16, height: 16, color: 'var(--color-accent)' }} />
+                <a href="mailto:hello@groundworkapp.com" style={{ color: 'var(--color-ink)', fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>
                   hello@groundworkapp.com
                 </a>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <MessageCircle style={{ width: 16, height: 16, color: '#4A6B8A' }} />
-                <span style={{ color: '#6B7280', fontSize: 14 }}>Typical response time: &lt; 1 business day</span>
+                <MessageCircle style={{ width: 16, height: 16, color: 'var(--color-text-muted)' }} />
+                <span style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>Typical response time: &lt; 1 business day</span>
               </div>
             </div>
           </div>
 
           {/* FAQ */}
           <div>
-            <h2 style={{ color: '#12181F', fontSize: 22, fontWeight: 700, marginBottom: 24 }}>Frequently asked questions</h2>
+            <h2 style={{ color: 'var(--color-ink)', fontSize: 22, fontWeight: 700, marginBottom: 24 }}>Frequently asked questions</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
               {FAQS.map((faq, i) => (
                 <div key={i} style={{
-                  borderBottom: '1px solid #E8E4DE',
+                  borderBottom: '1px solid var(--color-line)',
                   paddingBottom: 20,
                   marginBottom: 20
                 }}>
-                  <h3 style={{ color: '#12181F', fontSize: 15, fontWeight: 700, marginBottom: 8 }}>
+                  <h3 style={{ color: 'var(--color-ink)', fontSize: 15, fontWeight: 700, marginBottom: 8 }}>
                     {faq.q}
                   </h3>
-                  <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7 }}>{faq.a}</p>
+                  <p style={{ color: 'var(--color-text-muted)', fontSize: 14, lineHeight: 1.7 }}>{faq.a}</p>
                 </div>
               ))}
             </div>

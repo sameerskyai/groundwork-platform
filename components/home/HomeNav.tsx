@@ -7,6 +7,7 @@ import { WaitlistModalTrigger } from '@/components/waitlist/WaitlistModal'
 
 const NAV_LINKS = [
   { label: 'How it works', href: '/how-it-works' },
+  { label: 'Founders', href: '/founders' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'About', href: '/about' }
 ] as const

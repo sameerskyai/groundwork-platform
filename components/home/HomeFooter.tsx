@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { Wordmark } from '@/components/ui/logo'
 
 const FOOTER_LINKS = [
+  { label: 'Founders Program', href: '/founders' },
+  { label: 'Leaderboard', href: '/leaderboard' },
+  { label: 'Check your status', href: '/status' },
   { label: 'Privacy', href: '/privacy' },
   { label: 'Terms', href: '/terms' },
   { label: 'Contact', href: '/contact' }

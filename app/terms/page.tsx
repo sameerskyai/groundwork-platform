@@ -118,11 +118,12 @@ You waive your right to participate in class action lawsuits or class-wide arbit
 
 export default function TermsPage() {
   return (
-    <div style={{ background: '#F7F5F1', minHeight: '100vh' }}>
-      <header style={{ background: '#0C1118', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 24px' }}>
+    <div style={{ background: 'var(--color-base-alt)', minHeight: '100vh' }}>
+      {/* ATTORNEY REVIEW PENDING — placeholder copy, see LEGAL_TODO.md */}
+      <header style={{ background: 'var(--color-ink)', borderBottom: '1px solid color-mix(in srgb, var(--color-base) 6%, transparent)', padding: '16px 24px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/"><Wordmark size="sm" /></Link>
-          <Link href="/contact" style={{ color: '#6B8090', fontSize: 14, textDecoration: 'none' }}>
+          <Link href="/contact" style={{ color: 'var(--color-line)', fontSize: 14, textDecoration: 'none' }}>
             Questions? Contact us
           </Link>
         </div>
@@ -130,10 +131,10 @@ export default function TermsPage() {
 
       <main style={{ maxWidth: 760, margin: '0 auto', padding: '64px 24px' }}>
         <div style={{ marginBottom: 48 }}>
-          <h1 style={{ color: '#12181F', fontSize: 36, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 12 }}>
+          <h1 style={{ color: 'var(--color-ink)', fontSize: 36, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 12 }}>
             Terms of Service
           </h1>
-          <p style={{ color: '#6B7280', fontSize: 15 }}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 15 }}>
             Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
@@ -141,8 +142,8 @@ export default function TermsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
           {SECTIONS.map(s => (
             <div key={s.title}>
-              <h2 style={{ color: '#12181F', fontSize: 18, fontWeight: 700, marginBottom: 12 }}>{s.title}</h2>
-              <div style={{ color: '#374151', fontSize: 15, lineHeight: 1.8, whiteSpace: 'pre-line' }}>
+              <h2 style={{ color: 'var(--color-ink)', fontSize: 18, fontWeight: 700, marginBottom: 12 }}>{s.title}</h2>
+              <div style={{ color: 'var(--color-ink)', fontSize: 15, lineHeight: 1.8, whiteSpace: 'pre-line' }}>
                 {s.body}
               </div>
             </div>
