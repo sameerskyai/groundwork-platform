@@ -316,3 +316,22 @@ Full 7-phase plan merged in (Phase 3 Design Layer inserted, old Phase 3-6 renumb
 - Motion: framer-motion for scroll reveals (already the repo's scroll-motion lib per Phase 3 hero), CSS keyframes + rAF for modal entry/count-up. No new motion dependency.
 - Generation scripts (scripts/generate-image.ts / generate-video.ts): not used — Step 1 needs no imagery; the hero video slot is explicitly unwired this session.
 - Delegation: Agent A (homepage shell), Agent C (a11y audit + old-name inventory) in parallel on disjoint files; modal built in-session (was already 80% complete when the delegation directive arrived — delegating would have duplicated it).
+
+
+---
+
+## PHASE 5 — DRAWING SET, AUDIT, GAP CLOSURE (directive 2026-07-27)
+
+**Status**: IN PROGRESS
+**Design authority**: DESIGN_SYSTEM.md at repo root (DRAWING SET). Supersedes the 07-24 Blue/White/Black token set; prior palettes remain in DECISIONS.md as history. NOTE: the "Design: Warm Copper" line in STANDING RULES above is superseded and retained only as history.
+
+- [x] **P0 — Live data leak check**
+  - **Status**: VERIFIED, no leak. Probed the live DB directly rather than trusting docs. 038 APPLIED: anon client reads 0 rows from `contractor_profiles` while service role sees 28 (25 `is_demo`) — demo rows exist and are not reachable by anon. 037 APPLIED: no infinite recursion; anon receives a clean permission denial on `is_community_member`, service role reads fine. 035 APPLIED: `credit_referral()` exists and executes. No founder SQL required.
+- [x] **P4 — Purge test rows**
+  - **Status**: VERIFIED. Backup taken first. Deleted the two authorized rows (#13/#14 `ryan.baz+laywork-step1*@outlook.com`); resequenced remaining rows to a contiguous 1..12, which also repaired a pre-existing duplicate-#1 collision (referral credit had floored one row onto another's position). Production `/api/waitlist/stats` now reports `total_signups: 12, spots_remaining: 488`. FINDING: all 12 remaining rows are also test data (7 `@groundworkapp.test`, 5 `test-*@example.com`) — zero real signups exist. Not deleted; only the two named rows were authorized.
+- [ ] **P1 — FEATURE_INVENTORY.md** (audit only, build nothing)
+- [ ] **P2 — DRAWING SET implementation** (tokens, 5 signature components, homepage 00-06, modal)
+- [ ] **P3 — Kill hardcoded hexes across /home, /for-*, /trust, /blog, dashboards**
+- [ ] **P5 — Accessibility audit, every production route, WCAG 2.1 AA**
+- [ ] **P6 — Remaining Gate 4 bugs (#3 communities nav, #4 messages persistence, #5 back-to-matches, empty states, marketing header on authed pages, dashboard CTA, microcopy)**
+- [ ] **P7 — ROADMAP.md wave planning** (planning only)
