@@ -5,7 +5,7 @@ import { SwipeDemo } from '@/components/swipe/SwipeDemo'
 import { Check, ArrowRight } from 'lucide-react'
 
 export const metadata = {
-  title: 'For Homeowners — Groundwork',
+  title: 'For Homeowners — Laywork',
   description: 'Get a real cost estimate for your home project before you talk to any contractor. Know the fair price. Pick who you want.'
 }
 
@@ -48,7 +48,7 @@ export default function ForHomeownersPage() {
               Know the fair price before anyone walks through your door.
             </h1>
             <p style={{ color: '#6B8090', fontSize: 17, lineHeight: 1.7, marginBottom: 32, maxWidth: 460 }}>
-              When you already know what something should cost, you can&apos;t be overcharged. That&apos;s the only reason Groundwork exists — to give homeowners the information contractors have had for decades.
+              When you already know what something should cost, you can&apos;t be overcharged. That&apos;s the only reason Laywork exists — to give homeowners the information contractors have had for decades.
             </p>
             <Link href="/signup?role=homeowner">
               <button style={{ padding: '15px 28px', borderRadius: 10, background: '#E8722C', color: '#fff', border: 'none', fontSize: 16, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
@@ -90,7 +90,7 @@ export default function ForHomeownersPage() {
             The information gap is the whole problem.
           </h2>
           <p style={{ color: '#6B8090', fontSize: 17, lineHeight: 1.8, marginBottom: 40 }}>
-            Every contractor you call walks in knowing exactly what your job should cost. You don&apos;t. That&apos;s not a coincidence — it&apos;s how the industry works. Groundwork closes that gap before the first conversation.
+            Every contractor you call walks in knowing exactly what your job should cost. You don&apos;t. That&apos;s not a coincidence — it&apos;s how the industry works. Laywork closes that gap before the first conversation.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
             {[
@@ -111,7 +111,7 @@ export default function ForHomeownersPage() {
       <section style={{ padding: '80px 24px', background: '#F7F5F1' }}>
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
           <h2 style={{ color: '#12181F', fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 32 }}>
-            What you get with Groundwork
+            What you get with Laywork
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {[

@@ -1,104 +1,84 @@
 /**
- * Groundwork Design System — Blueprint Blue Edition
- * Superseded from Warm Copper 2026-07-22, founder decision. See DECISIONS.md
- * for the full supersession entry -- the Warm Copper rationale below this
- * header is kept as history, not deleted.
+ * Laywork Design System — Blue / White / Black Edition
+ * (Founder decision 2026-07-24, DECISIONS.md — supersedes Warm Copper.)
  *
- * Blueprint metaphor is the brand: white paper, blue ink, visible structure.
- * Thin technical linework over filled shapes everywhere. One accent-blue CTA
- * per viewport -- two compete and both lose. Brass is reserved for human
- * moments only (position number, Founding Member badge, referral milestones),
- * never for interface chrome. Alert red never appears in the hero.
+ * Canonical palette lives in app/globals.css (--color-base, --color-base-alt,
+ * --color-ink, --color-accent, --color-line, --color-text-muted,
+ * --color-verified, --color-alert). This file maps the site-wide semantic
+ * token names onto that palette. Six-color rule: no seventh color; every
+ * derived shade is a color-mix() of canonical tokens.
  *
- * Every text/background pair below is WCAG AA-verified (4.5:1 normal text,
- * 3:1 large text/18px+ or 14px+bold) -- computed with the real relative-
- * luminance formula, not eyeballed.
+ * Rules: one blue CTA per viewport. Numeric anchors ($18,500–$42,000, 80%,
+ * "You're #X") in blue. Black for type, white for space, blue for action —
+ * nothing else competes. Alert red never appears in the hero.
  *
- *   ink on base                              15.41:1  PASS
- *   ink on base-alt                          14.05:1  PASS
- *   accent (as brand-text) on base            7.53:1  PASS (all text sizes)
- *   accent (as brand, large-only role) on base 7.53:1 PASS (all text sizes -- exceeds even the stricter threshold)
- *   text-muted on base                        5.33:1  PASS (all text sizes)
- *   base (text-inverse) on accent button fill  7.53:1 PASS (all text sizes)
- *   base (text-inverse) on ink (active fill)  15.41:1 PASS (all text sizes)
- *   verified on base                           4.87:1 PASS
- *   alert on base                              5.86:1 PASS
- *   warning (darkened brass) on base           4.81:1 PASS -- CodeRabbit caught raw brass (3.11:1) shipping as the
- *                                                       generic --color-warning token while real components (onboarding
- *                                                       hint text, Badge.tsx) render it as text. Darkened specifically
- *                                                       for --color-warning; same fix pattern as the copper-era brand
- *                                                       vs brand-text split.
- *   brass on base (--color-brass, decorative)  3.11:1 FAILS body text (4.5:1) -- passes large-text/18px+ or bold 14px+
- *                                                       only (3:1). Reserved for "human moments only" (position number,
- *                                                       Founding Member badge, referral milestones) per the founder's
- *                                                       own spec -- restrict those renders to large/bold display sizes.
- *                                                       Separate token from --color-warning above precisely so the
- *                                                       decorative role and the AA-required text role don't collide.
- *   line on base                               2.55:1  Decorative/structural only (strokes, dividers, technical annotation)
- *                                                       -- never used for text, so AA text thresholds don't apply.
- *   [dark mode] verified on ink                 5.93:1 PASS -- light-mode value alone was 3.17:1 on dark ink, CodeRabbit
- *                                                       caught this too. Dark-mode override added.
- *   [dark mode] alert on ink                    5.09:1 PASS -- light-mode value alone was 2.62:1 on dark ink.
- *   [dark mode] warning on ink                  7.92:1 PASS -- separate lightened dark-mode override.
+ * Every text/background pair below is WCAG 2.1 AA-verified (4.5:1 normal
+ * text, 3:1 large text) — computed with the real relative-luminance
+ * formula, not eyeballed:
  *
- * Unlike Warm Copper -- which needed three separate darkened variants
- * (--color-brand-text, --color-brand-solid, and a second round on
- * --color-brand-solid) because raw --color-brand only cleared 3.58:1 --
- * Blueprint Blue's accent (#1A5490) clears 7.53:1 on its own, so
- * --color-brand-text and --color-brand-solid both just equal --color-brand
- * directly. No darkening needed. The token names are kept for component
- * compatibility (this was a variable-value swap, not a rewrite).
+ *   ink #0A0A0A on base #FFFFFF                 19.80:1  PASS
+ *   ink on base-alt #F5F7FA                     18.45:1  PASS
+ *   muted #6B7280 on base                        4.83:1  PASS (all text sizes)
+ *   muted on base-alt                            4.50:1  PASS (exactly at AA — do not lighten)
+ *   accent #1A5490 on base (links/anchors)       7.74:1  PASS
+ *   accent on base-alt                           7.21:1  PASS
+ *   white on accent (CTA button fill)            7.74:1  PASS
+ *   white on accent-hover #18497C                9.20:1  PASS
+ *   verified #1E7A4D on base                     5.32:1  PASS
+ *   alert #B03A2E on base                        6.02:1  PASS
+ *   white on ink (dark sections)                19.80:1  PASS
+ *   line #D6DEE7 as text on ink                 14.58:1  PASS
+ *   accent-light #5F87B1 as text on ink          5.27:1  PASS (lightest AA-safe accent-on-dark)
+ *
+ * HAZARDS (new with blue — copper never had these):
+ *   accent #1A5490 directly on ink               2.56:1  FAIL — never put raw
+ *     accent text/icons on dark surfaces; use --color-brand-light instead.
+ *   line #D6DEE7 vs base                         1.36:1  — decorative rules only.
+ *     When a border is a control's only boundary (inputs), use
+ *     --color-border-strong (#6B7280, 4.83:1 vs base — clears the 3:1
+ *     non-text minimum).
  */
 
 :root {
   /* ============================================================
-     COLOR PALETTE — Blueprint Blue
+     COLOR — Blue / White / Black, mapped from canonical globals.css tokens
      ============================================================ */
 
-  /* 60% BASE -- paper white. Never pure #FFF. */
-  --color-surface-primary: #FBFCFD; /* primary surface (was Warm Copper #FBF8F4) */
-  --color-surface-secondary: #EDF2F7; /* alternating sections (was #F4EDE4) */
-  --color-surface-tertiary: #EDF2F7; /* no third surface tone given in the Blueprint Blue spec (6 colors, no 7th) -- reusing surface-secondary rather than inventing one. Flag if a visually distinct third tier is actually needed. */
+  /* BASE — white space. */
+  --color-surface-primary: var(--color-base); /* #FFFFFF */
+  --color-surface-secondary: var(--color-base-alt); /* #F5F7FA alternating sections */
+  --color-surface-tertiary: color-mix(in srgb, var(--color-base-alt) 70%, var(--color-line)); /* cards/panels needing more separation */
 
-  /* 30% STRUCTURE -- warm-leaning navy ink, never pure #000. */
-  --color-text-primary: #0D2438; /* was #2B2320 */
-  --color-text-secondary: #5B6B7B; /* text-muted per spec -- 5.33:1, clears body-text AA outright (Warm Copper needed a manual darkening pass here; this one didn't) */
-  --color-text-tertiary: #5B6B7B; /* Blueprint Blue gives one muted tone, not two -- reusing text-secondary. Unlike Warm Copper's tertiary (large-text-only, 3.61:1), this clears body-text AA too (5.33:1), so there's no large/body split to preserve. */
-  --color-text-inverse: #FBFCFD; /* for dark backgrounds (was #FBF8F4) */
+  /* STRUCTURE — black type. */
+  --color-text-primary: var(--color-ink); /* #0A0A0A */
+  --color-text-secondary: var(--color-text-muted); /* #6B7280 — 4.83:1 on base, 4.50:1 on base-alt (AA floor, do not lighten) */
+  --color-text-tertiary: var(--color-text-muted); /* no lighter gray exists in the six-color set; large/decorative text shares the muted gray */
+  --color-text-inverse: var(--color-base); /* white on dark surfaces */
 
-  /* 10% ACCENT -- blueprint blue. One accent CTA per viewport. */
-  --color-brand: #1A5490; /* large display type, borders, non-text fills. 7.53:1 on base -- clears body-text AA too */
-  --color-brand-text: #1A5490; /* same as --color-brand -- unlike copper, the accent alone already clears 7.53:1 at any text size, no separate darkened text variant needed */
-  --color-brand-solid: #1A5490; /* same as --color-brand -- 7.53:1 against --color-text-inverse, no darkening needed (copper needed two rounds of darkening here) */
-  --color-brand-light: #7BA4CC; /* --color-line reused for lighter tint/hover fills, not for text contrast */
-  --color-brand-lighter: rgba(26, 84, 144, 0.08); /* badge/pill backgrounds -- alpha tint of --color-brand itself rather than a new hex, composites correctly over any surface */
+  /* ACCENT — blue for action. One blue CTA per viewport; rare = commands attention. */
+  --color-brand: var(--color-accent); /* #1A5490 */
+  --color-brand-text: var(--color-accent); /* 7.74:1 on base — safe at any text size, incl. numeric anchors */
+  --color-brand-solid: var(--color-accent); /* CTA button fill; white label = 7.74:1, no darkened variant needed (copper required one — blue doesn't) */
+  --color-brand-light: color-mix(in srgb, var(--color-accent) 70%, var(--color-base)); /* #5F87B1 — the ONLY accent allowed as text on ink (5.27:1); raw accent on ink fails at 2.56:1 */
+  --color-brand-lighter: color-mix(in srgb, var(--color-accent) 8%, var(--color-base)); /* pale blue badge/pill fill — pairs with --color-brand-text */
 
-  /* Semantic -- functional only, never decorative. Green = "verified," never brand. */
-  --color-success: #2E7D5B; /* verified -- verification states, confirmed signups only. 4.87:1 */
-  --color-error: #B03A2E; /* alert -- genuine warnings/form errors only, never decoration, never in the hero. 5.86:1 */
-  --color-warning: #906931; /* darkened brass, text-safe (4.81:1) -- CodeRabbit correctly caught raw brass (3.11:1) shipping as this site-wide token while real components (onboarding hint text, Badge.tsx) render it as text, which needs 4.5:1. Same fix pattern as Warm Copper's brand vs brand-text split. */
-  --color-info: #7BA4CC; /* line reused/retoned -- Blueprint Blue welcomes blue back for this, unlike Warm Copper which had to shift it warm-neutral to avoid a cool color */
+  /* Semantic — functional only, never decorative. */
+  --color-success: var(--color-verified); /* #1E7A4D — verification states only (5.32:1) */
+  --color-error: var(--color-alert); /* #B03A2E — genuine errors only (6.02:1), never decoration, never in the hero */
+  --color-warning: #C9974A; /* LEGACY, outside the six-color set: pre-existing site-wide token (star ratings, form hints). Left as-is pending founder call — see DECISIONS.md 2026-07-24 */
+  --color-info: var(--color-text-muted); /* retoned onto the palette's muted gray */
 
-  /* Brass -- reserved for "human moments" only per the founder's spec: the
-     waitlist position number, Founding Member badge, referral milestones.
-     Never interface chrome, never body text -- 3.11:1 on base clears large-
-     display/bold-only AA (3:1), not body text (4.5:1). Distinct from
-     --color-warning above, which is a darkened text-safe derivative of this
-     same hue for actual warning UI. */
-  --color-brass: #B8873F;
-
-  /* Interactive States */
-  --color-interactive-hover: #7BA4CC; /* line -- lighter blue on hover */
-  --color-interactive-active: #0D2438; /* ink -- darkest tone, when active/pressed */
-  --color-interactive-disabled: rgba(91, 107, 123, 0.35); /* text-muted at reduced alpha */
+  /* Interactive states — derived shades of the six, no new colors */
+  --color-interactive-hover: color-mix(in srgb, var(--color-accent) 85%, var(--color-ink)); /* #18497C — white label 9.20:1 */
+  --color-interactive-active: color-mix(in srgb, var(--color-accent) 70%, var(--color-ink)); /* pressed */
+  --color-interactive-disabled: var(--color-line); /* #D6DEE7 */
 
   /* ============================================================
-     TYPOGRAPHY — Warm, approachable, readable
+     TYPOGRAPHY — unchanged by the 2026-07-24 palette decision
      ============================================================ */
 
-  /* Font Family: Two faces, warm pairing for home services */
-  --font-serif: 'Lora', 'Georgia', serif; /* Warm, friendly serif for warmth */
-  --font-sans: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif; /* Familiar, clear sans */
+  --font-serif: 'Lora', 'Georgia', serif;
+  --font-sans: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
 
   /* Font Sizes — Fluid scaling with intent */
   --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); /* Small labels */
@@ -158,9 +138,10 @@
   --border-normal: 2px;
   --border-thick: 3px;
 
-  /* Border color — Subtle but present, blue-toned technical-annotation feel */
-  --color-border: rgba(123, 164, 204, 0.35); /* --color-line at reduced alpha (was #E4DACC) */
-  --color-border-strong: rgba(123, 164, 204, 0.65); /* --color-line at higher alpha (was #C4B8A6) */
+  /* Border color — line for decorative rules; strong when the border is a
+     control's only visual boundary (inputs need ≥3:1 non-text contrast) */
+  --color-border: var(--color-line); /* #D6DEE7 */
+  --color-border-strong: var(--color-text-muted); /* #6B7280 — 4.83:1 vs base */
 
   /* ============================================================
      SHADOWS — Depth without heaviness
@@ -212,43 +193,9 @@
 }
 
 /* ============================================================
-   DARK MODE — Blueprint Blue inversion, intentional
-   ============================================================ */
-
-/* Not required for launch, not built out further than this inversion.
-   Inverts to an --color-ink-family navy base with lighter blue accents,
-   mirroring exactly how the Warm Copper dark mode inverted to a charcoal
-   base with lighter copper accents. --color-surface-secondary/tertiary and
-   --color-text-secondary below are derived navy/blue-gray tones for dark
-   backgrounds specifically -- same precedent as the old file's #35291F /
-   #40332A / #C4B8A6, none of which were literal light-mode tokens either. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-surface-primary: #0D2438; /* ink */
-    --color-surface-secondary: #16324A; /* derived, lighter navy */
-    --color-surface-tertiary: #1C3D57; /* derived, lighter navy still */
-
-    --color-text-primary: #FBFCFD; /* base */
-    --color-text-secondary: #B3BBC3; /* derived light blue-gray -- 8.15:1 against ink, text-muted itself only clears 2.89:1 on a dark bg so needed lightening same as copper-era's dark secondary text */
-    --color-text-tertiary: #B3BBC3;
-
-    --color-border: rgba(123, 164, 204, 0.3);
-    --color-border-strong: rgba(123, 164, 204, 0.55);
-
-    --color-brand: #7BA4CC; /* line -- lighter blue for dark-surface visibility, 6.05:1 on ink */
-    --color-brand-text: #7BA4CC;
-    --color-brand-solid: #1A5490; /* accent itself still reads fine as a solid fill in dark mode */
-    --color-brand-light: #7BA4CC;
-    --color-brand-lighter: rgba(123, 164, 204, 0.12);
-
-    /* CodeRabbit caught these: light-mode --color-success/--color-error were
-       falling through unchanged, and both fail AA against the dark #0D2438
-       surface (3.17:1 / 2.62:1). Lightened toward base for dark-surface
-       legibility -- this gap predates this PR (the Warm Copper dark mode
-       never overrode these either) but is being fixed here since dark mode
-       is what this diff touches. */
-    --color-success: #76A994; /* 5.93:1 on dark surface */
-    --color-error: #CA7E76; /* 5.09:1 on dark surface */
-    --color-warning: #D6B27A; /* lightened brass-derived warning, 7.92:1 on dark surface */
-  }
-}
+   DARK MODE — intentionally absent
+   ============================================================
+   The Warm Copper dark inversion was removed with the 2026-07-24 palette
+   decision. Blue / White / Black defines light mode only; dark-mode values
+   are undecided and belong to a founder entry in DECISIONS.md, not to this
+   file by default. */

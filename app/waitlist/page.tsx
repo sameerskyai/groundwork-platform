@@ -1,104 +1,30 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/Input'
 import { ChevronRight, CheckCircle2 } from 'lucide-react'
 import { ExplodedHouseHero } from '@/components/waitlist/ExplodedHouseHero'
 import { Problem, Shift, MechanicsPanels, EightyGate, FoundingTiers } from '@/components/waitlist/ScrollNarrative'
+import { useWaitlistSignup } from '@/hooks/useWaitlistSignup'
 
 function WaitlistContent() {
-  const searchParams = useSearchParams()
-  const [email, setEmail] = useState('')
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [smsConsent, setSmsConsent] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState('')
-  const [positionNumber, setPositionNumber] = useState(0)
-  const [referralLink, setReferralLink] = useState('')
-  const [referralCode, setReferralCode] = useState('')
-  const [website, setWebsite] = useState('') // honeypot — never shown to real users
-  const [spotsRemaining, setSpotsRemaining] = useState<number | null>(null)
-
-  const referrerCode = searchParams?.get('ref')
-
-  useEffect(() => {
-    async function loadStats() {
-      try {
-        const res = await fetch('/api/waitlist/stats')
-        if (res.ok) {
-          const data = await res.json()
-          setSpotsRemaining(data.spots_remaining)
-        }
-      } catch {
-        // Non-critical — counter just won't render if this fails
-      }
-    }
-    loadStats()
-  }, [])
+  // Signup logic shared with WaitlistModal — one path, one API route.
+  // Per DECISIONS.md 2026-07-23: name + email only, no phone, no SMS surface.
+  const {
+    name, setName,
+    email, setEmail,
+    website, setWebsite,
+    loading, submitted, error,
+    positionNumber, referralCode, referralLink,
+    spotsRemaining,
+    submit
+  } = useWaitlistSignup()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setError('')
-
-    if (!name.trim()) {
-      setError('Please enter your name')
-      return
-    }
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email address')
-      return
-    }
-    if (!smsConsent) {
-      setError('Please agree to receive updates')
-      return
-    }
-
-    setLoading(true)
-    try {
-      const utm_source = searchParams?.get('utm_source')
-      const utm_medium = searchParams?.get('utm_medium')
-      const utm_campaign = searchParams?.get('utm_campaign')
-      const utm_content = searchParams?.get('utm_content')
-
-      const res = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          phone: phone || null,
-          sms_consent: smsConsent,
-          referral_code: referrerCode,
-          utm_source,
-          utm_medium,
-          utm_campaign,
-          utm_content,
-          website
-        })
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.error ?? 'Failed to join waitlist')
-        setLoading(false)
-        return
-      }
-
-      setSubmitted(true)
-      setPositionNumber(data.position_number)
-      setReferralCode(data.referralCode)
-      setReferralLink(data.referralLink)
-    } catch (err) {
-      setError('An error occurred. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    await submit()
   }
 
   const spotsCounter = spotsRemaining !== null && (
@@ -210,33 +136,8 @@ function WaitlistContent() {
           required
         />
 
-        <Input
-          type="tel"
-          label="Phone Number (Optional)"
-          value={phone}
-          onChange={e => setPhone(e.target.value)}
-          placeholder="(555) 123-4567"
-        />
-
-        <label className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: 'var(--color-surface-secondary)' }}>
-          <input
-            type="checkbox"
-            checked={smsConsent}
-            onChange={e => setSmsConsent(e.target.checked)}
-            className="mt-1 w-4 h-4"
-            style={{ accentColor: 'var(--color-brand)' }}
-          />
-          <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            I agree to receive SMS and email updates from Groundwork. Message and data rates may apply. See our{' '}
-            <Link href="/privacy" className="underline" style={{ color: 'var(--color-brand-text)' }}>
-              Privacy Policy
-            </Link>{' '}
-            for details.
-          </span>
-        </label>
-
         {error && (
-          <p style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)' }}>
+          <p role="alert" style={{ color: 'var(--color-error)', fontSize: 'var(--text-sm)' }}>
             {error}
           </p>
         )}
@@ -316,7 +217,7 @@ function WaitlistContent() {
       {/* Footer */}
       <footer className="px-6 py-4 border-t" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface-secondary)' }}>
         <div className="max-w-2xl mx-auto flex items-center justify-between text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-          <p>© 2026 Groundwork. All rights reserved.</p>
+          <p>© 2026 Laywork. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:underline">
               Privacy

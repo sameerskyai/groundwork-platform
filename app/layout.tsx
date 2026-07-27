@@ -6,12 +6,25 @@ import './globals.css'
 const geist = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Groundwork — Real estimates. Honest contractors.',
-  description: 'Stop guessing what home improvement costs. Get an AI-powered estimate from real job data, then get matched with a vetted contractor who actually shows up.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  title: {
+    default: 'Laywork — Stop gambling on contractors.',
+    template: '%s — Laywork'
+  },
+  description:
+    'Free AI renovation estimates. Contractors matched at 80%+ compatibility. Northern Virginia first.',
   openGraph: {
-    title: 'Groundwork',
-    description: 'Real estimates. Honest contractors. No guesswork.',
-    type: 'website'
+    title: 'Laywork — Stop gambling on contractors.',
+    description:
+      'Free AI renovation estimates. Contractors matched at 80%+ compatibility. Northern Virginia first.',
+    type: 'website',
+    siteName: 'Laywork'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Laywork — Stop gambling on contractors.',
+    description:
+      'Free AI renovation estimates. Contractors matched at 80%+ compatibility. Northern Virginia first.'
   }
 }
 

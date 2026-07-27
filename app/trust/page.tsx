@@ -4,8 +4,8 @@ import { Footer } from '@/components/layout/Footer'
 import { Shield, Check, Star } from 'lucide-react'
 
 export const metadata = {
-  title: 'Contractor Verification — Groundwork',
-  description: 'How Groundwork verifies contractor licenses, insurance, and builds outcome-based trust scores.'
+  title: 'Contractor Verification — Laywork',
+  description: 'How Laywork verifies contractor licenses, insurance, and builds outcome-based trust scores.'
 }
 
 export default function TrustPage() {
@@ -30,7 +30,7 @@ export default function TrustPage() {
             Contractor verification & trust scores
           </h1>
           <p style={{ color: '#6B8090', fontSize: 17, lineHeight: 1.7 }}>
-            Every contractor on Groundwork is verified before going live. Here&apos;s exactly what that means and how our trust score works.
+            Every contractor on Laywork is verified before going live. Here&apos;s exactly what that means and how our trust score works.
           </p>
         </div>
       </section>
@@ -100,7 +100,7 @@ export default function TrustPage() {
             </h2>
           </div>
           <p style={{ color: '#6B8090', fontSize: 16, lineHeight: 1.8, marginBottom: 32 }}>
-            We don&apos;t use star ratings. Star ratings measure sentiment, not outcomes — and they&apos;re easily gamed by contractors who ask every satisfied customer to leave a review. Groundwork&apos;s trust score is based on what actually happened.
+            We don&apos;t use star ratings. Star ratings measure sentiment, not outcomes — and they&apos;re easily gamed by contractors who ask every satisfied customer to leave a review. Laywork&apos;s trust score is based on what actually happened.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
             {[
@@ -119,7 +119,7 @@ export default function TrustPage() {
           </div>
           <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '20px 24px' }}>
             <p style={{ color: '#C0CDD8', fontSize: 14, lineHeight: 1.8 }}>
-              <strong style={{ color: '#F7F5F1' }}>New contractors</strong> start with a provisional score until they have enough completed jobs to establish a track record. During this period, they&apos;re clearly labeled as &ldquo;new to Groundwork&rdquo; and their base verification badges still display.
+              <strong style={{ color: '#F7F5F1' }}>New contractors</strong> start with a provisional score until they have enough completed jobs to establish a track record. During this period, they&apos;re clearly labeled as &ldquo;new to Laywork&rdquo; and their base verification badges still display.
             </p>
           </div>
         </div>

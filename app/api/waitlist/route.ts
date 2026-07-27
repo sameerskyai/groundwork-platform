@@ -11,7 +11,9 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json()
-    const { name, email, phone, sms_consent, referral_code: referrer_code, utm_source, utm_medium, utm_campaign, utm_content, website } = body
+    // Per DECISIONS.md 2026-07-23: name + email only. phone/sms_* columns
+    // remain in the table (nullable) but are never written to.
+    const { name, email, referral_code: referrer_code, utm_source, utm_medium, utm_campaign, utm_content, website } = body
 
     // Honeypot: real users never see or fill this field (hidden via CSS on the
     // form). Any value here means a bot. Return a fake success so the bot
@@ -24,8 +26,8 @@ export async function POST(request: Request) {
     }
 
     // Validation
-    if (!name || !email || typeof sms_consent !== 'boolean') {
-      return Response.json({ error: 'Missing required fields: name, email, sms_consent' }, { status: 400 })
+    if (!name || !email) {
+      return Response.json({ error: 'Missing required fields: name, email' }, { status: 400 })
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -33,14 +35,7 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
-    // Normalize phone to digits-only so "(555) 123-4567" and "5551234567"
-    // are recognized as the same number for dedupe. Stored normalized too.
-    const normalizedPhone: string | null = phone ? String(phone).replace(/\D/g, '') : null
-    if (normalizedPhone && (normalizedPhone.length < 10 || normalizedPhone.length > 15)) {
-      return Response.json({ error: 'Invalid phone number' }, { status: 400 })
-    }
-
-    // Anti-abuse: Check for duplicate email
+    // Anti-abuse: Check for duplicate email (dedupe is email-only)
     const { data: existingEmail } = await supabase
       .from('waitlist')
       .select('id')
@@ -49,19 +44,6 @@ export async function POST(request: Request) {
 
     if (existingEmail) {
       return Response.json({ error: 'Email already registered' }, { status: 409 })
-    }
-
-    // Anti-abuse: Check for duplicate phone (if provided)
-    if (normalizedPhone) {
-      const { data: existingPhone } = await supabase
-        .from('waitlist')
-        .select('id')
-        .eq('phone', normalizedPhone)
-        .single()
-
-      if (existingPhone) {
-        return Response.json({ error: 'Phone already registered' }, { status: 409 })
-      }
     }
 
     // Anti-abuse: Rate limit by IP (check last 5 minutes)
@@ -120,10 +102,6 @@ export async function POST(request: Request) {
       .insert({
         name: name.trim(),
         email: email.toLowerCase(),
-        phone: normalizedPhone,
-        sms_consent,
-        sms_consent_language: sms_consent ? 'I agree to receive SMS and email updates from Groundwork. Message and data rates may apply. See Privacy Policy.' : null,
-        sms_consent_timestamp: sms_consent ? new Date().toISOString() : null,
         position_number: positionNumber,
         referral_code: referralCode,
         referrer_id: referrerId,

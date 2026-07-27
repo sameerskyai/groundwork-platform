@@ -4,7 +4,7 @@ import { Footer } from '@/components/layout/Footer'
 import { ArrowRight } from 'lucide-react'
 
 export const metadata = {
-  title: 'Cost Guides & Education — Groundwork',
+  title: 'Cost Guides & Education — Laywork',
   description: 'Honest guides to what home improvement actually costs. No sponsored content, no estimates that pad contractor margins.'
 }
 

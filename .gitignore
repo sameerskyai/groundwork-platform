@@ -47,3 +47,7 @@ next-env.d.ts
 .claude/
 .gstack/
 test-results/
+
+# agent skills (local dev tooling, not project source)
+.agents/
+skills-lock.json
