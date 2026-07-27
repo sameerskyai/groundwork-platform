@@ -153,7 +153,9 @@ export async function runMatchRankerAgent(
     ? `\nHomeowner preferences: budget ${prefs.preferred_budget ?? 'unspecified'}, timeline ${prefs.preferred_timeline ?? 'unspecified'}, style ${prefs.preferred_style ?? 'unspecified'}, experience level ${prefs.experience_level_preference ?? 'unspecified'}`
     : ''
 
-  const response = await client().messages.create({
+  let response
+  try {
+    response = await client().messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 800,
     system: `You are Laywork's matching engine. Score contractor candidates for a project on a 0–1 scale.
@@ -176,24 +178,27 @@ ${candidateList}
 
 Rank them.`
     }]
-  })
+    })
+  } catch (err) {
+    // Expired key, exhausted credit, rate limit, network. Matching stays up.
+    console.error('Match ranker model call failed — falling back to deterministic ranking:', err)
+    return deterministicRank(candidates, radiusByCandidate)
+  }
 
   const text = response.content[0].type === 'text' ? response.content[0].text : ''
   const jsonMatch = text.match(/\[[\s\S]*\]/)
-  if (!jsonMatch) return candidates.map(c => ({ contractorId: c.id, score: 0.5, reasoning: 'Default rank' }))
+  if (!jsonMatch) return deterministicRank(candidates, radiusByCandidate)
 
   let parsed: unknown
   try {
     parsed = JSON.parse(jsonMatch[0])
   } catch {
-    return candidates.map(c => ({ contractorId: c.id, score: 0.5, reasoning: 'Default rank' }))
+    return deterministicRank(candidates, radiusByCandidate)
   }
-  if (!Array.isArray(parsed)) {
-    return candidates.map(c => ({ contractorId: c.id, score: 0.5, reasoning: 'Default rank' }))
-  }
+  if (!Array.isArray(parsed)) return deterministicRank(candidates, radiusByCandidate)
 
   const validIds = new Set(candidates.map(c => c.id))
-  return (parsed as Record<string, unknown>[])
+  const ranked = (parsed as Record<string, unknown>[])
     .filter(m => validIds.has(String(m?.contractorId)))
     .map(m => ({
       contractorId: String(m.contractorId),
@@ -201,4 +206,7 @@ Rank them.`
       reasoning: typeof m.reasoning === 'string' ? m.reasoning : ''
     }))
     .sort((a, b) => b.score - a.score)
+
+  // A response that named no real candidate is a failed response.
+  return ranked.length ? ranked : deterministicRank(candidates, radiusByCandidate)
 }

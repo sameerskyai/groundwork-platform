@@ -198,6 +198,12 @@ export async function GET(
         distanceMiles: Math.round(distance)
       }))
 
+      // Service radius is what the deterministic fallback measures proximity
+      // against, so it travels with the batch rather than being re-derived.
+      const radiusByCandidate = new Map(
+        unscored.map(({ c }) => [c.id, c.service_radius_miles ?? 25])
+      )
+
       const ranked = await runMatchRankerAgent(
         {
           description: project.description ?? '',
@@ -209,7 +215,8 @@ export async function GET(
           zipCode: project.zip_code ?? '',
           preferences: preferences ?? null
         },
-        forRanker
+        forRanker,
+        radiusByCandidate
       )
 
       for (const r of ranked) scored.set(r.contractorId, { score: r.score, reasoning: r.reasoning })

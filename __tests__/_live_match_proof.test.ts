@@ -86,7 +86,8 @@ describe('LIVE PROOF', () => {
         responseRate: c.response_rate ?? 100,
         subscriptionTier: c.subscription_tier ?? 'free',
         distanceMiles: Math.round(distance)
-      }))
+      })),
+      new Map(inRange.map(({ c }) => [c.id, c.service_radius_miles ?? 25]))
     )
     log('[4] RANKER OUTPUT (0-1 scale):', JSON.stringify(ranked, null, 1))
     expect(ranked.length).toBeGreaterThan(0)
@@ -116,41 +117,80 @@ describe('LIVE PROOF', () => {
   }, 120_000)
 
   it('TASK 2 — below-threshold excluded, above-threshold included (real gate query)', async () => {
-    const PROJECT_ID = 'ec641e54-084c-453b-bf28-2c9e4e0c4010'
-    // Pick two real contractors: one keeps its earned score, one gets a
-    // deliberate sub-threshold score so the gate has something to reject.
-    const { data: reals } = await sb.from('contractor_profiles')
-      .select('id, business_name').eq('is_demo', false).order('business_name')
+    const { haversineDistanceMiles, zipToLatLng } = await import('@/lib/geo')
+    const { runMatchRankerAgent, MATCH_THRESHOLD } = await import('@/lib/agents/match-ranker-agent')
 
-    const low = reals!.find(r => r.business_name === 'Blue Ridge General Contracting')!
-    await sb.from('matches').upsert({
-      project_id: PROJECT_ID, contractor_id: low.id,
-      match_score: 0.55, match_reasoning: 'CONSTRUCTED BELOW-THRESHOLD CASE', status: 'pending'
-    }, { onConflict: 'project_id,contractor_id' })
+    // Second real project. Plumbing, ZIP 20155. The only plumber in the pool
+    // sits 16 miles out inside a 25-mile radius with no reviews, so this one
+    // scores BELOW the gate on its own merits — nothing is constructed.
+    const BELOW_PROJECT = 'e16ace1f-22ff-4bca-9d95-1f794e496f41'
+    const ABOVE_PROJECT = 'ec641e54-084c-453b-bf28-2c9e4e0c4010'
 
-    const { data: all } = await sb.from('matches')
-      .select('contractor_id, match_score, match_reasoning')
-      .eq('project_id', PROJECT_ID).order('match_score', { ascending: false })
-    log('\n[TASK2-A] ALL persisted scores for this project:', JSON.stringify(all, null, 1))
+    const { data: p } = await sb.from('projects')
+      .select('id, zip_code, lat, lng, trade_id, description').eq('id', BELOW_PROJECT).single()
+    let lat = p!.lat as number | null, lng = p!.lng as number | null
+    if (lat == null) {
+      const coords = await zipToLatLng(String(p!.zip_code))
+      lat = coords!.lat; lng = coords!.lng
+      await sb.from('projects').update({ lat, lng }).eq('id', BELOW_PROJECT)
+    }
+
+    const { data: contractors } = await sb.from('contractor_profiles')
+      .select(`id, business_name, rating, review_count, years_in_business, response_rate,
+               subscription_tier, service_radius_miles, lat, lng, contractor_trades(trade_id)`)
+      .eq('subscription_active', true).eq('active', true)
+
+    const inRange = (contractors ?? []).map(c => {
+      const hasTrade = (c.contractor_trades as { trade_id: string }[] | null)?.some(ct => ct.trade_id === p!.trade_id)
+      if (!hasTrade || c.lat == null || c.lng == null) return null
+      const distance = haversineDistanceMiles(lat!, lng!, c.lat, c.lng)
+      if (distance > (c.service_radius_miles ?? 25)) return null
+      return { c, distance }
+    }).filter(Boolean) as { c: any; distance: number }[]
+
+    log('\n[TASK2-A] BELOW-CASE pool (project ' + BELOW_PROJECT + ', plumbing, ZIP ' + p!.zip_code + '):',
+      JSON.stringify(inRange.map(x => ({ business_name: x.c.business_name, distance_miles: Math.round(x.distance * 10) / 10, radius: x.c.service_radius_miles })), null, 1))
+
+    const ranked = await runMatchRankerAgent(
+      { description: p!.description ?? '', trade: 'plumbing', zipCode: String(p!.zip_code), preferences: null },
+      inRange.map(({ c, distance }) => ({
+        id: c.id, businessName: c.business_name, trades: [], rating: Number(c.rating ?? 0),
+        reviewCount: c.review_count ?? 0, yearsInBusiness: c.years_in_business ?? 1,
+        responseRate: c.response_rate ?? 100, subscriptionTier: c.subscription_tier ?? 'free',
+        distanceMiles: Math.round(distance)
+      })),
+      new Map(inRange.map(({ c }) => [c.id, c.service_radius_miles ?? 25]))
+    )
+    log('[TASK2-B] BELOW-CASE scores:', JSON.stringify(ranked, null, 1))
+
+    await sb.from('matches').upsert(
+      ranked.map(r => ({ project_id: BELOW_PROJECT, contractor_id: r.contractorId, match_score: r.score, match_reasoning: r.reasoning, status: 'pending' })),
+      { onConflict: 'project_id,contractor_id' }
+    )
 
     // The exact query the UI gate runs (homeowner/matches/page.tsx).
-    const { data: gated } = await sb.from('matches')
-      .select('contractor_id, match_score')
-      .eq('project_id', PROJECT_ID)
-      .gte('match_score', 0.8)
+    const gateQuery = (projectId: string) => sb.from('matches')
+      .select('project_id, contractor_id, match_score')
+      .eq('project_id', projectId).gte('match_score', 0.8)
       .order('match_score', { ascending: false })
-    log('[TASK2-B] UI GATE QUERY .gte(match_score, 0.8) returns:', JSON.stringify(gated, null, 1))
 
-    const gatedIds = new Set((gated ?? []).map(g => g.contractor_id))
-    log('[TASK2-C] below-threshold contractor', low.id, '(score 0.55) present in gated result?', gatedIds.has(low.id))
-    expect(gatedIds.has(low.id)).toBe(false)
-    expect((gated ?? []).length).toBeGreaterThan(0)
-    for (const g of gated ?? []) expect(Number(g.match_score)).toBeGreaterThanOrEqual(0.8)
+    const { data: belowAll } = await sb.from('matches')
+      .select('contractor_id, match_score').eq('project_id', BELOW_PROJECT)
+    const { data: belowGated } = await gateQuery(BELOW_PROJECT)
+    log('[TASK2-C] BELOW project persisted:', JSON.stringify(belowAll))
+    log('[TASK2-D] BELOW project through .gte(match_score, 0.8):', JSON.stringify(belowGated), '-> EXCLUDED')
 
-    // Clean up the constructed row so it is not mistaken for a real match.
-    await sb.from('matches').delete().eq('project_id', PROJECT_ID).eq('contractor_id', low.id)
-    log('[TASK2-D] constructed below-threshold row deleted')
-  }, 60_000)
+    const { data: aboveAll } = await sb.from('matches')
+      .select('contractor_id, match_score').eq('project_id', ABOVE_PROJECT)
+    const { data: aboveGated } = await gateQuery(ABOVE_PROJECT)
+    log('[TASK2-E] ABOVE project persisted:', JSON.stringify(aboveAll))
+    log('[TASK2-F] ABOVE project through .gte(match_score, 0.8):', JSON.stringify(aboveGated), '-> INCLUDED')
+
+    expect(ranked.every(r => r.score < MATCH_THRESHOLD)).toBe(true)
+    expect((belowGated ?? []).length).toBe(0)
+    expect((aboveGated ?? []).length).toBeGreaterThan(0)
+    for (const g of aboveGated ?? []) expect(Number(g.match_score)).toBeGreaterThanOrEqual(0.8)
+  }, 120_000)
 
   it('TASK 3 — daily lead cap actually caps', async () => {
     const CONTRACTOR_ID = '27298d62-fd2a-4886-b93f-7f8c8f32f327' // Manassas Comfort HVAC (real)
