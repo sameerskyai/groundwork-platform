@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { zipToLatLng } from '@/lib/geo'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -95,11 +96,22 @@ export default function EstimatePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
+      // Geocode the ZIP before inserting. Contractor matching filters on
+      // distance, so a project with no lat/lng matches nobody, forever --
+      // and this flow is the only way a real project gets created. It used
+      // to insert without coordinates, which is why matching returned empty
+      // for every genuine user. `/api/projects` already did this; nothing
+      // called it. Failure here is not fatal: the candidates route backfills
+      // from zip_code on first read.
+      const coords = await zipToLatLng(zip)
+
       // Create the project record first -- the estimate is attached to it.
       const { data: project, error: projectError } = await supabase.from('projects').insert({
         user_id: user.id,
         description,
         zip_code: zip,
+        lat: coords?.lat ?? null,
+        lng: coords?.lng ?? null,
         photo_urls: photoUrls
       }).select().single()
 

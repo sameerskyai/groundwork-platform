@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# .env.example holds variable NAMES ONLY, never values. It is the one env
+# file that must be committed, otherwise nobody knows what to set.
+!.env.example
 
 # vercel
 .vercel

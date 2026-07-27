@@ -94,7 +94,14 @@ function MatchesContent() {
         return
       }
 
-      // J3 gate: 80%+ compatibility only.
+      // THE 80% gate. One scale, one threshold: match_score is 0–1
+      // (matches.match_score is DECIMAL(4,3)), and 0.8 here is the same
+      // number as MATCH_THRESHOLD in lib/agents/match-ranker-agent.ts, which
+      // GET /api/projects/[id]/candidates enforces server-side before any of
+      // these rows are written. The literal is repeated rather than imported
+      // because importing that module would pull the Anthropic SDK into the
+      // client bundle. The 0–100 variants of this gate (match-scorer.ts,
+      // POST /api/projects/[id]/score) were deleted, not converted.
       const { data: matchData, error: matchError } = await supabase
         .from('matches')
         .select(`

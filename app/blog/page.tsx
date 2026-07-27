@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { Wordmark } from '@/components/ui/logo'
 import { Footer } from '@/components/layout/Footer'
-import { ArrowRight } from 'lucide-react'
 
 export const metadata = {
   title: 'Cost Guides & Education — Laywork',
@@ -92,12 +91,17 @@ export default function BlogPage() {
       <section style={{ padding: '72px 24px', background: 'var(--color-base-alt)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
+            {/* UNLINKED 2026-07-27 (standards check §26, NAVIGATION): these six
+                cards pointed at /blog/[slug], a route that does not exist -- six
+                live 404s. No article body exists in the repo, so building the
+                route would mean inventing the content. They render as
+                non-interactive previews until the writing is real. */}
             {ARTICLES.map(a => (
-              <Link key={a.slug} href={`/blog/${a.slug}`} style={{ textDecoration: 'none' }}>
+              <div key={a.slug}>
                 <article style={{
                   background: 'var(--color-base)', borderRadius: 16, border: '1px solid var(--color-line)',
                   padding: '28px', height: '100%', display: 'flex', flexDirection: 'column',
-                  cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s'
+                  transition: 'border-color 0.15s, box-shadow 0.15s'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                     <span style={{ background: `color-mix(in srgb, ${a.accent} 12%, var(--color-base))`, color: a.accent, fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '4px 10px', borderRadius: 100 }}>
@@ -111,11 +115,11 @@ export default function BlogPage() {
                   <p style={{ color: 'var(--color-ink-2)', fontSize: 14, lineHeight: 1.7, marginBottom: 20 }}>
                     {a.excerpt}
                   </p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: a.accent, fontSize: 13, fontWeight: 600 }}>
-                    Read more <ArrowRight style={{ width: 14, height: 14 }} />
-                  </div>
+                  {/* "Read more" removed with the link: an affordance that
+                      looks clickable but is not is worse than none. */}
+                  <p className="annotation">Coming soon</p>
                 </article>
-              </Link>
+              </div>
             ))}
           </div>
         </div>

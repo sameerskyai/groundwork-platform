@@ -14,12 +14,14 @@ const NAV_LINKS = [
   { label: 'Blog', href: '/blog' }
 ]
 
-const STATS = [
-  { n: '2,400+', label: 'Estimates delivered' },
-  { n: '180', label: 'Contractors verified' },
-  { n: '$3,800', label: 'Avg savings vs first quote' },
-  { n: '30s', label: 'Time to an estimate' }
-]
+// STATS REMOVED 2026-07-27 (copy-truth pass). Every prior value here was
+// fabricated: "2,400+ estimates delivered" and "$3,800 avg savings" against
+// zero completed jobs, and "180 contractors verified" against a
+// license_verified column that is never set anywhere in the codebase.
+// PRODUCT.md "Evidence on Hand" forbids invented counts, and DECISIONS.md's
+// honesty ledger already struck comparable claims once. Do not reintroduce
+// numbers here without a real query behind them.
+const STATS: { n: string; label: string }[] = []
 
 const STEPS = [
   {
@@ -464,9 +466,11 @@ export default function HomePage() {
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, maxWidth: 800, margin: '0 auto' }}>
             {[
-              { role: 'Homeowner', name: 'D.W.', location: 'Bethesda, MD', quote: 'I got three quotes for my HVAC. Two were way over what Laywork said was fair. Ended up paying exactly the estimate.' },
-              { role: 'Homeowner', name: 'M.R.', location: 'Arlington, VA', quote: 'Knowing the price range before anyone showed up changed the whole conversation. I wasn\'t guessing anymore.' },
-              { role: 'Contractor', name: 'T.H., Licensed GC', location: 'Silver Spring, MD', quote: 'Every homeowner who comes through already understands what work costs. Way less back and forth on price.' }
+              /* TESTIMONIALS REMOVED 2026-07-27 (copy-truth pass): D.W., M.R. and
+                 T.H. were invented. No customer has used the product; the
+                 waitlist holds 12 test rows and zero real signups.
+                 PRODUCT.md forbids fabricated testimonials. Reintroduce only
+                 with a real, attributable, consented quote. */
             ].map(t => (
               <div key={t.name} style={{
                 background: 'var(--color-base)', borderRadius: 16,

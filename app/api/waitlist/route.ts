@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { headers } from 'next/headers'
+import { deliverWelcomeEmail, deliverMilestoneEmail } from '@/lib/email/delivery'
+import { isMilestone } from '@/lib/email/templates/tiers'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -130,14 +132,49 @@ export async function POST(request: Request) {
     // a JS read-then-write, which would race under concurrent referrals
     // for the same referrer and silently lose credits.
     if (referrerId) {
-      const { error: creditError } = await supabase.rpc('credit_referral', { p_referrer_id: referrerId })
+      const { data: credit, error: creditError } = await supabase.rpc('credit_referral', { p_referrer_id: referrerId })
       if (creditError) {
         // The referred person's own signup already succeeded and is the
         // primary outcome of this request -- a failed bonus-credit update
         // for the referrer is logged, not treated as a signup failure.
         console.error('Referral credit failed:', creditError)
+      } else {
+        // credit_referral() RETURNS TABLE, so PostgREST hands back an array.
+        // Reading the count from the RPC's own return value rather than a
+        // follow-up SELECT is what keeps the milestone check race-free: the
+        // atomic UPDATE decides which caller saw the count land on 3/5/10,
+        // so exactly one concurrent referral can trigger a given tier.
+        const row = Array.isArray(credit) ? credit[0] : credit
+        const newCount = row?.new_verified_referral_count
+        if (typeof newCount === 'number' && isMilestone(newCount)) {
+          // Same rule as the credit above: the referrer's congratulations
+          // email is not this request's job to guarantee. Awaited so it is
+          // not a dangling promise the serverless runtime can kill mid-send,
+          // but its failure is recorded, never propagated.
+          await deliverMilestoneEmail(supabase, referrerId, newCount).catch(err => {
+            console.error('Milestone email failed:', err)
+          })
+        }
       }
     }
+
+    // Welcome email. The signup is already committed and the response below
+    // is already determined -- this send cannot fail it. A provider outage,
+    // a missing API key, or an unverified sending domain records
+    // welcome_email_status = 'failed' with a reason on the row (migration
+    // 040) and the person still gets their position number. This is the
+    // whole reason delivery status is stored: the modal has been saying
+    // "check your email" and nobody could tell whether that was true.
+    await deliverWelcomeEmail(supabase, {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      position_number: data.position_number,
+      referral_code: data.referral_code,
+      founding_500: data.founding_500
+    }).catch(err => {
+      console.error('Welcome email failed:', err)
+    })
 
     return Response.json({
       success: true,

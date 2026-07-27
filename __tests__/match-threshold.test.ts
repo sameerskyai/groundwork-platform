@@ -1,111 +1,59 @@
-import { describe, it, expect, vi } from 'vitest'
-import { scoreProjectContractorMatch, type ProjectData, type ContractorData } from '@/lib/agents/match-scorer'
+import { describe, it, expect } from 'vitest'
+import { MATCH_THRESHOLD, MATCH_SCORE_SCALE } from '@/lib/agents/match-ranker-agent'
 
-describe('Match Scoring — 80% Threshold', () => {
-  // Mock the Anthropic client to avoid actual API calls
-  const mockScoreResponse = (total: number) => ({
-    budget_compatibility: 20,
-    distance_compatibility: 20,
-    experience_compatibility: 20,
-    personality_compatibility: Math.min(25, total - 60),
-    total,
-    reasoning: `Mock score of ${total}%`
+/**
+ * Rewritten. This suite used to import `lib/agents/match-scorer.ts`, which
+ * scored 0–100 and was deleted: it had no caller, never persisted anything,
+ * and read a `homeowner_preferences` table that does not exist. There is now
+ * one scale (0–1, dictated by `matches.match_score DECIMAL(4,3)`) and one
+ * threshold (`MATCH_THRESHOLD`).
+ */
+describe('Match gate — one scale, one threshold', () => {
+  it('is expressed on the 0–1 scale the matches column can actually hold', () => {
+    expect(MATCH_SCORE_SCALE.max).toBe(1)
+    expect(MATCH_SCORE_SCALE.decimals).toBe(3)
+    expect(MATCH_THRESHOLD).toBeGreaterThan(MATCH_SCORE_SCALE.min)
+    expect(MATCH_THRESHOLD).toBeLessThanOrEqual(MATCH_SCORE_SCALE.max)
   })
 
-  it('should mark matches >= 80% as should_surface: true', async () => {
-    // This test documents the expected behavior
-    // In real scenario with Claude API, scores would vary
-    // Mock ensures deterministic test
+  it('is the marketed 80%', () => {
+    expect(MATCH_THRESHOLD).toBe(0.8)
+    expect(Math.round(MATCH_THRESHOLD * 100)).toBe(80)
+  })
 
-    const testCases = [
-      { score: 85, shouldSurface: true, label: '85% (above threshold)' },
-      { score: 80, shouldSurface: true, label: '80% (at threshold)' },
-      { score: 79, shouldSurface: false, label: '79% (below threshold)' }
+  it('admits at-and-above, excludes below', () => {
+    const cases = [
+      { score: 0.85, admitted: true },
+      { score: 0.8, admitted: true },
+      { score: 0.799, admitted: false },
+      { score: 0.62, admitted: false }
     ]
-
-    for (const testCase of testCases) {
-      // Since we can't mock the Anthropic API easily in this test context,
-      // verify the scoring logic directly
-      const result = {
-        match_percentage: testCase.score,
-        should_surface: testCase.score >= 80,
-        factors: {
-          budget_compatibility: 20,
-          distance_compatibility: 20,
-          experience_compatibility: 20,
-          personality_compatibility: testCase.score - 60
-        },
-        reasoning: `Test score ${testCase.score}%`
-      }
-
-      expect(result.should_surface).toBe(
-        testCase.shouldSurface,
-        `${testCase.label}: should_surface should be ${testCase.shouldSurface}`
-      )
-      expect(result.match_percentage).toBe(testCase.score)
+    for (const c of cases) {
+      expect(c.score >= MATCH_THRESHOLD).toBe(c.admitted)
     }
   })
 
-  it('should never surface scores below 80% in API response', () => {
-    // Test the filtering logic that occurs in the score route
-    const mockScores = [
-      { match_percentage: 88, should_surface: true, contractor_id: 'c1' },
-      { match_percentage: 76, should_surface: false, contractor_id: 'c2' }, // Below threshold
-      { match_percentage: 82, should_surface: true, contractor_id: 'c3' },
-      { match_percentage: 62, should_surface: false, contractor_id: 'c4' }  // Below threshold
+  it('filters a mixed pool the way the candidates route does', () => {
+    const pool = [
+      { contractor_id: 'c1', match_score: 0.88 },
+      { contractor_id: 'c2', match_score: 0.76 },
+      { contractor_id: 'c3', match_score: 0.82 },
+      { contractor_id: 'c4', match_score: 0.62 }
     ]
 
-    const THRESHOLD = 80
-    const filtered = mockScores.filter(s => s.match_percentage >= THRESHOLD)
+    const above = pool
+      .filter(c => c.match_score >= MATCH_THRESHOLD)
+      .sort((a, b) => b.match_score - a.match_score)
 
-    // Assert: only scores >= 80 are returned
-    expect(filtered).toHaveLength(2)
-    expect(filtered.map(s => s.match_percentage)).toEqual([88, 82])
-
-    // Assert: sub-threshold scores are not in result
-    const subThreshold = filtered.filter(s => s.match_percentage < THRESHOLD)
-    expect(subThreshold).toHaveLength(0)
+    expect(above.map(c => c.contractor_id)).toEqual(['c1', 'c3'])
+    expect(pool.length - above.length).toBe(2)
+    expect(above.every(c => c.match_score >= MATCH_THRESHOLD)).toBe(true)
   })
 
-  it('should count sub-threshold matches correctly', () => {
-    const mockScores = [
-      { match_percentage: 90, contractor_id: 'c1' },
-      { match_percentage: 85, contractor_id: 'c2' },
-      { match_percentage: 75, contractor_id: 'c3' },
-      { match_percentage: 60, contractor_id: 'c4' },
-      { match_percentage: 50, contractor_id: 'c5' }
-    ]
-
-    const THRESHOLD = 80
-    const filtered = mockScores.filter(s => s.match_percentage >= THRESHOLD)
-    const subThresholdCount = mockScores.length - filtered.length
-
-    // Assert: sub-threshold count is correct
-    expect(subThresholdCount).toBe(3) // 75, 60, 50
-    expect(filtered).toHaveLength(2) // 90, 85
-  })
-
-  it('should return threshold in API response for transparency', () => {
-    const apiResponse = {
-      project_id: 'proj-123',
-      total_candidates: 5,
-      matches_found: 2,
-      matches_sub_threshold: 3,
-      threshold: 80,
-      matches: [
-        { match_percentage: 90, contractor_id: 'c1' },
-        { match_percentage: 85, contractor_id: 'c2' }
-      ]
-    }
-
-    // Assert: API response includes threshold and sub-threshold count
-    expect(apiResponse.threshold).toBe(80)
-    expect(apiResponse.matches_sub_threshold).toBe(3)
-    expect(apiResponse.matches_found).toBe(2)
-
-    // Assert: all returned matches are >= threshold
-    apiResponse.matches.forEach(match => {
-      expect(match.match_percentage).toBeGreaterThanOrEqual(apiResponse.threshold)
-    })
+  it('a score persisted on the wrong scale would not fit the column', () => {
+    // DECIMAL(4,3) tops out at 9.999. This is why 0-100 was never viable.
+    const maxStorable = 9.999
+    expect(85).toBeGreaterThan(maxStorable)
+    expect(0.85).toBeLessThanOrEqual(maxStorable)
   })
 })

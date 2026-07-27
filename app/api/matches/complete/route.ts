@@ -105,40 +105,45 @@ export async function POST(req: NextRequest) {
       .select('rating, on_time, dispute_flagged')
       .eq('contractor_id', contractorId)
 
-    if (existingReviews && existingReviews.length > 0) {
-      const allReviews = [...existingReviews, review]
-      const avgRating = Math.round(
-        (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length) * 10
-      ) // Store as integer 0-50 (representing 0-5 stars)
+    // `existingReviews` is read back AFTER the insert above, so it already
+    // contains the new row. Appending `review` again double-counted it in
+    // every average and in verified_job_count.
+    const allReviews = existingReviews?.length ? existingReviews : [review]
 
-      const onTimeCount = allReviews.filter(r => r.on_time === true).length
-      const onTimePercentage = Math.round((onTimeCount / allReviews.length) * 100)
+    // trust_* is stored as an integer 0-50 (0-5 stars x 10).
+    const meanStars = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+    const trustScore = Math.round(meanStars * 10)
 
-      const disputeFreeCount = allReviews.filter(r => !r.dispute_flagged).length
-      const disputeFreePercentage = Math.round((disputeFreeCount / allReviews.length) * 100)
+    const onTimeCount = allReviews.filter(r => r.on_time === true).length
+    const onTimePercentage = Math.round((onTimeCount / allReviews.length) * 100)
 
-      await adminClient
-        .from('contractor_profiles')
-        .update({
-          trust_score: avgRating,
-          trust_accuracy: avgRating, // Using rating as accuracy proxy
-          trust_on_time: onTimePercentage,
-          trust_dispute_free: disputeFreePercentage,
-          verified_job_count: allReviews.length
-        })
-        .eq('id', contractorId)
-    } else {
-      // First review
-      await adminClient
-        .from('contractor_profiles')
-        .update({
-          trust_score: rating * 10,
-          trust_accuracy: rating * 10,
-          trust_on_time: onTime === true ? 100 : (onTime === false ? 0 : 50),
-          trust_dispute_free: hasDispute ? 0 : 100,
-          verified_job_count: 1
-        })
-        .eq('id', contractorId)
+    const disputeFreeCount = allReviews.filter(r => !r.dispute_flagged).length
+    const disputeFreePercentage = Math.round((disputeFreeCount / allReviews.length) * 100)
+
+    // contractor_profiles.rating / review_count were never written by this
+    // route -- only trust_* was. Both columns default to 0, so every star
+    // rating in the product rendered "0.0 (0 reviews)" no matter how many
+    // real reviews existed. rating is DECIMAL(3,2) on the 0-5 star scale;
+    // trust_score is the 0-50 integer. They are different scales on purpose,
+    // and writing the trust value into `rating` would render as "50.0 stars".
+    const { error: aggregateError } = await adminClient
+      .from('contractor_profiles')
+      .update({
+        rating: Math.round(meanStars * 100) / 100,
+        review_count: allReviews.length,
+        trust_score: trustScore,
+        trust_accuracy: trustScore, // Using rating as accuracy proxy
+        trust_on_time: onTimePercentage,
+        trust_dispute_free: disputeFreePercentage,
+        verified_job_count: allReviews.length
+      })
+      .eq('id', contractorId)
+
+    if (aggregateError) {
+      // The review is already written and is the source of truth; a failed
+      // rollup must be visible in logs rather than silently leaving the
+      // profile showing a stale star rating.
+      console.error('Error updating contractor rating aggregates:', aggregateError)
     }
 
     return NextResponse.json({

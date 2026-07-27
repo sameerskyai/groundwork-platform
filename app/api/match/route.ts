@@ -1,123 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { runMatchRankerAgent } from '@/lib/agents'
-import { haversineDistanceMiles } from '@/lib/geo'
 
-export async function POST(req: NextRequest) {
-  try {
-    const { projectId } = await req.json()
-    const supabase = await createClient()
+/**
+ * Contractor accept / decline. This file used to also export a POST handler
+ * that ran a second, parallel contractor-matching implementation. It was
+ * deleted, not repaired.
+ *
+ * Why deleted: it selected contractor location through
+ * `profiles(zip_code, lat, lng)`, and `profiles` RLS is owner-only
+ * (`001_initial.sql:287`), so the embedded row came back `null` for every
+ * contractor except the caller and the `!profile?.lat` guard dropped the
+ * entire pool on every request. Migration 006 had already moved location to
+ * `contractor_profiles` for exactly this reason. Nothing in the app called
+ * `POST /api/match`, whereas `GET /api/projects/[id]/candidates` is wired into
+ * the homeowner dashboard, reads the correct table, and now also persists
+ * `matches.match_score` — so that is the surviving implementation.
+ *
+ * What remains here is not matching. It is lead consumption: the point where a
+ * contractor spends one of the daily leads their $79 / $149 plan pays for.
+ */
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+// The `subscription_tiers` config table is keyed by the tier slugs from
+// 001_initial.sql ('standard', 'growth'). Migration 016 renamed the values
+// stored on contractor_profiles to 'free' / 'paid_unlimited' but left the
+// config table untouched, so a direct lookup misses and every contractor
+// silently fell back to the default cap. Map the renamed values back.
+const TIER_SLUG_ALIASES: Record<string, string> = {
+  free: 'standard',
+  paid_unlimited: 'growth'
+}
+const DEFAULT_DAILY_LEAD_CAP = 5
 
-    // Load project
-    const { data: project } = await supabase
-      .from('projects')
-      .select('*')
-      .eq('id', projectId)
-      .eq('user_id', user.id)
-      .single()
-
-    if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 })
-
-    // Hard filter: trade + active subscription + has lat/lng
-    const { data: contractors } = await supabase
-      .from('contractor_profiles')
-      .select(`
-        *,
-        profiles(zip_code, lat, lng),
-        contractor_trades(trade_id),
-        contractor_pricing(field_key, value_low, value_high, unit)
-      `)
-      .eq('subscription_active', true)
-      .eq('active', true)
-
-    if (!contractors?.length) return NextResponse.json({ matches: [] })
-
-    // Filter by trade and distance
-    const filtered = contractors.filter(c => {
-      const profile = c.profiles as any
-      if (!profile?.lat || !profile?.lng || !project.lat || !project.lng) return false
-
-      const hasTrade = c.contractor_trades?.some((ct: any) => ct.trade_id === project.trade_id)
-      if (!hasTrade) return false
-
-      const dist = haversineDistanceMiles(project.lat, project.lng, profile.lat, profile.lng)
-      return dist <= (c.service_radius_miles ?? 25)
-    })
-
-    if (!filtered.length) return NextResponse.json({ matches: [] })
-
-    // Check daily lead cap — don't show contractors who've hit their cap
-    const today = new Date().toISOString().split('T')[0]
-    const { data: tierConfig } = await supabase.from('subscription_tiers').select('*')
-    const tierMap = Object.fromEntries((tierConfig ?? []).map((t: any) => [t.slug, t]))
-
-    const withinCap = filtered.filter(c => {
-      const cap = tierMap[c.subscription_tier]?.daily_lead_cap ?? 5
-      const used = c.daily_leads_reset_at === today ? (c.daily_leads_used ?? 0) : 0
-      return used < cap
-    })
-
-    // Build candidates for AI ranker
-    const candidates = withinCap.map(c => {
-      const profile = c.profiles as any
-      const pricing = c.contractor_pricing as any[]
-      const pricingVals = pricing?.map((p: any) => p.value_high).filter(Boolean)
-      const dist = haversineDistanceMiles(project.lat!, project.lng!, profile.lat, profile.lng)
-
-      return {
-        id: c.id,
-        businessName: c.business_name ?? 'Contractor',
-        trades: c.contractor_trades?.map((t: any) => t.trade_id) ?? [],
-        rating: c.rating ?? 0,
-        reviewCount: c.review_count ?? 0,
-        yearsInBusiness: c.years_in_business ?? 1,
-        responseRate: c.response_rate ?? 100,
-        subscriptionTier: c.subscription_tier ?? 'free',
-        pricingRange: pricingVals?.length
-          ? { low: Math.min(...pricingVals), high: Math.max(...pricingVals) }
-          : undefined,
-        distanceMiles: Math.round(dist)
-      }
-    })
-
-    // AI ranker scores and orders candidates
-    const ranked = await runMatchRankerAgent(
-      {
-        description: project.description,
-        trade: project.ai_project_type ?? '',
-        budgetMin: project.budget_min ?? undefined,
-        budgetMax: project.budget_max ?? undefined,
-        estimateLow: project.ai_estimate_low ?? undefined,
-        estimateHigh: project.ai_estimate_high ?? undefined,
-        zipCode: project.zip_code
-      },
-      candidates
-    )
-
-    // Upsert matches in DB (top 10)
-    const topMatches = ranked.slice(0, 10)
-    await supabase.from('matches').upsert(
-      topMatches.map(m => ({
-        project_id: projectId,
-        contractor_id: m.contractorId,
-        match_score: m.score,
-        match_reasoning: m.reasoning,
-        status: 'pending'
-      })),
-      { onConflict: 'project_id,contractor_id' }
-    )
-
-    return NextResponse.json({ matches: topMatches, total: ranked.length })
-  } catch (err) {
-    console.error('Match agent error:', err)
-    return NextResponse.json({ error: 'Matching failed' }, { status: 500 })
-  }
+function resolveDailyCap(
+  tiers: { slug: string; daily_lead_cap: number }[] | null,
+  contractorTier: string | null
+): number {
+  const tier = contractorTier ?? 'free'
+  const bySlug = Object.fromEntries((tiers ?? []).map(t => [t.slug, t.daily_lead_cap]))
+  return bySlug[tier] ?? bySlug[TIER_SLUG_ALIASES[tier]] ?? DEFAULT_DAILY_LEAD_CAP
 }
 
-// Contractor accepts or declines a match
 export async function PATCH(req: NextRequest) {
   try {
     const { matchId, action } = await req.json() // action: 'accept' | 'decline'
@@ -144,6 +66,54 @@ export async function PATCH(req: NextRequest) {
 
       if (!match) return NextResponse.json({ error: 'Match not found' }, { status: 404 })
 
+      // ---- Daily lead cap -------------------------------------------------
+      // The reset date was previously read off `match.daily_leads_reset_at`.
+      // That column lives on contractor_profiles, not matches, so the value
+      // was always `undefined`, `undefined !== today` was always true, and the
+      // counter was reset to 1 on every single accept. Contractors were never
+      // capped — a straight revenue leak against the metered tiers. The value
+      // is right here on `contractor`, already fetched.
+      const today = new Date().toISOString().split('T')[0]
+      const resetDate = contractor.daily_leads_reset_at
+        ? String(contractor.daily_leads_reset_at).split('T')[0]
+        : null
+      const isNewDay = resetDate !== today
+      const used = isNewDay ? 0 : (contractor.daily_leads_used ?? 0)
+
+      const { data: tierConfig } = await supabase
+        .from('subscription_tiers')
+        .select('slug, daily_lead_cap')
+      const cap = resolveDailyCap(tierConfig, contractor.subscription_tier)
+
+      if (used >= cap) {
+        return NextResponse.json(
+          {
+            error: 'Daily lead limit reached for your plan',
+            daily_leads_used: used,
+            daily_lead_cap: cap
+          },
+          { status: 429 }
+        )
+      }
+
+      // Spend the lead first, guarded on the counter we read. If a concurrent
+      // accept moved it, the guarded update matches no row and we refuse
+      // rather than let two requests share one slot.
+      const { data: spent } = await supabase
+        .from('contractor_profiles')
+        .update({ daily_leads_used: used + 1, daily_leads_reset_at: today })
+        .eq('id', contractor.id)
+        .eq('daily_leads_used', contractor.daily_leads_used ?? 0)
+        .select('daily_leads_used, daily_leads_reset_at')
+        .maybeSingle()
+
+      if (!spent) {
+        return NextResponse.json(
+          { error: 'Lead count changed while accepting — try again' },
+          { status: 409 }
+        )
+      }
+
       const now = new Date().toISOString()
       const isMatched = match.homeowner_swiped_at != null
 
@@ -153,19 +123,20 @@ export async function PATCH(req: NextRequest) {
         matched_at: isMatched ? now : null
       }).eq('id', matchId)
 
-      // Increment daily lead count
-      const today = new Date().toISOString().split('T')[0]
-      const resetCount = match.daily_leads_reset_at !== today
-      await supabase.from('contractor_profiles').update({
-        daily_leads_used: resetCount ? 1 : (contractor.daily_leads_used ?? 0) + 1,
-        daily_leads_reset_at: today
-      }).eq('id', contractor.id)
-
-      return NextResponse.json({ status: isMatched ? 'matched' : 'pending_homeowner' })
+      return NextResponse.json({
+        status: isMatched ? 'matched' : 'pending_homeowner',
+        daily_leads_used: spent.daily_leads_used,
+        daily_lead_cap: cap
+      })
     }
 
     if (action === 'decline') {
-      await supabase.from('matches').update({ status: 'declined' }).eq('id', matchId)
+      // Declining does not consume a lead.
+      await supabase
+        .from('matches')
+        .update({ status: 'declined' })
+        .eq('id', matchId)
+        .eq('contractor_id', contractor.id)
       return NextResponse.json({ status: 'declined' })
     }
 
