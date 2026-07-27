@@ -297,11 +297,18 @@ Full 7-phase plan merged in (Phase 3 Design Layer inserted, old Phase 3-6 renumb
   - Homepage at `/` (replaces the redirect to /waitlist): nav (wordmark, minimal links, one blue CTA → modal), hero ("Stop gambling on contractors." / "Free AI estimates. Contractors matched at 80%+ compatibility. Northern Virginia first.", CTA → modal, marked slot for scroll video — NOT wired this session), correctly spaced section stubs (problem, estimate, five mechanics, 80% gate, Founders Program, final CTA), footer (wordmark, links, one legal line), scroll reveals per motion tokens.
   - Waitlist modal per directive: reuse Phase 2 signup logic via shared hook (no second signup path, RLS untouched); lit floating panel (layered shadows, blurred backdrop, 0.96→1 entry, illuminated accent border with bloom); Stage 1 name+email+live Founding-500 counter; Stage 2 in-place count-up position number, glow pulse, referral link one-tap copy, tier rewards, Founding badge; full a11y (§25) incl. reduced-motion; mobile bottom sheet with lit top edge, 16px inputs.
   - Evidence: homepage + modal-state screenshots desktop/mobile, real signup row pasted from live table, extracted-logic report, old-name inventory.
-- [ ] STEP 2 — Founders Program page (tiers, rewards, counter)
-- [ ] STEP 3 — Referral status page (position, link, progress)
-- [ ] STEP 4 — Public leaderboard page (top 25, first name + last initial)
-- [ ] STEP 5 — Legal: Privacy + Terms placeholder copy, flagged for attorney review
-- [ ] STEP 6 — Shared polish: SEO metadata, Open Graph share cards, favicon; verify existing admin dashboard post-rename
+- [x] STEP 2 — Founders Program page (tiers, rewards, counter)
+  - **Status**: VERIFIED — `/founders` live in production, real counter (486 of 500), tiers 3/5/10 per canon. Screenshot `tests/e2e-screenshots/laywork-production/prod-founders-{desktop,mobile}.png`.
+- [x] STEP 3 — Referral status page (position, link, progress)
+  - **Status**: VERIFIED — `/status` + `GET /api/waitlist/status`. Production returns `{firstName, position_number, verified_referral_count, founding_500}` only; no email/phone/IP. 404 on unknown code, 400 on missing.
+- [x] STEP 4 — Public leaderboard page (top 25, first name + last initial)
+  - **Status**: VERIFIED — `/leaderboard` live; API capped at 25, `display_name` arrives pre-formatted "First L." with a client-side guard as defence in depth.
+- [x] STEP 5 — Legal: Privacy + Terms placeholder copy, flagged for attorney review
+  - **Status**: VERIFIED — attorney-review markers in both pages, section appended to LEGAL_TODO.md. Copy itself unchanged pending counsel.
+- [x] STEP 6 — Shared polish: SEO metadata, Open Graph share cards, favicon; verify existing admin dashboard post-rename
+  - **Status**: VERIFIED — metadata + title template ("Laywork — Stop gambling on contractors."), OG card, plumb-bob icon, robots.txt, sitemap.xml (11 routes, resolving to the production host — confirms `NEXT_PUBLIC_APP_URL` is set). Admin dashboard audited read-only: zero old-name strings, zero hardcoded hex, no null-crash risk from the SMS removal.
+
+**Phase 4 Status**: MERGED — PR #9 squash/merge to `main` as `d516a55` (2026-07-27), production deployment `dpl_Ha9vPXb7Fov4q45qcaDvCJHBaNg6` READY. All 16 public routes serve 200 on production. Merge note: the branch was 4 commits behind `main`; `origin/main` was merged in and three conflicts resolved — Blue/White/Black palette kept over Blueprint Blue (2026-07-24 founder decision supersedes 2026-07-22), main's reviewed `LoadingScreen`/`loading-preview` kept over stale local copies, and DECISIONS.md retains both histories in chronological order.
 
 ### Tooling & delegation (directive 2026-07-24, second revision)
 - Skills active this session: `high-end-visual-design` + `full-output-enforcement` (both already installed under .claude/skills — no new install needed; applied within the locked palette, which wins over any skill preference).
