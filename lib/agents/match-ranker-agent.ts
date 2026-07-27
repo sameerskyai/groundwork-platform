@@ -106,6 +106,14 @@ function normalizeScore(raw: unknown): number {
  * Trade match is not a term: it is a hard filter upstream, so every candidate
  * reaching this function already has it.
  */
+/**
+ * Marker written into `matches.match_reasoning` by the fallback. The
+ * candidates route treats a row carrying it as unscored, so a score produced
+ * while the model was unavailable is re-ranked on the next read once the model
+ * comes back rather than persisting forever as the contractor's real score.
+ */
+export const FALLBACK_REASONING_MARKER = 'Scored without AI ranking'
+
 export function deterministicRank(
   candidates: ContractorCandidate[],
   radiusByCandidate?: Map<string, number>
@@ -129,7 +137,7 @@ export function deterministicRank(
       return {
         contractorId: c.id,
         score: Math.min(1, Math.max(0, score)),
-        reasoning: `Scored without AI ranking (model unavailable): ${c.distanceMiles} mi away inside a ${radius} mi service area, ${c.yearsInBusiness} years in business, ${c.rating > 0 ? `${c.rating}/5 across ${c.reviewCount} reviews` : 'no reviews yet'}.`
+        reasoning: `${FALLBACK_REASONING_MARKER} (model unavailable): ${c.distanceMiles} mi away inside a ${radius} mi service area, ${c.yearsInBusiness} years in business, ${c.rating > 0 ? `${c.rating}/5 across ${c.reviewCount} reviews` : 'no reviews yet'}.`
       }
     })
     .sort((a, b) => b.score - a.score)

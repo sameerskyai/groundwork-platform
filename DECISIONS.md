@@ -1695,3 +1695,163 @@ not done here: it is outside this task's scope and the main session owns the
 repo. The email tests above were run against a temporary `.mts` config which
 has been deleted; they pass, and they will run under `npm test` once the
 rename lands.
+
+---
+
+## DECISION — One match scale, one threshold, one matching implementation (2026-07-27)
+
+Four defects were repaired that were being marketed as working features. Two of
+them were decisions, not just bugs, so they are recorded here.
+
+### 1. The scale: 0–1, three decimals. Not 0–100.
+
+Three thresholds existed on two scales:
+
+| Site | Scale | Threshold |
+|---|---|---|
+| `app/api/projects/[id]/score/route.ts:94` | 0–100 | `>= 80` |
+| `lib/agents/match-scorer.ts:127` | 0–100 | `>= 80` |
+| `lib/agents/match-ranker-agent.ts:48` | 0–1 | none |
+| `app/(dashboard)/homeowner/matches/page.tsx:67` | 0–1 | `.gte(0.8)` |
+
+**0–1 wins, and the column decides it, not taste.** `matches.match_score` is
+`DECIMAL(4,3)` (`001_initial.sql:222`) — maximum storable value 9.999. A 0–100
+percentage physically cannot be persisted there. Either scale could have been
+argued on the merits; only one of them fits the schema that already exists, and
+widening a live column to preserve the losing scale would be gratuitous.
+
+`MATCH_THRESHOLD = 0.8` and `MATCH_SCORE_SCALE` now live in
+`lib/agents/match-ranker-agent.ts` and are the single definition. The UI query
+keeps a `0.8` literal rather than importing them, because importing that module
+into a client component would pull the Anthropic SDK into the browser bundle;
+the literal carries a comment naming the constant it mirrors.
+
+The two 0–100 implementations were **deleted, not converted**:
+`lib/agents/match-scorer.ts` and `app/api/projects/[id]/score/route.ts`. Neither
+had a caller. Neither persisted anything. The route additionally read
+`homeowner_preferences`, a table that has never existed. `__tests__/match-threshold.test.ts`
+was rewritten against the surviving constant.
+
+### 2. The surviving matching implementation: `GET /api/projects/[id]/candidates`
+
+Two parallel implementations existed and both returned empty on every call.
+
+`POST /api/match` selected contractor location through
+`profiles(zip_code, lat, lng)`. `profiles` RLS is owner-only
+(`001_initial.sql:287`), so the embedded row resolved to `null` for every
+contractor except the caller, and the `!profile?.lat` guard dropped the whole
+pool. Migration 006 had already moved location onto `contractor_profiles` for
+exactly this reason and left a comment saying so; `/api/match` was never
+updated. Verified live 2026-07-27 under a real authenticated session: the join
+returns `"profiles": null` for all rows, while the same query against
+`contractor_profiles.lat/lng` returns real coordinates.
+
+`GET /api/projects/[id]/candidates` read the correct table but bailed whenever
+`project.lat` was null — and the live estimate flow inserted projects with no
+coordinates at all (`estimate/page.tsx:90`). Only `POST /api/projects` geocoded,
+and nothing in the UI called it.
+
+**Kept: `GET /api/projects/[id]/candidates`.** It is the one already wired into
+the product (`homeowner/page.tsx:165`), it reads the public-read table, and it
+is where scoring now persists. **Deleted: the `POST` handler of
+`app/api/match/route.ts`.** That file survives as the contractor
+accept/decline endpoint only — which is not matching, it is lead consumption.
+
+Consequences, deliberate:
+- The candidates route now **persists** `matches.match_score`. Nothing outside
+  the seed data ever wrote that column, which is why the 80% gate had nothing
+  to gate. Scoring is a side effect on a GET, and it is idempotent: the first
+  read for a project ranks the pool, later reads reuse the persisted scores and
+  make no model call.
+- The route lazily **backfills `projects.lat/lng` from `zip_code`** for projects
+  created before the estimate flow geocoded, so the rows already in the database
+  are not permanently unmatchable.
+- `contractor_pricing` was dropped from the query. RLS is enabled on it with
+  zero policies, so the join could only ever return an empty array — which
+  reads as "no pricing on file" rather than as the permission failure it is.
+  Same defect class as `reviews` below.
+
+### 3. The AI ranker now degrades instead of dying
+
+`runMatchRankerAgent` threw on any API failure, the route caught it and
+returned 500, and the homeowner saw an empty screen. A billing or availability
+problem at the model provider should not tell a homeowner that no contractor
+matches their project when three qualified pros are a mile away.
+
+`deterministicRank()` is the degraded path: proximity 0.35, track record 0.35,
+tenure 0.15, responsiveness 0.15, weights summing to 1. Trade match is not a
+term because it is a hard filter upstream. A contractor with neither rating nor
+verified jobs scores the 0.5 no-information midpoint on track record — which is
+every contractor in a cold-start marketplace.
+
+Fallback scores are marked in `match_reasoning` and are treated as **unscored**
+on the next read, so a score produced while the model was unreachable is
+re-ranked once it returns rather than freezing as the contractor's real score.
+
+**This path is currently live, not hypothetical.** The Anthropic API returned
+`400 invalid_request_error: "Your credit balance is too low to access the
+Anthropic API"` on 2026-07-27, so the AI ranker could not be exercised at all
+and every score now in `matches` came from the fallback. The founder should
+restore credit and re-verify.
+
+### 4. Daily lead cap — the read was off the wrong row
+
+`app/api/match/route.ts:158` read `match.daily_leads_reset_at`. That column is
+on `contractor_profiles`, not `matches`, so the value was always `undefined`,
+`undefined !== today` was always true, and `daily_leads_used` was reset to 1 on
+every single accept. Contractors were never capped, against the $79/$149
+metered tiers. The value was already in scope on `contractor` at `:131`.
+
+Second defect found while fixing it: `subscription_tiers` is keyed by the slugs
+from `001_initial.sql` (`standard`, `growth`), but migration 016 renamed the
+values stored on `contractor_profiles` to `free` / `paid_unlimited` and left
+the config table untouched. Every lookup missed and silently fell back to the
+default cap of 5, so the Growth tier's 20-lead allowance was unreachable even
+if the counter had worked. A legacy alias map now bridges the two.
+
+The accept path also spends the lead **before** mutating the match, under an
+optimistic guard on the counter it read, so two concurrent accepts cannot share
+one slot.
+
+### 5. `reviews` — RLS enabled, zero PERMISSIVE policies, dark since day one
+
+`001_initial.sql:284` enables RLS on `reviews` and the policy block immediately
+below it covers profiles, contractor_profiles, projects, matches and messages —
+and skips reviews. Migrations 012, 018 and 019 then added only `AS RESTRICTIVE`
+policies, which narrow and never grant. Writes worked the whole time because
+`createAdminClient()` uses the service role, which bypasses RLS. That is why it
+went unnoticed: reviews are being written and can never be read back.
+
+Verified live 2026-07-27: the anon key reads 0 rows with no error; the service
+role counts 20 rows in the table.
+
+Written as `supabase/migrations/041_reviews_read_policy.sql`, **NOT APPLIED**.
+Choice made there: **public read of non-demo reviews**, not contractor-scoped,
+because contractor profiles are already a public surface and reviews are the
+trust signal a homeowner uses before any relationship exists. `is_demo = false`
+is written into the `USING` clause rather than left to the RESTRICTIVE layer —
+migration 038 is the cautionary tale for depending on a policy defined
+elsewhere. Known limitation flagged in the migration, not silently shipped: RLS
+is row-level, so public read exposes `final_price` and `reviewer_id`; fixing it
+needs `app/contractor/[id]/page.tsx:83` to stop selecting `*` first.
+
+Also fixed in `app/api/matches/complete/route.ts`:
+`contractor_profiles.rating` and `review_count` were never written — only
+`trust_*` was — so every star rating in the product rendered `0.0 (0 reviews)`
+no matter how many real reviews existed. Verified live: 20 contractors each
+holding a real review, all with `review_count = 0`. The same pass fixed a
+double-count: the review list is read back *after* the insert, so it already
+contained the new row, and the code appended it a second time — inflating every
+average and `verified_job_count`.
+
+### Founder actions
+
+| Migration | What it does | Status |
+|---|---|---|
+| `041_reviews_read_policy.sql` | Permissive SELECT + reviewer INSERT on `reviews` | **NOT APPLIED** |
+| `042_homeowner_preferences.sql` | Creates the table three call sites already read | **NOT APPLIED** |
+
+No DDL path exists from this environment (see the 2026-07-27 security entry
+above), so both are SQL-editor pastes. Also: restore Anthropic API credit, then
+delete the two `matches` rows carrying "Scored without AI ranking" so they are
+re-ranked by the real model.

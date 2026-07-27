@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { haversineDistanceMiles, zipToLatLng } from '@/lib/geo'
-import { runMatchRankerAgent, MATCH_THRESHOLD, type ContractorCandidate } from '@/lib/agents/match-ranker-agent'
+import {
+  runMatchRankerAgent,
+  MATCH_THRESHOLD,
+  FALLBACK_REASONING_MARKER,
+  type ContractorCandidate
+} from '@/lib/agents/match-ranker-agent'
 
 /**
  * THE contractor matching implementation. There is exactly one.
@@ -166,12 +171,13 @@ export async function GET(
 
     const scored = new Map<string, { score: number; reasoning: string }>()
     for (const m of existingMatches ?? []) {
-      if (m.match_score != null) {
-        scored.set(m.contractor_id as string, {
-          score: Number(m.match_score),
-          reasoning: (m.match_reasoning as string) ?? ''
-        })
-      }
+      if (m.match_score == null) continue
+      // A score produced by the degraded fallback is provisional. Treat it as
+      // unscored so it is re-ranked the moment the model is reachable again,
+      // instead of freezing a no-AI score as the contractor's permanent one.
+      const reasoning = (m.match_reasoning as string) ?? ''
+      if (reasoning.startsWith(FALLBACK_REASONING_MARKER)) continue
+      scored.set(m.contractor_id as string, { score: Number(m.match_score), reasoning })
     }
 
     // 6. Score whatever is not scored yet — one model call for the whole batch.
