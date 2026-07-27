@@ -162,7 +162,6 @@ function WaitlistContent() {
       <div
         className="relative overflow-hidden"
         style={{
-          backgroundImage: 'linear-gradient(135deg, rgba(184, 115, 51, 0.08) 0%, rgba(201, 143, 85, 0.10) 100%)',
           backgroundColor: 'var(--color-surface-secondary)'
         }}
       >
