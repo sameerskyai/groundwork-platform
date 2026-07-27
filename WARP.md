@@ -414,3 +414,37 @@ No percentages ("99% ready"), no adjectives ("almost there"), no ETA speculation
 - **API:** Next.js App Router (server-side threshold enforcement)
 - **Testing:** Vitest (with pagination-aware fixture cleanup)
 - **Version Control:** Git + GitHub (commit hash and PR link are proof)
+
+---
+
+## §26 — THE STANDARDS AGENT
+
+**Every batch of work, before it is reported as done, is reviewed by a dedicated verification agent that did not write the code. Its job is to try to falsify the completion claim, not to confirm it.**
+
+The reviewer runs `node scripts/standards-check.mjs` against every changed page and reports its output **verbatim, including failures**. Eight checks:
+
+1. **TOKENS** — zero hardcoded hex / `rgb()` / `rgba()` outside the tokens files. Fails with file and line. Two documented exceptions: `rgba()` used solely for shadows, and `next/og` files (`app/icon.tsx`, `app/opengraph-image.tsx`), which run outside the CSS cascade and cannot read variables — every literal there must carry a `/* token: --color-x */` comment naming its source.
+2. **THEME PARITY** — every page carries the shared `<header>`, `<main>`, `<footer>` and exactly one `<h1>`. No page is a visual orphan.
+3. **NAVIGATION** — crawls every internal `href` on every route and reports status codes. Any 4xx fails the batch. No dead links, no 404s.
+4. **CONTRAST** — computes real relative luminance on every text/background pair **actually rendered**, compositing ancestor backgrounds. Where an ancestor carries a `background-image`, the pair is flagged for pixel verification: **declared values lie**. The `/waitlist` gradient shipped at 4.12:1 while every declared value passed, and axe could only call it *incomplete*.
+5. **KEYBOARD** — every interactive element reachable, visible focus indicator on every stop, focus order does not regress against visual order, skip link first, modals trap and return focus.
+6. **MOBILE** — 390×844: no horizontal scroll, no clipped content, 44×44 minimum targets, 16px minimum inputs.
+7. **COPY TRUTH** — no user-facing string makes a present-tense claim about a feature `FEATURE_INVENTORY.md` lists as NOT BUILT or BROKEN. Scans rendered prose only (JSX text and quoted strings), never code identifiers.
+8. **EVIDENCE** — desktop and mobile screenshots exist for every changed surface.
+
+### Rules
+
+- **A SKIP is not a PASS.** If a check could not run (server down, playwright missing), the report must say which and why. Silence is never evidence.
+- **If it fails, the work is not done.** Do not report the priority complete.
+- **Never report a priority complete on your own assessment alone.** The agent's verbatim output is the evidence, per §20.
+
+Usage:
+
+```
+node scripts/standards-check.mjs                          # local dev server
+node scripts/standards-check.mjs --base https://…         # production
+node scripts/standards-check.mjs --routes /,/founders     # subset
+node scripts/standards-check.mjs --static-only            # no browser required
+```
+
+Exit code is 0 only when every executed check passes.
