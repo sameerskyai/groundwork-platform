@@ -1452,3 +1452,33 @@ The scarcity engine behind the waitlist. Mechanics (most logic already exists fr
 - Every signup gets a sequential position number and unique referral link; each verified referral moves them up ~100 spots.
 - Public leaderboard: top 25 referrers, first name + last initial.
 - Founding Members get first access at launch, in waves.
+
+---
+
+## SECURITY — properties/saved_contractors address leak (2026-07-27)
+
+Found by the feature-inventory audit, not previously known. Migration 020's
+`properties_own_access` policy reads `USING (owner_id = auth.uid() OR is_demo = false)`.
+The `OR` grants every caller, including anon, read access to every non-demo
+property row — which carries `street_address`, `city`, `state`. Migration 021
+repeats the pattern on `saved_contractors`.
+
+Verified live 2026-07-27: anon SELECT returns 0 rows, but **only** because the
+table holds exactly one row and it is a demo row. The leak activates on the
+first genuine homeowner property. It contradicts the binding product rule "No
+address sharing anywhere in-product; ZIP/general-area only".
+
+Also found: `properties` has SELECT and UPDATE policies but **no INSERT policy**,
+so onboarding's insert fails silently and surfaces later as "No ZIP code found.
+Complete onboarding first."
+
+Fix written as `supabase/migrations/039_fix_properties_address_leak.sql`
+(non-destructive: DROP POLICY immediately followed by CREATE POLICY, inside a
+transaction; no DROP TABLE / TRUNCATE / DELETE).
+
+**NOT APPLIED — requires founder action.** This environment has no path to run
+DDL against the live database: no `psql`, no database password, no linked
+Supabase project (`supabase/.temp` absent), and no `exec_sql`-style RPC (probed
+five candidate names, all absent). The service role key speaks PostgREST only,
+which is the data plane, not DDL. Consistent with the standing constraint that
+migrations are pasted into the Supabase SQL editor by the founder.
