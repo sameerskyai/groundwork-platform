@@ -25,7 +25,7 @@ export const Modal = React.forwardRef<HTMLDivElement, ModalProps>(
       <div
         className="fixed inset-0 z-50 flex items-center justify-center"
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'color-mix(in srgb, var(--color-ink) 50%, transparent)',
           backdropFilter: 'blur(4px)'
         }}
         onClick={e => e.target === e.currentTarget && onClose()}

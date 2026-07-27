@@ -164,7 +164,7 @@ export function LoadingScreen({ onComplete, holdDuration = 0.3 }: LoadingScreenP
       role="status"
       aria-live="polite"
       className="fixed inset-0 z-50 flex flex-col items-center justify-center"
-      style={{ backgroundColor: 'var(--color-surface-primary, #FBFCFD)' }}
+      style={{ backgroundColor: 'var(--color-surface-primary)' }}
     >
       <span className="sr-only">Loading Groundwork</span>
 

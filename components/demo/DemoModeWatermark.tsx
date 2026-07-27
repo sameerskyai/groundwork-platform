@@ -11,8 +11,8 @@ import { AlertTriangle } from 'lucide-react'
 export function DemoModeWatermark() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3 flex items-center justify-between gap-4" style={{
-      backgroundColor: 'rgba(140, 80, 50, 0.08)',
-      borderBottom: '1px solid rgba(140, 80, 50, 0.2)',
+      backgroundColor: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
+      borderBottom: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)',
       backdropFilter: 'blur(8px)'
     }}>
       <div className="flex items-center gap-3 flex-1">
