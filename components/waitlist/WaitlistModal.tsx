@@ -34,6 +34,23 @@ const REFERRAL_TIERS = [
   { count: 10, reward: 'Laywork+ locked at $49/yr for life' }
 ] as const
 
+/* Founder decision 2026-07-28: the first 500 receive three months free of the
+   highest homeowner plan at launch. Value conflict with the 10-referral tier
+   was reported and is logged in DECISIONS.md; this is the founder's chosen
+   wording, not a silent substitution. */
+const FOUNDING_REWARD = 'Three months of Laywork+ free at launch'
+
+/* Section 5: one optional question AFTER the reveal, never in the form.
+   Skippable in a tap, never blocking, never required. */
+const PROJECT_OPTIONS = [
+  'Kitchen',
+  'Bathroom',
+  'Roof',
+  'HVAC',
+  'Addition',
+  'Something else'
+] as const
+
 /** A viewport point — the centre of the button that opened the modal. */
 export type ModalOrigin = { x: number; y: number }
 
@@ -116,13 +133,17 @@ export function WaitlistModal({
     email, setEmail,
     website, setWebsite,
     loading, submitted, error,
-    positionNumber, referralLink,
+    positionNumber, referralLink, referralCode,
     spotsRemaining, isFounding,
     submit
   } = useWaitlistSignup()
 
   const [stage, setStage] = useState<'form' | 'exiting' | 'done'>('form')
   const [pulsing, setPulsing] = useState(false)
+  const [revealed, setRevealed] = useState(false)
+  const [project, setProject] = useState<string | null>(null)
+  const [projectDone, setProjectDone] = useState(false)
+  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [copied, setCopied] = useState(false)
   const [mounted, setMounted] = useState(false)
 
@@ -252,11 +273,16 @@ export function WaitlistModal({
     return () => {
       if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current)
       if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current)
+      if (revealTimerRef.current) clearTimeout(revealTimerRef.current)
     }
   }, [])
 
   const handleSettled = useCallback(() => {
-    if (prefersReducedMotion()) return
+    // The beat between the number settling and the badge arriving is the
+    // whole point of the reveal; reduced motion still reveals, just at once.
+    if (prefersReducedMotion()) { setRevealed(true); return }
+    if (revealTimerRef.current) clearTimeout(revealTimerRef.current)
+    revealTimerRef.current = setTimeout(() => setRevealed(true), 550)
     setPulsing(true)
     if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current)
     pulseTimerRef.current = setTimeout(() => setPulsing(false), 950)
@@ -348,7 +374,7 @@ export function WaitlistModal({
                 </h2>
                 <p className={styles.subtitle}>
                   Free AI estimates. Contractors matched at 80%+ compatibility.
-                  Northern Virginia first.
+                  Wherever you own.
                 </p>
               </header>
 
@@ -450,15 +476,25 @@ export function WaitlistModal({
                 </div>
               )}
 
-              {isFounding && (
-                <p className={`annotation ${styles.foundingBadge}`}>
-                  Founding member / first 500
-                </p>
+              {/* Section 4 — the reveal. Founding status is never promised in
+                  the form; it is revealed here, and only to someone who
+                  actually earned it. `revealed` flips one beat after the
+                  count-up settles, so the number lands first and the badge
+                  arrives as its own moment. Non-founding signups never see
+                  this block at all. */}
+              {isFounding && revealed && (
+                <div className={styles.revealBlock}>
+                  <p className={`annotation ${styles.foundingBadge}`}>
+                    Founding member / first 500
+                  </p>
+                  <p className={styles.revealReward}>{FOUNDING_REWARD}</p>
+                </div>
               )}
 
               <p className={styles.confirmCopy}>
-                Check your email. Your confirmation and next steps are on the way.
-                Founding Members get first access at launch, in waves.
+                {isFounding && revealed
+                  ? 'Check your email. Your confirmation and next steps are on the way. You are in the first wave at launch.'
+                  : 'Check your email. Your confirmation and next steps are on the way.'}
               </p>
 
               {referralLink && (
@@ -508,6 +544,48 @@ export function WaitlistModal({
                   ))}
                 </tbody>
               </table>
+
+              {/* Section 5 — ONE optional question, after the reveal, never in
+                  the form. Every added field costs conversion, so this is
+                  skippable in a single tap and never blocks anything. Stored
+                  for email segmentation only. */}
+              {!projectDone && (
+                <div className={styles.projectQ}>
+                  <p className={`annotation ${styles.label}`}>
+                    What project are you planning? Optional
+                  </p>
+                  <div className={styles.projectOptions}>
+                    {PROJECT_OPTIONS.map(opt => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className={`${styles.projectChip} ${project === opt ? styles.projectChipOn : ''}`}
+                        aria-pressed={project === opt}
+                        onClick={() => {
+                          setProject(opt)
+                          void fetch('/api/waitlist/project', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ referralCode, project: opt })
+                          }).catch(() => {})
+                          setProjectDone(true)
+                        }}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                  <button type="button" className={styles.projectSkip} onClick={() => setProjectDone(true)}>
+                    Skip
+                  </button>
+                </div>
+              )}
+
+              {projectDone && project && (
+                <p className={`annotation ${styles.projectThanks}`} aria-live="polite">
+                  Noted / {project}
+                </p>
+              )}
 
               <p className={`annotation ${styles.finePrint}`}>
                 Each verified referral moves you up about 100 spots

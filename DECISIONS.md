@@ -1855,3 +1855,27 @@ No DDL path exists from this environment (see the 2026-07-27 security entry
 above), so both are SQL-editor pastes. Also: restore Anthropic API credit, then
 delete the two `matches` rows carrying "Scored without AI ranking" so they are
 re-ranked by the real model.
+
+---
+
+## FOUNDER DECISION — Palette depth, real breakdown, global scope (2026-07-28)
+
+Three changes from founder review of the live site. Each supersedes a prior locked decision; history above is unedited.
+
+### 1. The site is too bright. Black-on-white alone is not enough.
+DESIGN_SYSTEM.md's DRAWING SET committed to white paper + blue ink with two grid sections. In practice the pure `#FFFFFF` base across every section reads flat and harsh, and a monochrome page with one accent has no visual rhythm.
+
+**Change:** keep the type scale, the mono annotation signature, the registration marks, and the eleven-token discipline. Add tonal depth:
+- `--color-base-alt` darkened from `#F7F8FA` to `#EDF0F4` so alternating sections actually read as alternating.
+- Full-bleed **dark sections** (`--color-ink` ground, `--color-base` type) become a first-class part of the page rhythm rather than an exception. Light / dark / light alternation carries the contrast.
+- On dark ground: primary text `--color-base`, secondary `--color-line`, accent `--color-accent-on-dark` (raw accent on ink is 2.56:1 and FAILS).
+
+The typography is explicitly kept — the founder confirmed the font is right; brightness was the complaint, not the type.
+
+### 2. "AI breakdown" must be an actual breakdown.
+Saying a breakdown exists is not showing one. The estimate section renders real line items (labor, materials, permits and disposal, contingency) summing to the displayed range, as a hairline-ruled technical table with tabular figures. Values are illustrative of a kitchen remodel and labelled as an example, not as a user's live estimate — per §26 COPY TRUTH we do not present sample figures as somebody's real data.
+
+### 3. Scope is global, not Northern Virginia.
+"Northern Virginia first" is removed from all user-facing copy: homepage, waitlist, founders page, modal, metadata, OG image. The product is positioned for anywhere.
+
+**Consequence flagged, not silently absorbed:** `cost_data` is ZIP-keyed with a nearest-neighbour fallback (`lib/geo.ts:33-49`) and is currently seeded only by its own estimate outputs. Estimate accuracy outside seeded metros is therefore unproven. Removing the geographic promise is a copy change; making it *true* everywhere is a data problem that Wave 3's Oracle item already depends on. Do not let the copy imply verified coverage we cannot demonstrate.

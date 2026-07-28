@@ -12,9 +12,9 @@ export default function HowItWorksPage() {
       <header style={{ background: 'var(--color-ink)', borderBottom: '1px solid color-mix(in srgb, var(--color-base) 6%, transparent)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/"><Wordmark size="sm" /></Link>
-          <Link href="/signup?role=homeowner">
+          <Link href="/waitlist">
             <button style={{ padding: '10px 20px', borderRadius: 8, background: 'var(--color-accent)', color: 'var(--color-base)', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-              Get my free estimate
+              Join the waitlist
             </button>
           </Link>
         </div>
@@ -117,7 +117,7 @@ export default function HowItWorksPage() {
             <p style={{ color: 'var(--color-text-muted)', fontSize: 16, lineHeight: 1.8, marginBottom: 28 }}>
               Swipe right to show interest — the contractor sees your project and can respond. Swipe left to pass and move on. Your contact information is never shared until you choose to share it.
             </p>
-            <Link href="/signup?role=homeowner">
+            <Link href="/waitlist">
               <button style={{ padding: '13px 24px', borderRadius: 10, background: 'var(--color-accent)', color: 'var(--color-base)', border: 'none', fontSize: 15, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                 Try it now <ArrowRight style={{ width: 16, height: 16 }} />
               </button>
@@ -138,7 +138,7 @@ export default function HowItWorksPage() {
           <p style={{ color: 'var(--color-line)', fontSize: 16, lineHeight: 1.8, marginBottom: 48 }}>
             Once you match with a contractor, you chat in-platform. Schedule a site visit, negotiate scope, finalize pricing — all in one place. When the job is done and verified, the final cost goes into our database so the next homeowner gets a sharper estimate.
           </p>
-          <Link href="/signup?role=homeowner">
+          <Link href="/waitlist">
             <button style={{ padding: '15px 32px', borderRadius: 10, background: 'var(--color-accent)', color: 'var(--color-base)', border: 'none', fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>
               Get started — it&apos;s free →
             </button>

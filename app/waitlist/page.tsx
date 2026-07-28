@@ -174,7 +174,7 @@ function WaitlistContent() {
             Stop gambling on contractors.
           </h1>
           <p style={{ fontSize: 'clamp(1.125rem, 3vw, 1.25rem)', color: 'var(--color-text-secondary)', lineHeight: 1.6, marginBottom: '1.75rem' }}>
-            Free AI estimates + contractors matched at 80%+ compatibility. Northern Virginia first.
+            Free AI estimates + contractors matched at 80%+ compatibility. Wherever you own.
           </p>
 
           {!submitted && spotsCounter}

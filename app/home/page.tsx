@@ -77,23 +77,13 @@ export default function HomePage() {
               </Link>
             ))}
             <div style={{ display: 'flex', gap: 10 }}>
-              <Link href="/login">
-                <button style={{
-                  padding: '8px 16px', borderRadius: 8,
-                  background: 'transparent', color: 'var(--color-line)',
-                  border: '1px solid color-mix(in srgb, var(--color-line) 8%, transparent)',
-                  fontSize: 14, fontWeight: 500, cursor: 'pointer'
-                }}>
-                  Sign in
-                </button>
-              </Link>
-              <Link href="/signup?role=homeowner">
+              <Link href="/waitlist">
                 <button style={{
                   padding: '8px 18px', borderRadius: 8,
                   background: 'var(--color-accent)', color: 'var(--color-base)',
                   border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer'
                 }}>
-                  Get started free
+                  Join the waitlist
                 </button>
               </Link>
             </div>
@@ -269,36 +259,11 @@ export default function HomePage() {
                 <p style={{ color: 'var(--color-line-strong)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
                   What a match looks like
                 </p>
-                {[
-                  { name: 'Apex Contracting', trade: 'General Contractor', score: 96, status: 'accepted', color: 'color-mix(in srgb, var(--color-verified) 70%, var(--color-base))' },
-                  { name: 'Metro HVAC Pros', trade: 'HVAC', score: 91, status: 'pending', color: 'var(--color-accent-on-dark)' },
-                  { name: 'Summit Builds', trade: 'General Contractor', score: 88, status: 'passed', color: 'var(--color-line-strong)' }
-                ].map(c => (
-                  <div key={c.name} style={{
-                    display: 'flex', alignItems: 'center', gap: 14,
-                    padding: '12px 14px',
-                    background: 'color-mix(in srgb, var(--color-base) 4%, transparent)',
-                    borderRadius: 10,
-                    border: c.status === 'accepted' ? '1px solid color-mix(in srgb, var(--color-verified) 30%, transparent)' : '1px solid color-mix(in srgb, var(--color-line) 5%, transparent)'
-                  }}>
-                    <div style={{
-                      width: 36, height: 36, borderRadius: 10,
-                      background: c.status === 'accepted' ? 'color-mix(in srgb, var(--color-verified) 20%, transparent)' : 'color-mix(in srgb, var(--color-base) 6%, transparent)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 14, fontWeight: 800, color: c.color, flexShrink: 0
-                    }}>
-                      {c.name[0]}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ color: 'var(--color-base)', fontWeight: 600, fontSize: 13 }}>{c.name}</div>
-                      <div style={{ color: 'var(--color-line-strong)', fontSize: 12 }}>{c.trade}</div>
-                    </div>
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ color: c.color, fontFamily: 'monospace', fontWeight: 700, fontSize: 14 }}>{c.score}%</div>
-                      <div style={{ color: 'var(--color-line-strong)', fontSize: 11, textTransform: 'capitalize' }}>{c.status}</div>
-                    </div>
-                  </div>
-                ))}
+                {/* TESTIMONIALS REMOVED 2026-07-27 (copy-truth pass): D.W., M.R. and
+                T.H. were invented. No customer has used the product; the
+                waitlist holds test rows and zero real signups. PRODUCT.md
+                forbids fabricated testimonials. Reintroduce only with a real,
+                attributable, consented quote. */}
               </div>
             </div>
           ))}
@@ -414,7 +379,7 @@ export default function HomePage() {
                   background: 'var(--color-accent)', color: 'var(--color-base)',
                   border: 'none', fontSize: 15, fontWeight: 700, cursor: 'pointer'
                 }}>
-                  Get my free estimate
+                  Join the waitlist
                 </button>
               </Link>
             </div>
@@ -442,7 +407,7 @@ export default function HomePage() {
                   background: 'var(--color-ink)', color: 'var(--color-base)',
                   border: 'none', fontSize: 15, fontWeight: 700, cursor: 'pointer'
                 }}>
-                  Join as a contractor
+                  Join the waitlist
                 </button>
               </Link>
             </div>
@@ -464,39 +429,12 @@ export default function HomePage() {
           <p style={{ color: 'var(--color-ink-2)', fontSize: 18, maxWidth: 500, margin: '0 auto 48px' }}>
             Laywork is building city by city. Get in early and you&apos;re the homeowner in your ZIP code who already knows the number.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, maxWidth: 800, margin: '0 auto' }}>
-            {[
-              /* TESTIMONIALS REMOVED 2026-07-27 (copy-truth pass): D.W., M.R. and
-                 T.H. were invented. No customer has used the product; the
-                 waitlist holds 12 test rows and zero real signups.
-                 PRODUCT.md forbids fabricated testimonials. Reintroduce only
-                 with a real, attributable, consented quote. */
-            ].map(t => (
-              <div key={t.name} style={{
-                background: 'var(--color-base)', borderRadius: 16,
-                border: '1px solid var(--color-line)',
-                padding: '24px',
-                textAlign: 'left'
-              }}>
-                <p style={{ color: 'var(--color-ink)', fontSize: 14, lineHeight: 1.7, marginBottom: 16, fontStyle: 'italic' }}>
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: '50%',
-                    background: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'var(--color-base)', fontWeight: 700, fontSize: 14
-                  }}>
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <div style={{ color: 'var(--color-ink)', fontWeight: 700, fontSize: 13 }}>{t.name}</div>
-                    <div style={{ color: 'var(--color-ink-2)', fontSize: 12 }}>{t.role} · {t.location}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* TESTIMONIAL GRID REMOVED 2026-07-27 (copy-truth pass): the three
+              quotes here (D.W. Bethesda, M.R. Arlington, T.H. Silver Spring)
+              were invented. No customer has used the product. PRODUCT.md
+              forbids fabricated testimonials and DECISIONS.md's honesty ledger
+              already struck comparable claims once. Reintroduce only with a
+              real, attributable, consented quote. */}
         </div>
       </section>
 
@@ -517,23 +455,23 @@ export default function HomePage() {
             Real estimates. Vetted contractors. No guessing.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
-            <Link href="/signup?role=homeowner">
+            <Link href="/waitlist">
               <button style={{
                 padding: '16px 32px', borderRadius: 10,
                 background: 'var(--color-accent)', color: 'var(--color-base)',
                 border: 'none', fontSize: 16, fontWeight: 700, cursor: 'pointer'
               }}>
-                Get my free estimate
+                Join the waitlist
               </button>
             </Link>
-            <Link href="/signup?role=contractor">
+            <Link href="/waitlist">
               <button style={{
                 padding: '16px 32px', borderRadius: 10,
                 background: 'transparent', color: 'var(--color-line)',
                 border: '1px solid color-mix(in srgb, var(--color-line) 15%, transparent)',
                 fontSize: 16, fontWeight: 600, cursor: 'pointer'
               }}>
-                Join as a contractor
+                Join the waitlist
               </button>
             </Link>
           </div>

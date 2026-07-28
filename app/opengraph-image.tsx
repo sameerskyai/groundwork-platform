@@ -5,7 +5,7 @@ import { ImageResponse } from 'next/og'
 
 export const runtime = 'nodejs'
 export const alt =
-  'Laywork — Stop gambling on contractors. Free AI renovation estimates. Contractors matched at 80%+ compatibility. Northern Virginia first.'
+  'Laywork — Stop gambling on contractors. Free AI renovation estimates. Contractors matched at 80%+ compatibility. Wherever you own.'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -109,7 +109,7 @@ export default function OpenGraphImage() {
           }}
         >
           Free AI renovation estimates. Contractors matched at 80%+ compatibility.
-          Northern Virginia first.
+          Wherever you own.
         </div>
       </div>
     ),

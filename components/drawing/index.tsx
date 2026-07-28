@@ -37,7 +37,7 @@ export function RegistrationMarks({ inset = '0px' }: { inset?: string }) {
 export function SheetNumber({ number, label }: { number: string; label: string }) {
   return (
     <p className="annotation" style={{ marginBottom: 'var(--space-3)' }}>
-      {number} <span style={{ color: 'var(--color-line-strong)' }}>/</span> {label}
+      {number} <span style={{ color: 'var(--color-muted)' }}>/</span> {label}
     </p>
   )
 }
@@ -130,6 +130,7 @@ export function Sheet({
   label,
   children,
   alt = false,
+  dark = false,
   grid = false,
   id
 }: {
@@ -137,15 +138,21 @@ export function Sheet({
   label?: string
   children: ReactNode
   alt?: boolean
+  dark?: boolean
   grid?: boolean
   id?: string
 }) {
   return (
     <section
       id={id}
+      className={dark ? 'sheet-dark' : undefined}
       style={{
         position: 'relative',
-        background: alt ? 'var(--color-base-alt)' : 'var(--color-base)',
+        background: dark
+          ? undefined
+          : alt
+            ? 'var(--color-base-alt)'
+            : 'var(--color-base)',
         paddingTop: 'var(--section-y-responsive, var(--section-y))',
         paddingBottom: 'var(--section-y-responsive, var(--section-y))',
         paddingLeft: 'var(--space-3)',
@@ -186,7 +193,7 @@ export function DrawingCard({
       className={interactive ? 'drawing-card drawing-card--interactive' : 'drawing-card'}
       style={{
         position: 'relative',
-        background: 'var(--color-base)',
+        background: 'var(--color-base-alt)',
         border: '1px solid var(--color-line)',
         borderRadius: 'var(--radius-card)',
         padding: 'var(--space-4)'

@@ -12,11 +12,11 @@ export const metadata: Metadata = {
     template: '%s — Laywork'
   },
   description:
-    'Free AI renovation estimates. Contractors matched at 80%+ compatibility. Northern Virginia first.',
+    'Free AI renovation estimates. Contractors matched at 80%+ compatibility. Wherever you own.',
   openGraph: {
     title: 'Laywork — Stop gambling on contractors.',
     description:
-      'Free AI renovation estimates. Contractors matched at 80%+ compatibility. Northern Virginia first.',
+      'Free AI renovation estimates. Contractors matched at 80%+ compatibility. Wherever you own.',
     type: 'website',
     siteName: 'Laywork'
   },
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Laywork — Stop gambling on contractors.',
     description:
-      'Free AI renovation estimates. Contractors matched at 80%+ compatibility. Northern Virginia first.'
+      'Free AI renovation estimates. Contractors matched at 80%+ compatibility. Wherever you own.'
   }
 }
 

@@ -8,31 +8,40 @@
      a hover state.
      ============================================================ */
 
-  --color-base: #FFFFFF;        /* the paper */
-  --color-base-alt: #F7F8FA;    /* alternating sections, filled inputs */
-  --color-ink: #0A0A0A;         /* headlines, body, numbers that carry argument */
-  --color-ink-2: #3D4450;       /* secondary prose */
-  /* AA CORRECTION, documented in DECISIONS.md: the directive specified
-     #7A828F, which computes to 3.88:1 on base / 3.65:1 on base-alt /
-     3.47:1 on accent-wash. Mono annotation ships at 11–12px — normal
-     text, so AA requires 4.5:1 — and annotation IS the signature of this
-     system, so it must be readable. #686F7C is the minimal darkening that
-     clears AA on all three surfaces (5.06 / 4.76 / 4.52). Same character,
-     same role, legible. */
-  --color-muted: #686F7C;       /* mono annotation, metadata, captions */
-  --color-accent: #1A5490;      /* action: CTAs, active states, numeric anchors */
-  --color-accent-wash: #EDF3F9; /* focus rings, faintest accent fill */
-  --color-line: #DDE3EA;        /* hairlines, dividers, the grid */
-  --color-line-strong: #B4BEC9; /* registration marks, dimension-line ticks */
-  --color-verified: #1E7A4D;    /* verification states only */
-  --color-alert: #B03A2E;       /* genuine errors only, never in the hero */
+  /* DARK INVERSION — founder decision 2026-07-28. A real blueprint is a
+     cyanotype: dark ground, light linework. White paper with blue ink is the
+     modern reprint. Same DRAWING SET system, original ground.
+     Full AA table computed with real relative luminance — see design-tokens.css. */
+
+  --color-base: #0B0F14;        /* near-black, blue undertone. Never pure #000 */
+  --color-base-alt: #131923;    /* lifted surface: alternating sections, cards */
+  --color-ink: #F0F4F8;         /* off-white primary text. NEVER pure #FFFFFF on
+                                   dark — halation bleeds the letterforms and is
+                                   punishing with astigmatism */
+  --color-ink-2: #C2CBD6;       /* secondary prose */
+  --color-muted: #8D97A6;       /* mono annotation, metadata */
+  --color-accent: #5B93D6;      /* blue for action. The old #1A5490 is 2.48:1 on
+                                   this ground and could not survive inversion */
+  --color-accent-deep: #1A5490; /* fill ONLY, behind off-white text. Never text:
+                                   2.48:1 on base, FAILS */
+  --color-accent-wash: #16233A; /* faintest accent fill, focus-ring backing */
+  --color-line: #232C38;        /* hairlines, dividers, the grid */
+  /* Lightened from the briefed #3A4756 (2.03:1, effectively invisible on this
+     ground). Registration marks are the signature detail — a mark nobody can
+     see is not a signature. #56677A clears the 3:1 non-text floor on both
+     surfaces (3.31 / 3.04) while staying quiet. */
+  --color-line-strong: #56677A; /* registration marks, dimension ticks */
+  --color-verified: #4FB07C;    /* verification only */
+  --color-alert: #E0705F;       /* genuine errors only, never in the hero */
 
   /* Derivations (not new colors — color-mix of the eleven above).
      accent-on-dark exists because raw accent on ink is 2.56:1 and FAILS;
      this derivation is 5.27:1 and is the ONLY accent permitted as text or
      icon on a dark surface. */
-  --color-accent-on-dark: color-mix(in srgb, var(--color-accent) 70%, var(--color-base));
-  --color-accent-hover: color-mix(in srgb, var(--color-accent) 85%, var(--color-ink));
+  /* Retained as an alias so unmigrated call sites keep working: on a dark
+     ground the accent is already legible (6.03:1), so this is now identity. */
+  --color-accent-on-dark: var(--color-accent);
+  --color-accent-hover: color-mix(in srgb, var(--color-accent) 82%, var(--color-ink));
 
   /* ============================================================
      TYPE — two families. Annotation mono is the signature.
@@ -42,9 +51,9 @@
   --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
 
   /* Scale (rem) — fixed steps, no improvisation */
-  --type-1: 0.6875rem;
-  --type-2: 0.8125rem;
-  --type-3: 0.9375rem;
+  --type-1: 0.8125rem;  /* annotation floor raised to 13px, 2026-07-28 */
+  --type-2: 0.875rem;   /* smallest UI text, never body copy */
+  --type-3: 1rem;       /* body floor 16px, 2026-07-28 */
   --type-4: 1.125rem;
   --type-5: 1.5rem;
   --type-6: 2.25rem;
@@ -52,8 +61,10 @@
   --type-8: 5.5rem;
 
   --leading-display: 1.15;
-  --leading-body: 1.55;
+  --leading-body: 1.6;   /* more air on dark */
 
+  /* Negative tracking ONLY at 2.25rem and up. Below that it closes letterforms
+     and hurts reading, especially on a dark ground. */
   --tracking-display: -0.02em;   /* 2.25rem and up */
   --tracking-display-lg: -0.03em; /* 3.5rem and up */
   --tracking-mono: 0.12em;        /* annotation */
@@ -130,8 +141,10 @@ body {
    ============================================================ */
 .annotation {
   font-family: var(--font-mono);
-  font-size: var(--type-1);
-  line-height: 1.4;
+  font-size: var(--type-1);      /* 13px */
+  font-weight: 500;              /* small + light + grey + tracked was three
+                                    strikes at once; weight carries it back */
+  line-height: 1.45;
   text-transform: uppercase;
   letter-spacing: var(--tracking-mono);
   color: var(--color-muted);
@@ -181,14 +194,16 @@ body {
   justify-content: center;
   min-height: 44px;
   padding: 0 var(--space-3);
-  background: var(--color-accent);
-  color: var(--color-base);
+  /* accent-deep fill behind off-white text = 7.00:1. The bright accent as a
+     fill under ink text is 2.88:1 and FAILS -- do not swap these. */
+  background: var(--color-accent-deep);
+  color: var(--color-ink);
   border-radius: var(--radius-control);
   font-size: var(--type-3);
   font-weight: 500;
   transition: background var(--dur-fast) var(--ease-precise);
 }
-.btn-primary:hover { background: var(--color-accent-hover); }
+.btn-primary:hover { background: color-mix(in srgb, var(--color-accent-deep) 82%, var(--color-ink)); }
 .btn-primary:focus-visible {
   outline: var(--outline-width) solid var(--outline-color);
   outline-offset: var(--outline-offset);
@@ -202,14 +217,14 @@ body {
   padding: 0 var(--space-3);
   background: transparent;
   color: var(--color-ink);
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-line-strong);
   border-radius: var(--radius-control);
   font-size: var(--type-3);
   font-weight: 500;
   transition: background var(--dur-fast) var(--ease-precise),
               border-color var(--dur-fast) var(--ease-precise);
 }
-.btn-secondary:hover { background: var(--color-base-alt); border-color: var(--color-ink-2); }
+.btn-secondary:hover { background: var(--color-base-alt); border-color: var(--color-accent); }
 .btn-secondary:focus-visible {
   outline: var(--outline-width) solid var(--outline-color);
   outline-offset: var(--outline-offset);
@@ -242,3 +257,23 @@ body {
 
 /* Hairline rule as a structural element */
 .rule { border: 0; border-top: 1px solid var(--color-line); margin: 0; }
+
+/* ============================================================
+   SECTION GROUND — the page is dark (cyanotype). Rhythm comes from
+   base -> base-alt alternation, which is what Sheet's `alt` prop does.
+   `.sheet-dark` is retained as a no-op alias so existing call sites keep
+   working after the 2026-07-28 inversion; it no longer inverts anything
+   because the ground is already dark.
+   ============================================================ */
+.sheet-dark { background: var(--color-base-alt); }
+
+/* Line-item table for the estimate breakdown */
+.breakdown { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.breakdown th,
+.breakdown td { padding: var(--space-2) 0; text-align: left; border-bottom: 1px solid var(--color-line); }
+.breakdown td:last-child,
+.breakdown th:last-child { text-align: right; }
+.breakdown tfoot td { border-bottom: none; border-top: 2px solid var(--color-line-strong); font-weight: 600; }
+.sheet-dark .breakdown th,
+.sheet-dark .breakdown td { border-bottom-color: color-mix(in srgb, var(--color-base) 16%, transparent); }
+.sheet-dark .breakdown tfoot td { border-top-color: color-mix(in srgb, var(--color-base) 40%, transparent); }

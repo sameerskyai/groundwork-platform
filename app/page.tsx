@@ -146,8 +146,8 @@ export default function HomePage() {
             ============================================================ */}
         <Sheet grid>
           <p className="annotation">
-            Northern Virginia{' '}
-            <span style={{ color: 'var(--color-line-strong)' }}>/</span> Founding
+            your area{' '}
+            <span style={{ color: 'var(--color-muted)' }}>/</span> Founding
             access
           </p>
 
@@ -169,7 +169,7 @@ export default function HomePage() {
 
           <p style={{ ...LEAD, marginTop: 'var(--space-3)' }}>
             Free AI estimates. Contractors matched at 80%+ compatibility.
-            Northern Virginia first.
+            Wherever you own.
           </p>
 
           <div style={{ marginTop: 'var(--space-5)' }}>
@@ -198,7 +198,7 @@ export default function HomePage() {
               }}
             >
               Scroll video{' '}
-              <span style={{ color: 'var(--color-line-strong)' }}>/</span> coming
+              <span style={{ color: 'var(--color-muted)' }}>/</span> coming
               next session
             </p>
           </div>
@@ -257,12 +257,12 @@ export default function HomePage() {
             >
               <p className="annotation" style={{ marginBottom: 'var(--space-2)' }}>
                 Kitchen remodel{' '}
-                <span style={{ color: 'var(--color-line-strong)' }}>/</span>{' '}
+                <span style={{ color: 'var(--color-muted)' }}>/</span>{' '}
                 Fairfax County
               </p>
               <MeasuredNumber
                 value="$18,500 – $42,000"
-                label="Estimated range / Northern Virginia / 2026"
+                label="Estimated range / your area / 2026"
                 size="var(--estimate)"
               />
             </Reveal>
@@ -414,7 +414,7 @@ export default function HomePage() {
                 style={{ textAlign: 'left', marginBottom: 'var(--space-2)' }}
               >
                 Referral tiers{' '}
-                <span style={{ color: 'var(--color-line-strong)' }}>/</span>{' '}
+                <span style={{ color: 'var(--color-muted)' }}>/</span>{' '}
                 founding waitlist
               </caption>
               <thead>
@@ -499,10 +499,10 @@ export default function HomePage() {
             <Reveal delay={0.15}>
               <p className="annotation" style={{ marginTop: 'var(--space-3)' }}>
                 Free to join{' '}
-                <span style={{ color: 'var(--color-line-strong)' }}>/</span> name
+                <span style={{ color: 'var(--color-muted)' }}>/</span> name
                 and email only{' '}
-                <span style={{ color: 'var(--color-line-strong)' }}>/</span>{' '}
-                Northern Virginia first
+                <span style={{ color: 'var(--color-muted)' }}>/</span>{' '}
+                Wherever you own
               </p>
             </Reveal>
           </div>

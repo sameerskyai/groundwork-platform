@@ -22,9 +22,9 @@ export default function ForContractorsPage() {
       <header style={{ background: 'var(--color-ink)', borderBottom: '1px solid color-mix(in srgb, var(--color-line) 6%, transparent)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/"><Wordmark size="sm" /></Link>
-          <Link href="/signup?role=contractor">
+          <Link href="/waitlist">
             <button style={{ padding: '10px 20px', borderRadius: 8, background: 'var(--color-accent)', color: 'var(--color-base)', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-              Join as a contractor
+              Join the waitlist
             </button>
           </Link>
         </div>
@@ -45,9 +45,9 @@ export default function ForContractorsPage() {
             Most lead gen wastes your time: people tire-kicking, collecting quotes with no intention to hire, or expecting $8,000 worth of work for $2,000. Laywork sends you homeowners who already understand what fair costs.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <Link href="/signup?role=contractor">
+            <Link href="/waitlist">
               <button style={{ padding: '15px 28px', borderRadius: 10, background: 'var(--color-accent)', color: 'var(--color-base)', border: 'none', fontSize: 16, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                Join as a contractor <ArrowRight style={{ width: 16, height: 16 }} />
+                Join the waitlist <ArrowRight style={{ width: 16, height: 16 }} />
               </button>
             </Link>
             <Link href="/pricing">
@@ -138,7 +138,7 @@ export default function ForContractorsPage() {
                     <span style={{ color: t.dark ? 'var(--color-line)' : 'var(--color-ink-2)', fontSize: 14 }}>{f}</span>
                   </div>
                 ))}
-                <Link href="/signup?role=contractor">
+                <Link href="/waitlist">
                   <button style={{ width: '100%', marginTop: 24, padding: '13px 0', borderRadius: 10, background: t.dark ? 'var(--color-accent)' : 'var(--color-ink)', color: 'var(--color-base)', border: 'none', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
                     Start with {t.tier}
                   </button>

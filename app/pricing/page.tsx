@@ -15,8 +15,7 @@ export default function PricingPage() {
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/"><Wordmark size="sm" /></Link>
           <div style={{ display: 'flex', gap: 10 }}>
-            <Link href="/login"><button style={{ padding: '8px 16px', borderRadius: 8, background: 'transparent', color: 'var(--color-line)', border: '1px solid color-mix(in srgb, var(--color-base) 8%, transparent)', fontSize: 14, cursor: 'pointer' }}>Sign in</button></Link>
-            <Link href="/signup"><button style={{ padding: '8px 18px', borderRadius: 8, background: 'var(--color-accent)', color: 'var(--color-base)', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Get started free</button></Link>
+            <Link href="/waitlist"><button style={{ padding: '8px 18px', borderRadius: 8, background: 'var(--color-accent)', color: 'var(--color-base)', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Join the waitlist</button></Link>
           </div>
         </div>
       </header>
@@ -43,8 +42,8 @@ export default function PricingPage() {
                 price: '$0',
                 period: 'forever',
                 features: ['AI estimate range in 30 seconds', 'Swipe-to-match with contractors', 'In-platform messaging', 'Neighborhood Feed access'],
-                cta: 'Get started free',
-                href: '/signup?role=homeowner',
+                cta: 'Join the waitlist',
+                href: '/waitlist',
                 dark: false
               },
               {
@@ -53,7 +52,7 @@ export default function PricingPage() {
                 period: 'one-time per project',
                 features: ['Full itemized breakdown: labor + materials', 'Timeline estimate', 'Contractor comparison view', 'Shareable estimate report'],
                 cta: 'Unlock your estimate',
-                href: '/signup?role=homeowner',
+                href: '/waitlist',
                 dark: true
               }
             ].map(t => (
@@ -118,7 +117,7 @@ export default function PricingPage() {
                     <span style={{ color: t.dark ? 'var(--color-line)' : 'var(--color-ink)', fontSize: 14 }}>{f}</span>
                   </div>
                 ))}
-                <Link href="/signup?role=contractor">
+                <Link href="/waitlist">
                   <button style={{ width: '100%', marginTop: 20, padding: '12px 0', borderRadius: 10, background: t.dark ? 'var(--color-accent)' : 'var(--color-ink)', color: 'var(--color-base)', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                     {t.cta}
                   </button>

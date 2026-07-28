@@ -64,9 +64,9 @@ export default function BlogPage() {
       <header style={{ background: 'var(--color-ink)', borderBottom: '1px solid color-mix(in srgb, var(--color-base) 6%, transparent)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/"><Wordmark size="sm" /></Link>
-          <Link href="/signup?role=homeowner">
+          <Link href="/waitlist">
             <button style={{ padding: '10px 20px', borderRadius: 8, background: 'var(--color-accent)', color: 'var(--color-base)', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-              Get my free estimate
+              Join the waitlist
             </button>
           </Link>
         </div>
@@ -134,9 +134,9 @@ export default function BlogPage() {
           <p style={{ color: 'var(--color-line)', fontSize: 16, marginBottom: 28 }}>
             Describe your specific project and get a real estimate from jobs in your ZIP code.
           </p>
-          <Link href="/signup?role=homeowner">
+          <Link href="/waitlist">
             <button style={{ padding: '14px 28px', borderRadius: 10, background: 'var(--color-accent)', color: 'var(--color-base)', border: 'none', fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>
-              Get my free estimate →
+              Join the waitlist →
             </button>
           </Link>
         </div>

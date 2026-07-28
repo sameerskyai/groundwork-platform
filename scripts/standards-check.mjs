@@ -348,7 +348,22 @@ async function browserChecks() {
         // background-image, fall back to sampling the actual painted pixel.
         const textPairs = await page.evaluate(() => {
           const out = []
-          const parse = s => (s.match(/[\d.]+/g) || []).slice(0, 4).map(Number)
+          // Chrome returns `color(srgb r g b [/ a])` with 0-1 FLOATS whenever
+          // color-mix() is in play, and `rgb(r, g, b)` with 0-255 integers
+          // otherwise. Reading the float form as 0-255 makes every mixed color
+          // look near-black and manufactures false 1.00:1 failures. This bug
+          // cost a full round of "fixes" to pages that were never broken.
+          const parse = s => {
+            const nums = (s.match(/[\d.]+(?:%)?/g) || []).map(t =>
+              t.endsWith('%') ? parseFloat(t) / 100 : parseFloat(t))
+            if (!nums.length) return []
+            if (/^color\(/i.test(s)) {
+              // srgb components are 0-1; alpha (4th) stays 0-1
+              const [r, g, b, a] = nums
+              return [r * 255, g * 255, b * 255, a === undefined ? 1 : a]
+            }
+            return nums.slice(0, 4)
+          }
           const over = (fg, bg) => {
             const a = fg[3] ?? 1
             return [0, 1, 2].map(i => Math.round(fg[i] * a + bg[i] * (1 - a)))

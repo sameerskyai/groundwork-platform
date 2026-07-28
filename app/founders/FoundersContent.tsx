@@ -352,7 +352,7 @@ export function FoundersContent() {
             <Reveal delay={0.15}>
               {/* PLACEHOLDER COPY */}
               <p className="mt-6 text-sm text-[var(--color-text-muted)]">
-                Free to join. Name and email only. Northern Virginia first.
+                Free to join. Name and email only. Wherever you own.
               </p>
             </Reveal>
           </div>

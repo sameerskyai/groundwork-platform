@@ -22,14 +22,9 @@ export default function ForHomeownersPage() {
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/"><Wordmark size="sm" /></Link>
           <div style={{ display: 'flex', gap: 10 }}>
-            <Link href="/login">
-              <button style={{ padding: '8px 16px', borderRadius: 8, background: 'transparent', color: 'var(--color-line)', border: '1px solid color-mix(in srgb, var(--color-line) 8%, transparent)', fontSize: 14, cursor: 'pointer' }}>
-                Sign in
-              </button>
-            </Link>
-            <Link href="/signup?role=homeowner">
+            <Link href="/waitlist">
               <button style={{ padding: '8px 18px', borderRadius: 8, background: 'var(--color-accent)', color: 'var(--color-base)', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-                Get started free
+                Join the waitlist
               </button>
             </Link>
           </div>
@@ -50,9 +45,9 @@ export default function ForHomeownersPage() {
             <p style={{ color: 'var(--color-line)', fontSize: 17, lineHeight: 1.7, marginBottom: 32, maxWidth: 460 }}>
               When you already know what something should cost, you can&apos;t be overcharged. That&apos;s the only reason Laywork exists — to give homeowners the information contractors have had for decades.
             </p>
-            <Link href="/signup?role=homeowner">
+            <Link href="/waitlist">
               <button style={{ padding: '15px 28px', borderRadius: 10, background: 'var(--color-accent)', color: 'var(--color-base)', border: 'none', fontSize: 16, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                Get my free estimate <ArrowRight style={{ width: 16, height: 16 }} />
+                Join the waitlist <ArrowRight style={{ width: 16, height: 16 }} />
               </button>
             </Link>
           </div>
@@ -142,9 +137,9 @@ export default function ForHomeownersPage() {
           <p style={{ color: 'color-mix(in srgb, var(--color-base) 80%, transparent)', fontSize: 17, marginBottom: 32 }}>
             No credit card. No sales calls. Just the number you need.
           </p>
-          <Link href="/signup?role=homeowner">
+          <Link href="/waitlist">
             <button style={{ padding: '16px 36px', borderRadius: 10, background: 'var(--color-base)', color: 'var(--color-accent)', border: 'none', fontSize: 17, fontWeight: 700, cursor: 'pointer' }}>
-              Get my free estimate →
+              Join the waitlist →
             </button>
           </Link>
         </div>
