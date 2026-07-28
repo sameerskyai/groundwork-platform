@@ -178,6 +178,7 @@
   },
   "active": "d3d7ea05639a05d8",
   "lastOpenFiles": [
+    "supabase/migrations/044_contractor_pricing_read_policy.sql",
     "tests/e2e-screenshots/standards/root-mobile.png",
     "tests/e2e-screenshots/standards/root-desktop.png",
     "supabase/migrations/043_waitlist_project_interest.sql",
